@@ -1,0 +1,39 @@
+marketplace:
+  mode: gigsim
+  max_requests_per_minute: 20
+rag:
+  variant: V2
+  top_k: 5
+
+models:
+  profile: open
+  profiles:
+    open:
+      runtime: deterministic_local
+      note: Local deterministic workflow; no external model API is used.
+    paid:
+      runtime: disabled
+      note: Optional profile placeholder; enable only with measured cost and provider credentials.
+  nodes:
+    scout: deterministic_rules
+    analyst: deterministic_rules
+    risk_assessor: deterministic_rules
+    fit_matcher: deterministic_retrieval
+    pricing: deterministic_rules
+    writer: evidence_template
+    critic: claim_overlap_verifier
+    client_liaison: deterministic_rules
+  embeddings: token_vector_cosine
+  reranker: lexical_overlap
+
+budgets:
+  max_graph_steps: 30
+  max_revisions: 2
+  max_tokens_per_job: 12000
+  per_job_timeout_seconds: 30
+
+thresholds:
+  minimum_fit_score: 0.60
+  maximum_risk_score: 0.70
+  minimum_supported_claim_fraction: 1.0
+  marketplace_requests_per_minute: 20
