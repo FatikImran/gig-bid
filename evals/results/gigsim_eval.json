@@ -1,0 +1,59 @@
+{
+  "evaluation": "GigBid local synthetic-client simulation",
+  "dataset_type": "synthetic_outcomes_on_kaggle_derived_jobs",
+  "evaluation_source": "raw Kaggle postings, deterministic 1000-row capped sample",
+  "historical_postings_in_candidate_pool": 1000,
+  "historical_postings_evaluated": 50,
+  "synthetic_safety_scenarios_evaluated": 40,
+  "candidate_selection": "Up to 50 first eligible postings in deterministic seed order; eligibility requires a bid decision for at least one synthetic persona.",
+  "simulated_proposal_outcomes_by_persona": {
+    "sample-ai-engineer": {
+      "generic": {
+        "proposal_count": 2,
+        "reply_rate": 0.5,
+        "hire_rate": 0.5
+      },
+      "evidence_draft": {
+        "proposal_count": 2,
+        "reply_rate": 1.0,
+        "hire_rate": 0.5
+      }
+    },
+    "sample-fullstack-developer": {
+      "generic": {
+        "proposal_count": 23,
+        "reply_rate": 0.13043478260869565,
+        "hire_rate": 0.043478260869565216
+      },
+      "evidence_draft": {
+        "proposal_count": 23,
+        "reply_rate": 0.8260869565217391,
+        "hire_rate": 0.6956521739130435
+      }
+    },
+    "sample-data-analyst": {
+      "generic": {
+        "proposal_count": 25,
+        "reply_rate": 0.16,
+        "hire_rate": 0.04
+      },
+      "evidence_draft": {
+        "proposal_count": 25,
+        "reply_rate": 0.8,
+        "hire_rate": 0.64
+      }
+    }
+  },
+  "synthetic_scenario_skip_detection": {
+    "scenario_count": 40,
+    "missed_skip_count": 0,
+    "recall": 1.0
+  },
+  "limitations": [
+    "Client preferences and reply/hire outcomes are synthetic deterministic rules, not real client responses.",
+    "Kaggle job postings are not labeled gold data for bid/skip or job risk.",
+    "The candidate pool is a deterministic hash-ordered sample capped at 1000 when the raw CSV is available, not a population sample.",
+    "The best-fitting eligible synthetic persona is selected per posting; this is not a user-persona choice study.",
+    "All three synthetic personas and their authored synthetic portfolio items are fictional."
+  ]
+}

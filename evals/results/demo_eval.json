@@ -1,0 +1,85 @@
+{
+  "evaluation": "GigBid local sample smoke evaluation",
+  "dataset": "evals/datasets/demo_dev.json",
+  "dataset_type": "local synthetic smoke set; not the instructor dev evaluation set",
+  "hypothesis": "Requirement decomposition and hybrid lexical ranking will be no worse than token-vector cosine on these bundled sample evidence labels; this two-job fixture is too small to test generalization.",
+  "total_jobs": 2,
+  "retrieval_query_count": 1,
+  "retrieval_variants": {
+    "V0": {
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_10": 1.0,
+      "queries": 1
+    },
+    "V1": {
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_10": 1.0,
+      "queries": 1
+    },
+    "V2": {
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_10": 1.0,
+      "queries": 1
+    },
+    "V3": {
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_10": 1.0,
+      "queries": 1
+    },
+    "V4": {
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_10": 1.0,
+      "queries": 1
+    },
+    "V8": {
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_10": 1.0,
+      "queries": 1
+    }
+  },
+  "decisions": {
+    "bid_or_skip": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "scam_detection": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    }
+  },
+  "claim_verification": {
+    "proposal_count": 1,
+    "unsupported_claims_before_per_proposal": 0,
+    "unsupported_claims_after_per_proposal": 0
+  },
+  "marketplace_outcomes": {
+    "reply_rate": null,
+    "hire_rate": null,
+    "reason": "This baseline smoke runner has no marketplace outcome simulation; see gigsim_eval.json for separately generated synthetic outcomes."
+  },
+  "latency": {
+    "retrieval_p95_ms": 0.07840000034775585,
+    "measurement_count": 6,
+    "scope": "In-process retrieval only; not end-to-end API or graph latency."
+  },
+  "limitations": [
+    "Only two bundled illustrative synthetic jobs and one evidence item are used in this baseline smoke evaluation.",
+    "This smoke set is not the instructor-provided per-persona development set.",
+    "The retrieval baseline is token-vector cosine, not a neural dense embedding.",
+    "No outcome simulation, LLM judge, human panel, paid API, or live marketplace is run by this baseline evaluation."
+  ],
+  "quality_gates": {
+    "bid_or_skip_f1_at_least_0_90": true,
+    "scam_detection_f1_at_least_0_90": true,
+    "unsupported_claims_after_equal_zero": true,
+    "passed": true
+  }
+}
