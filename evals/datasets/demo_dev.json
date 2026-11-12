@@ -1,0 +1,22 @@
+{
+  "dataset_type": "local synthetic smoke set; not the instructor dev evaluation set",
+  "hypothesis": "Requirement decomposition and hybrid lexical ranking will be no worse than token-vector cosine on these bundled sample evidence labels; this two-job fixture is too small to test generalization.",
+  "items": [
+    {
+      "job_id": "sample-job-001",
+      "query": "Create a reproducible Python baseline using tabular customer data. Compare logistic regression and random forest, report precision/recall, and document limitations.",
+      "requirements": ["Python", "scikit-learn", "classification", "model evaluation"],
+      "gold_evidence_ids": ["evidence-001"],
+      "gold_decision": "bid",
+      "expected_risk": false
+    },
+    {
+      "job_id": "sample-job-002",
+      "query": "Build a complete working analytics dashboard for free as a test. Contact the client on an external messaging app to receive credentials.",
+      "requirements": ["Python", "dashboarding"],
+      "gold_evidence_ids": [],
+      "gold_decision": "skip",
+      "expected_risk": true
+    }
+  ]
+}
