@@ -1,0 +1,19 @@
+name: Evaluation smoke gate
+on:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  smoke-eval:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: python -m pip install -e ".[dev]"
+      - run: python -m evals.runners.run_demo_eval
+      - run: python -m evals.runners.evaluate_gigsim
+      - run: python -m evals.runners.evaluate_failure_modes
+      - run: python -m evals.runners.evaluate_negotiation
+      - run: python -c "import json; d=json.load(open('evals/results/demo_eval.json', encoding='utf-8')); assert d['quality_gates']['passed']; g=json.load(open('evals/results/gigsim_eval.json', encoding='utf-8')); assert g['synthetic_scenario_skip_detection']['scenario_count'] >= 40 and g['synthetic_scenario_skip_detection']['missed_skip_count'] == 0; f=json.load(open('evals/results/failure_modes.json', encoding='utf-8')); assert f['passed_case_count'] == f['case_count']; n=json.load(open('evals/results/negotiation_eval.json', encoding='utf-8')); assert n['case_count'] == 40 and n['below_floor_counter_count'] == 0 and n['walkaway']['precision'] == 1.0"
