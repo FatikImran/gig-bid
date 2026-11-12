@@ -137,7 +137,7 @@ locally downloaded Kaggle postings and run the local simulator, see
 
 ## Assignment deliverables
 
-- [R&D report PDF](docs/RND_REPORT.pdf) and [Markdown source](docs/RND_REPORT.md).
+- [R&D report](docs/RND_REPORT.md).
 - [Technical write-up draft](docs/TECHNICAL_WRITEUP_DRAFT.md) and
   [three-minute recording script](docs/DEMO_SCRIPT.md); both still need owner review/publication.
 - [Portfolio MCP run/install guide](mcp_servers/portfolio/README.md) documents installation from
