@@ -13,6 +13,15 @@ credentials were not included.
 > submits only to the local GigSim-style simulator and spends fictional simulator Connects. It is
 > not connected to Upwork or the instructor's GigSim.
 
+## Live deployment
+
+- **Web app:** [genuine-art-production.up.railway.app](https://genuine-art-production.up.railway.app/)
+- **API health:** [gig-bid-production.up.railway.app/health](https://gig-bid-production.up.railway.app/health)
+
+The hosted app currently uses the bundled synthetic sample jobs and a single API bearer token.
+It is not connected to the instructor's simulator, hidden evaluation data, or Upwork. Keep the
+reviewer token out of this repository and provide it only through the private Classroom comment.
+
 ## Screens
 
 ### Inbox and recommendation
@@ -102,9 +111,9 @@ acceptance estimate; see [`evals/results/negotiation_eval.json`](evals/results/n
 | Single ReAct agent | Not implemented or compared |
 | Prebuilt supervisor | Not implemented or compared |
 
-This is not a measured quality comparison. Three public traces, the deployed URL, a three-minute
-demo video, and external technical article are pending implementation or manual service/account
-setup; see the report and deployment guide.
+This is not a measured quality comparison. The deployed URL is live, but three public traces, a
+three-minute demo video, and the external technical article are still pending. See the report and
+deployment guide for the limitations.
 
 ## Run locally
 
@@ -131,25 +140,21 @@ locally downloaded Kaggle postings and run the local simulator, see
 - [R&D report PDF](docs/RND_REPORT.pdf) and [Markdown source](docs/RND_REPORT.md).
 - [Technical write-up draft](docs/TECHNICAL_WRITEUP_DRAFT.md) and
   [three-minute recording script](docs/DEMO_SCRIPT.md); both still need owner review/publication.
-- [Portfolio MCP run/install guide](mcp_servers/portfolio/README.md); the public repository/package
-  and deployment are not yet published.
+- [Portfolio MCP run/install guide](mcp_servers/portfolio/README.md) documents installation from
+  this public GitHub repository with `uvx`; there is no PyPI release.
 
-## Repository setup suggestions
+## Repository
 
-- **Repository name:** `gigbid-evidence-first-copilot` (alternatives: `gigbid-ai4016`,
-  `gigbid-freelancer-copilot`)
-- **Description:** Evidence-grounded multi-agent freelancer copilot with LangGraph, MCP, RAG, and
-  human approval gates.
-- **Topics:** `langgraph`, `mcp`, `rag`, `fastapi`, `react`, `typescript`, `freelancer-tools`,
-  `human-in-the-loop`, `ai-safety`, `gigbid`
+Public source: [github.com/FatikImran/gig-bid](https://github.com/FatikImran/gig-bid).
 
 ## Known gaps
 
 See [Implementation Checklist](docs/IMPLEMENTATION_CHECKLIST.md). In particular, the local
 simulator uses deterministic synthetic client preferences/outcomes, not the instructor's hidden
-simulator; the Kaggle-derived seed is local and ignored by Git. Neural dense retrieval, OAuth
-authorization, GitHub MCP, production multi-user identity, hosted tracing, public deployment,
-three-minute demo video and published MCP package remain incomplete. The Messages screen accepts
-manually entered messages rather than loading an inbox; Agent runs shows minimal
-audit events rather than streamed traces; Portfolio has no upload/GitHub ingestion; and Settings does
-not enforce a weekly Connects budget.
+simulator; the Kaggle-derived seed is local and ignored by Git. The deployed app currently has no
+simulator service configured, so its approval preview does not send externally. Neural dense
+retrieval, OAuth authorization, GitHub MCP, production multi-user identity, hosted tracing, three
+public traces, the three-minute demo video, and external publication of the technical write-up
+remain incomplete. The Messages screen accepts manually entered messages rather than loading an
+inbox; Agent runs shows minimal audit events rather than streamed traces; Portfolio has no
+upload/GitHub ingestion; and Settings does not enforce a weekly Connects budget.

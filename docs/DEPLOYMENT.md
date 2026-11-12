@@ -2,45 +2,43 @@
 
 ## Recommendation
 
-For this assignment prototype, use **Railway** only after connecting a private GitHub repository:
-it can host Docker-based API/worker services, persistent storage, environment variables, and a
-public web endpoint in one project. For a production multi-user product, do not deploy this
-single-token SQLite prototype as-is; first add real identity/OAuth, move application state and
-checkpoints to managed Postgres, and store tenant secrets in a managed secret store.
+The assignment prototype is deployed on Railway:
 
-Deployment cannot be completed from this workspace: it has no public GitHub remote, Railway/Render
-account, domain, GitHub token, Upwork OAuth app, or reviewer credentials. Never paste such secrets
-into this chat or commit them.
+- **Web:** https://genuine-art-production.up.railway.app/
+- **API health:** https://gig-bid-production.up.railway.app/health
+- **Source:** https://github.com/FatikImran/gig-bid
 
-## Before making a public link
-
-1. Create a private GitHub repository and push the source; change it to public only when you have
-   reviewed the data and secrets.
-2. Replace the development token. Generate a long random token locally and keep it in a password
-   manager. The reviewer token should be delivered only in the private classroom submission comment.
-3. Configure HTTPS and set `GIGBID_API_TOKEN`, `GIGBID_DB_PATH`, and exact
-   `GIGBID_CORS_ORIGINS` in the host's secret/environment settings.
-4. Attach persistent storage at `/app/data/processed` for the API, verify API and LangGraph SQLite
-   checkpoints survive restart, and keep only one API replica while SQLite is used.
-5. Build the React app with `VITE_API_URL=https://<your-api-domain>` and publish `apps/web/dist`.
-6. Confirm the UI can log in with the reviewer token, inspect the sample job and resume an approved
-   graph after restart. Approval is local-only; do not describe it as a marketplace submission.
-7. Leave the service online through grading and monitor the host's health checks and logs. Avoid
-   recording tokens or client message bodies.
+The hosted app uses bundled synthetic examples, a shared API bearer token, and SQLite. It is not a
+production multi-user service, is not connected to the instructor's GigSim or hidden data, and does
+not submit to Upwork. Keep the reviewer token out of Git and provide it only in the private
+Classroom submission comment.
 
 ## Railway service layout
 
-1. Create a Railway project and connect the repository.
-2. Add an API service using `infra/docker/api.Dockerfile`, root build context, and start command
-   `uvicorn apps.api.main:app --host 0.0.0.0 --port $PORT`. Add a persistent volume mounted at
-   `/app/data/processed`; set the variables above.
-3. Add a worker service using the same API image and start command `python -m worker.scout`. Set
-   `GIGBID_API_URL` to the internal API service URL and share a persistent filesystem only if the
-   platform supports safe single-writer SQLite access. Otherwise disable the worker and run one
-   local/manual scouting cycle.
-4. Add a static web service or use `infra/docker/web.Dockerfile`; configure API CORS to the exact
-   public UI origin. Keep the token out of static build variables.
-5. Enable the API `/health` probe; test both normal and interrupted approval states after a redeploy.
+The deployed services use the repository root as the build context:
+
+1. **API:** Dockerfile path `infra/docker/api.Dockerfile`; start command
+   `uvicorn apps.api.main:app --host 0.0.0.0 --port 8000`; persistent volume mounted at
+   `/app/data/processed`; health path `/health`. Set `GIGBID_DB_PATH=/app/data/processed/gigbid.sqlite3`,
+   a strong `GIGBID_API_TOKEN`, and `GIGBID_USE_KAGGLE_FEED=false` (the processed Kaggle seed is not
+   committed).
+2. **Web:** Dockerfile path `infra/docker/web.Dockerfile`; set `VITE_API_URL` to the public API URL
+   as a build variable. `VITE_API_URL` is passed to Vite through the Dockerfile build argument.
+   Generate the web domain on port `80`.
+3. Set `GIGBID_CORS_ORIGINS` on the API to the exact web origin, with no trailing slash, then
+   redeploy the API. Its public domain routes to port `8000`.
+4. Keep the API at one replica while it uses SQLite. Do not put the bearer token in web build
+   variables or commit it.
+
+Railway's custom Start Command does not expand `$PORT` in the entered command: use the numeric
+port (`8000` for this API) or leave the Dockerfile's default command. The current hosted instance
+does not have the optional local simulator service configured; its UI is explicitly a no-external-
+send demo.
+
+To add the local simulator for a synthetic approval/reply demo, deploy `gigsim.app:app` as a
+separate private service, use a distinct persistent volume, and configure the API's
+`GIGSIM_BASE_URL` and matching `GIGSIM_API_TOKEN`. This is our deterministic simulator, not the
+instructor's service and not a real marketplace.
 
 Do not configure the Upwork adapter until its official OAuth flow and scopes are completed by the
 account owner. The current live adapter accepts an OAuth access token supplied by environment but

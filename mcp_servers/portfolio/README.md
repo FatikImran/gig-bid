@@ -16,10 +16,9 @@ gigbid-portfolio-mcp
 For development, `python -m mcp_servers.portfolio.server` starts the same stdio server without
 installing the console entry point.
 
-## Install from a public GitHub repository
+## Install from the public GitHub repository
 
-After this project is published to a public GitHub repository, configure an MCP host with the
-repository URL:
+Configure an MCP host with the repository URL:
 
 ```json
 {
@@ -28,7 +27,7 @@ repository URL:
       "command": "uvx",
       "args": [
         "--from",
-        "git+https://github.com/<owner>/<repository>.git",
+        "git+https://github.com/FatikImran/gig-bid.git",
         "gigbid-portfolio-mcp"
       ]
     }
@@ -36,9 +35,8 @@ repository URL:
 }
 ```
 
-Replace the placeholder with the public repository URL. This command installs the project into
-uv's temporary environment and launches the stdio server. No PyPI release or public repository has
-been created yet.
+This installs the project from the public repository into uv's temporary environment and launches
+the stdio server. No PyPI release is published.
 
 ## Tools, resource, and prompt
 
