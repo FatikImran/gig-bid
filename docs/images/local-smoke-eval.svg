@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="510" viewBox="0 0 1000 510">
+<rect width="1000" height="510" rx="18" fill="#fbfcf9"/>
+<text x="54" y="52" font-family="Arial, sans-serif" font-size="21" font-weight="700" fill="#223226">Local retrieval smoke evaluation</text>
+<text x="54" y="77" font-family="Arial, sans-serif" font-size="12" fill="#768477">Recall@5 · 1 positive query · one synthetic evidence item</text>
+<line x1="185.0" y1="95" x2="185.0" y2="410" stroke="#e6ebe3" stroke-width="1"/>
+<text x="185.0" y="434" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#879187">0.0</text>
+<line x1="317.0" y1="95" x2="317.0" y2="410" stroke="#e6ebe3" stroke-width="1"/>
+<text x="317.0" y="434" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#879187">0.2</text>
+<line x1="449.0" y1="95" x2="449.0" y2="410" stroke="#e6ebe3" stroke-width="1"/>
+<text x="449.0" y="434" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#879187">0.4</text>
+<line x1="581.0" y1="95" x2="581.0" y2="410" stroke="#e6ebe3" stroke-width="1"/>
+<text x="581.0" y="434" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#879187">0.6</text>
+<line x1="713.0" y1="95" x2="713.0" y2="410" stroke="#e6ebe3" stroke-width="1"/>
+<text x="713.0" y="434" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#879187">0.8</text>
+<line x1="845.0" y1="95" x2="845.0" y2="410" stroke="#e6ebe3" stroke-width="1"/>
+<text x="845.0" y="434" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#879187">1.0</text>
+<text x="54" y="121" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#344238">V0</text>
+<rect x="185" y="104" width="660" height="25" rx="5" fill="#edf1eb"/>
+<rect x="185" y="104" width="660.0" height="25" rx="5" fill="#6f9873"/>
+<text x="855.0" y="121" font-family="Arial, sans-serif" font-size="11" font-weight="700" fill="#46564a">1.00</text>
+<text x="54" y="170" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#344238">V1</text>
+<rect x="185" y="153" width="660" height="25" rx="5" fill="#edf1eb"/>
+<rect x="185" y="153" width="660.0" height="25" rx="5" fill="#83a981"/>
+<text x="855.0" y="170" font-family="Arial, sans-serif" font-size="11" font-weight="700" fill="#46564a">1.00</text>
+<text x="54" y="219" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#344238">V2</text>
+<rect x="185" y="202" width="660" height="25" rx="5" fill="#edf1eb"/>
+<rect x="185" y="202" width="660.0" height="25" rx="5" fill="#91b38f"/>
+<text x="855.0" y="219" font-family="Arial, sans-serif" font-size="11" font-weight="700" fill="#46564a">1.00</text>
+<text x="54" y="268" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#344238">V3</text>
+<rect x="185" y="251" width="660" height="25" rx="5" fill="#edf1eb"/>
+<rect x="185" y="251" width="660.0" height="25" rx="5" fill="#9ab996"/>
+<text x="855.0" y="268" font-family="Arial, sans-serif" font-size="11" font-weight="700" fill="#46564a">1.00</text>
+<text x="54" y="317" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#344238">V4</text>
+<rect x="185" y="300" width="660" height="25" rx="5" fill="#edf1eb"/>
+<rect x="185" y="300" width="660.0" height="25" rx="5" fill="#aec6a8"/>
+<text x="855.0" y="317" font-family="Arial, sans-serif" font-size="11" font-weight="700" fill="#46564a">1.00</text>
+<text x="54" y="366" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#344238">V8</text>
+<rect x="185" y="349" width="660" height="25" rx="5" fill="#edf1eb"/>
+<rect x="185" y="349" width="660.0" height="25" rx="5" fill="#c5d5bd"/>
+<text x="855.0" y="366" font-family="Arial, sans-serif" font-size="11" font-weight="700" fill="#46564a">1.00</text>
+<rect x="54" y="466" width="892" height="25" rx="6" fill="#f3f5ef"/>
+<text x="66" y="483" font-family="Arial, sans-serif" font-size="10" fill="#6f7d70">All variants tie because the corpus contains one relevant item; this is not evidence of general retrieval quality.</text>
+</svg>
