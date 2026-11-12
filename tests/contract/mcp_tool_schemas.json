@@ -1,0 +1,488 @@
+{
+  "marketplace": {
+    "marketplace_create_proposal_draft": {
+      "annotations": {
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "readOnlyHint": false
+      },
+      "description": "Preview or create an approved proposal through the configured marketplace adapter.",
+      "input_schema": {
+        "properties": {
+          "amount": {
+            "exclusiveMinimum": 0,
+            "maximum": 1000000,
+            "title": "Amount",
+            "type": "number"
+          },
+          "approved": {
+            "title": "Approved",
+            "type": "boolean"
+          },
+          "cover_letter": {
+            "maxLength": 5000,
+            "minLength": 1,
+            "title": "Cover Letter",
+            "type": "string"
+          },
+          "dry_run": {
+            "default": true,
+            "title": "Dry Run",
+            "type": "boolean"
+          },
+          "evidence_ids": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 30,
+            "minItems": 1,
+            "title": "Evidence Ids",
+            "type": "array"
+          },
+          "idempotency_key": {
+            "maxLength": 128,
+            "minLength": 8,
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "job_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Job Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "job_id",
+          "cover_letter",
+          "evidence_ids",
+          "amount",
+          "idempotency_key",
+          "approved"
+        ],
+        "title": "marketplace_create_proposal_draftArguments",
+        "type": "object"
+      }
+    },
+    "marketplace_get_client_history": {
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "readOnlyHint": true
+      },
+      "description": "Load client history through the configured marketplace adapter.",
+      "input_schema": {
+        "properties": {
+          "client_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Client Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "client_id"
+        ],
+        "title": "marketplace_get_client_historyArguments",
+        "type": "object"
+      }
+    },
+    "marketplace_get_connects_balance": {
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "readOnlyHint": true
+      },
+      "description": "Get Connects balance where a marketplace adapter is configured.",
+      "input_schema": {
+        "properties": {},
+        "title": "marketplace_get_connects_balanceArguments",
+        "type": "object"
+      }
+    },
+    "marketplace_get_job": {
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "readOnlyHint": true
+      },
+      "description": "Load a job through the configured marketplace adapter.",
+      "input_schema": {
+        "properties": {
+          "job_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Job Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "job_id"
+        ],
+        "title": "marketplace_get_jobArguments",
+        "type": "object"
+      }
+    },
+    "marketplace_list_messages": {
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "readOnlyHint": true
+      },
+      "description": "List messages for a client through the configured marketplace adapter.",
+      "input_schema": {
+        "properties": {
+          "client_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Client Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "client_id"
+        ],
+        "title": "marketplace_list_messagesArguments",
+        "type": "object"
+      }
+    },
+    "marketplace_search_jobs": {
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "readOnlyHint": true
+      },
+      "description": "Search the configured marketplace adapter, which may be local GigSim or sample fixtures.",
+      "input_schema": {
+        "properties": {
+          "query": {
+            "default": "",
+            "maxLength": 500,
+            "title": "Query",
+            "type": "string"
+          }
+        },
+        "title": "marketplace_search_jobsArguments",
+        "type": "object"
+      }
+    },
+    "marketplace_send_message": {
+      "annotations": {
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "readOnlyHint": false
+      },
+      "description": "Send an approved message or return its dry-run preview.",
+      "input_schema": {
+        "properties": {
+          "approved": {
+            "title": "Approved",
+            "type": "boolean"
+          },
+          "client_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Client Id",
+            "type": "string"
+          },
+          "dry_run": {
+            "default": true,
+            "title": "Dry Run",
+            "type": "boolean"
+          },
+          "idempotency_key": {
+            "maxLength": 128,
+            "minLength": 8,
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "job_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Job Id",
+            "type": "string"
+          },
+          "message": {
+            "maxLength": 3000,
+            "minLength": 1,
+            "title": "Message",
+            "type": "string"
+          }
+        },
+        "required": [
+          "client_id",
+          "job_id",
+          "message",
+          "idempotency_key",
+          "approved"
+        ],
+        "title": "marketplace_send_messageArguments",
+        "type": "object"
+      }
+    },
+    "marketplace_submit_proposal": {
+      "annotations": {
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "readOnlyHint": false
+      },
+      "description": "Submit an approved proposal; dry-run previews the payload without spending Connects.",
+      "input_schema": {
+        "properties": {
+          "amount": {
+            "exclusiveMinimum": 0,
+            "maximum": 1000000,
+            "title": "Amount",
+            "type": "number"
+          },
+          "approved": {
+            "title": "Approved",
+            "type": "boolean"
+          },
+          "cover_letter": {
+            "maxLength": 5000,
+            "minLength": 1,
+            "title": "Cover Letter",
+            "type": "string"
+          },
+          "dry_run": {
+            "default": true,
+            "title": "Dry Run",
+            "type": "boolean"
+          },
+          "evidence_ids": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 30,
+            "minItems": 1,
+            "title": "Evidence Ids",
+            "type": "array"
+          },
+          "idempotency_key": {
+            "maxLength": 128,
+            "minLength": 8,
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "job_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Job Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "job_id",
+          "cover_letter",
+          "evidence_ids",
+          "amount",
+          "idempotency_key",
+          "approved"
+        ],
+        "title": "marketplace_submit_proposalArguments",
+        "type": "object"
+      }
+    }
+  },
+  "portfolio": {
+    "get_case_study_tool": {
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "readOnlyHint": true
+      },
+      "description": "Load a full portfolio case study by evidence ID.",
+      "input_schema": {
+        "properties": {
+          "case_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Case Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "case_id"
+        ],
+        "title": "get_case_study_toolArguments",
+        "type": "object"
+      }
+    },
+    "list_portfolio_skills": {
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "readOnlyHint": true
+      },
+      "description": "List skills explicitly present in the selected freelancer profile.",
+      "input_schema": {
+        "properties": {
+          "freelancer_id": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Freelancer Id"
+          }
+        },
+        "title": "list_portfolio_skillsArguments",
+        "type": "object"
+      }
+    },
+    "search_portfolio_evidence": {
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "readOnlyHint": true
+      },
+      "description": "Find relevant portfolio items with their source, outcome, and match score.",
+      "input_schema": {
+        "properties": {
+          "filters": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Filters"
+          },
+          "k": {
+            "default": 5,
+            "maximum": 20,
+            "minimum": 1,
+            "title": "K",
+            "type": "integer"
+          },
+          "requirement": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Requirement",
+            "type": "string"
+          }
+        },
+        "required": [
+          "requirement"
+        ],
+        "title": "search_portfolio_evidenceArguments",
+        "type": "object"
+      }
+    }
+  },
+  "workspace": {
+    "workspace_available_slots": {
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "readOnlyHint": true
+      },
+      "description": "List free sample calendar slots in UTC; no calendar account is connected.",
+      "input_schema": {
+        "properties": {
+          "days": {
+            "default": 7,
+            "maximum": 30,
+            "minimum": 1,
+            "title": "Days",
+            "type": "integer"
+          },
+          "duration_minutes": {
+            "default": 30,
+            "maximum": 60,
+            "minimum": 15,
+            "multipleOf": 15,
+            "title": "Duration Minutes",
+            "type": "integer"
+          }
+        },
+        "title": "workspace_available_slotsArguments",
+        "type": "object"
+      }
+    },
+    "workspace_create_email_draft": {
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "readOnlyHint": false
+      },
+      "description": "Create a local email draft only; sending is not available.",
+      "input_schema": {
+        "properties": {
+          "body": {
+            "maxLength": 5000,
+            "minLength": 1,
+            "title": "Body",
+            "type": "string"
+          },
+          "recipient": {
+            "maxLength": 254,
+            "minLength": 3,
+            "title": "Recipient",
+            "type": "string"
+          },
+          "subject": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Subject",
+            "type": "string"
+          }
+        },
+        "required": [
+          "recipient",
+          "subject",
+          "body"
+        ],
+        "title": "workspace_create_email_draftArguments",
+        "type": "object"
+      }
+    },
+    "workspace_create_tentative_hold": {
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "readOnlyHint": false
+      },
+      "description": "Create an in-memory tentative hold after explicit user approval.",
+      "input_schema": {
+        "properties": {
+          "approved": {
+            "title": "Approved",
+            "type": "boolean"
+          },
+          "end": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "End",
+            "type": "string"
+          },
+          "start": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Start",
+            "type": "string"
+          }
+        },
+        "required": [
+          "start",
+          "end",
+          "approved"
+        ],
+        "title": "workspace_create_tentative_holdArguments",
+        "type": "object"
+      }
+    }
+  }
+}
