@@ -1,0 +1,62 @@
+[
+  {
+    "freelancer_id": "sample-ai-engineer",
+    "display_name": "Alex Morgan (synthetic)",
+    "headline": "Junior AI/ML Engineer",
+    "skills": [
+      "Python",
+      "scikit-learn",
+      "pandas",
+      "classification",
+      "model evaluation"
+    ],
+    "hourly_rate_usd": 25,
+    "minimum_project_budget_usd": 200,
+    "availability_hours_per_week": 15
+  },
+  {
+    "freelancer_id": "sample-fullstack-developer",
+    "display_name": "Jordan Lee (synthetic)",
+    "headline": "Full-stack web developer",
+    "skills": [
+      "JavaScript",
+      "TypeScript",
+      "React",
+      "Node.js",
+      "SQL",
+      "MySQL",
+      "API",
+      "Docker",
+      "AWS",
+      "WordPress",
+      "Shopify",
+      "Figma"
+    ],
+    "hourly_rate_usd": 35,
+    "minimum_project_budget_usd": 300,
+    "availability_hours_per_week": 20
+  },
+  {
+    "freelancer_id": "sample-data-analyst",
+    "display_name": "Casey Patel (synthetic)",
+    "headline": "Data analyst",
+    "skills": [
+      "Python",
+      "SQL",
+      "Excel",
+      "Data Analysis",
+      "Data Visualization",
+      "Power BI",
+      "Tableau",
+      "Marketing",
+      "Machine Learning",
+      "scikit-learn",
+      "pandas",
+      "classification",
+      "model evaluation"
+    ],
+    "hourly_rate_usd": 30,
+    "minimum_project_budget_usd": 250,
+    "availability_hours_per_week": 18
+  }
+]

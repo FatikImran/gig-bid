@@ -1,0 +1,33 @@
+version: 1
+risk_signals:
+  unpaid_work:
+    terms:
+      - unpaid
+      - for free
+      - free trial
+      - without pay
+      - no compensation
+  off_platform_contact:
+    terms:
+      - telegram
+      - whatsapp
+      - outside the platform
+      - external messaging
+      - crypto payment
+  prompt_injection:
+    terms:
+      - ignore previous instructions
+      - ignore all previous instructions
+      - reveal the system prompt
+      - bypass the policy
+      - disregard your rules
+compliance:
+  prohibited_terms:
+    - guarantee
+    - guaranteed
+    - 100%
+    - whatsapp
+    - telegram
+    - email me
+    - off-platform
+    - outside the platform

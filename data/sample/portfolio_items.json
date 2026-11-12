@@ -1,0 +1,157 @@
+[
+  {
+    "evidence_id": "evidence-001",
+    "freelancer_id": "sample-ai-engineer",
+    "type": "case_study",
+    "title": "Customer churn classification coursework (synthetic example)",
+    "summary": "Built a reproducible classification experiment using Python and scikit-learn. Compared logistic regression and random forest and documented precision and recall.",
+    "skills": [
+      "Python",
+      "scikit-learn",
+      "classification",
+      "model evaluation"
+    ],
+    "outcome": "coursework demonstration",
+    "source": "synthetic sample; replace with verified portfolio evidence"
+  },
+  {
+    "evidence_id": "ai-synthetic-002",
+    "freelancer_id": "sample-ai-engineer",
+    "type": "case_study",
+    "title": "Synthetic model evaluation comparison",
+    "summary": "Created a Python and scikit-learn classification baseline, compared precision and recall, and recorded model evaluation limitations.",
+    "skills": ["Python", "scikit-learn", "classification", "model evaluation"],
+    "outcome": "fictional benchmark result for simulator testing",
+    "source": "authored synthetic persona evidence; not real client work"
+  },
+  {
+    "evidence_id": "ai-synthetic-003",
+    "freelancer_id": "sample-ai-engineer",
+    "type": "case_study",
+    "title": "Synthetic tabular data preparation",
+    "summary": "Used Python and pandas to check missing values, clean tabular features, and document a reproducible data preparation workflow.",
+    "skills": ["Python", "pandas", "Data Analysis"],
+    "outcome": "fictional workflow example for simulator testing",
+    "source": "authored synthetic persona evidence; not real client work"
+  },
+  {
+    "evidence_id": "ai-synthetic-004",
+    "freelancer_id": "sample-ai-engineer",
+    "type": "case_study",
+    "title": "Synthetic model validation report",
+    "summary": "Compared classification thresholds and summarized model evaluation results with precision, recall, and error analysis.",
+    "skills": ["classification", "model evaluation", "Python"],
+    "outcome": "fictional report example for simulator testing",
+    "source": "authored synthetic persona evidence; not real client work"
+  },
+  {
+    "evidence_id": "ai-synthetic-005",
+    "freelancer_id": "sample-ai-engineer",
+    "type": "case_study",
+    "title": "Synthetic machine learning prototype",
+    "summary": "Built a small machine learning prototype with Python and scikit-learn and documented its evaluation approach and limitations.",
+    "skills": ["Python", "scikit-learn", "Machine Learning"],
+    "outcome": "fictional prototype example for simulator testing",
+    "source": "authored synthetic persona evidence; not real client work"
+  },
+  {
+    "evidence_id": "web-synthetic-001",
+    "freelancer_id": "sample-fullstack-developer",
+    "type": "case_study",
+    "title": "Synthetic React customer portal",
+    "summary": "Designed a responsive customer portal with React, TypeScript, and reusable JavaScript components.",
+    "skills": ["React", "TypeScript", "JavaScript"],
+    "outcome": "fictional UI example for simulator testing",
+    "source": "authored synthetic persona evidence; not real client work"
+  },
+  {
+    "evidence_id": "web-synthetic-002",
+    "freelancer_id": "sample-fullstack-developer",
+    "type": "case_study",
+    "title": "Synthetic Node.js API",
+    "summary": "Implemented a Node.js API with SQL persistence and documented request validation and error handling.",
+    "skills": ["Node.js", "API", "SQL"],
+    "outcome": "fictional backend example for simulator testing",
+    "source": "authored synthetic persona evidence; not real client work"
+  },
+  {
+    "evidence_id": "web-synthetic-003",
+    "freelancer_id": "sample-fullstack-developer",
+    "type": "case_study",
+    "title": "Synthetic Shopify storefront",
+    "summary": "Configured a Shopify storefront, organized a product catalog, and reviewed the customer purchase flow.",
+    "skills": ["Shopify", "JavaScript"],
+    "outcome": "fictional commerce example for simulator testing",
+    "source": "authored synthetic persona evidence; not real client work"
+  },
+  {
+    "evidence_id": "web-synthetic-004",
+    "freelancer_id": "sample-fullstack-developer",
+    "type": "case_study",
+    "title": "Synthetic WordPress site refresh",
+    "summary": "Built a responsive WordPress site update and checked the layout against a supplied Figma design.",
+    "skills": ["WordPress", "Figma", "UI/UX"],
+    "outcome": "fictional website example for simulator testing",
+    "source": "authored synthetic persona evidence; not real client work"
+  },
+  {
+    "evidence_id": "web-synthetic-005",
+    "freelancer_id": "sample-fullstack-developer",
+    "type": "case_study",
+    "title": "Synthetic cloud deployment",
+    "summary": "Packaged a Node.js service with Docker and documented a deployment outline for AWS.",
+    "skills": ["Node.js", "Docker", "AWS"],
+    "outcome": "fictional deployment example for simulator testing",
+    "source": "authored synthetic persona evidence; not real client work"
+  },
+  {
+    "evidence_id": "data-synthetic-001",
+    "freelancer_id": "sample-data-analyst",
+    "type": "case_study",
+    "title": "Synthetic Excel sales analysis",
+    "summary": "Cleaned an example sales workbook in Excel and summarized monthly trends with clear tables and charts.",
+    "skills": ["Excel", "Data Analysis", "Data Visualization"],
+    "outcome": "fictional analysis example for simulator testing",
+    "source": "authored synthetic persona evidence; not real client work"
+  },
+  {
+    "evidence_id": "data-synthetic-002",
+    "freelancer_id": "sample-data-analyst",
+    "type": "case_study",
+    "title": "Synthetic Power BI dashboard",
+    "summary": "Created a Power BI dashboard concept for comparing business metrics and documenting filter behavior.",
+    "skills": ["Power BI", "Data Visualization", "Data Analysis"],
+    "outcome": "fictional dashboard example for simulator testing",
+    "source": "authored synthetic persona evidence; not real client work"
+  },
+  {
+    "evidence_id": "data-synthetic-003",
+    "freelancer_id": "sample-data-analyst",
+    "type": "case_study",
+    "title": "Synthetic SQL reporting workflow",
+    "summary": "Wrote SQL queries for a sample reporting task and checked aggregated results against the source tables.",
+    "skills": ["SQL", "Data Analysis"],
+    "outcome": "fictional reporting example for simulator testing",
+    "source": "authored synthetic persona evidence; not real client work"
+  },
+  {
+    "evidence_id": "data-synthetic-004",
+    "freelancer_id": "sample-data-analyst",
+    "type": "case_study",
+    "title": "Synthetic Tableau visualization",
+    "summary": "Outlined a Tableau visualization for a fictional operations dataset and documented the intended chart choices.",
+    "skills": ["Tableau", "Data Visualization"],
+    "outcome": "fictional visualization example for simulator testing",
+    "source": "authored synthetic persona evidence; not real client work"
+  },
+  {
+    "evidence_id": "data-synthetic-005",
+    "freelancer_id": "sample-data-analyst",
+    "type": "case_study",
+    "title": "Synthetic marketing analytics review",
+    "summary": "Used Python and pandas to explore a fictional marketing dataset and summarize campaign metrics for a sample analysis.",
+    "skills": ["Marketing", "Python", "pandas", "Data Analysis"],
+    "outcome": "fictional analytics example for simulator testing",
+    "source": "authored synthetic persona evidence; not real client work"
+  }
+]
