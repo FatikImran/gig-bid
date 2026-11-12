@@ -49,8 +49,8 @@ services:
     build:
       context: ..
       dockerfile: infra/docker/web.Dockerfile
-    environment:
-      VITE_API_URL: http://localhost:8000
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
     ports:
       - "4173:80"
     depends_on:
