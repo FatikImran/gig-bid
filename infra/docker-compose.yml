@@ -1,0 +1,74 @@
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: infra/docker/api.Dockerfile
+    environment:
+      GIGBID_API_TOKEN: ${GIGBID_API_TOKEN:?Set GIGBID_API_TOKEN before starting}
+      GIGBID_DB_PATH: /app/data/processed/gigbid.sqlite3
+      GIGBID_CORS_ORIGINS: http://localhost:4173
+      GIGBID_MARKETPLACE_MODE: ${GIGBID_MARKETPLACE_MODE:-gigsim}
+      GIGBID_USE_KAGGLE_FEED: ${GIGBID_USE_KAGGLE_FEED:-true}
+      GIGSIM_BASE_URL: http://gigsim:8010
+      GIGSIM_API_TOKEN: ${GIGSIM_API_TOKEN:-local-gigsim-token}
+      UPWORK_MCP_URL: ${UPWORK_MCP_URL:-https://mcp.upwork.com/mcp}
+      UPWORK_ACCESS_TOKEN: ${UPWORK_ACCESS_TOKEN:-}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../data/processed:/app/data/processed
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      gigsim:
+        condition: service_healthy
+
+  gigsim:
+    build:
+      context: ..
+      dockerfile: infra/docker/api.Dockerfile
+    command: ["uvicorn", "gigsim.app:app", "--host", "0.0.0.0", "--port", "8010"]
+    environment:
+      GIGSIM_API_TOKEN: ${GIGSIM_API_TOKEN:-local-gigsim-token}
+      GIGSIM_DB_PATH: /app/data/processed/gigsim.sqlite3
+      GIGSIM_SEED_PATH: /app/data/processed/gigsim_seed.json
+    ports:
+      - "8010:8010"
+    volumes:
+      - ../data/processed:/app/data/processed
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8010/health')"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build:
+      context: ..
+      dockerfile: infra/docker/web.Dockerfile
+    environment:
+      VITE_API_URL: http://localhost:8000
+    ports:
+      - "4173:80"
+    depends_on:
+      api:
+        condition: service_healthy
+
+  worker:
+    build:
+      context: ..
+      dockerfile: infra/docker/api.Dockerfile
+    command: ["python", "-m", "worker.scout"]
+    environment:
+      GIGBID_API_URL: http://api:8000
+      GIGBID_API_TOKEN: ${GIGBID_API_TOKEN:?Set GIGBID_API_TOKEN before starting}
+      GIGBID_DB_PATH: /app/data/processed/gigbid.sqlite3
+      GIGBID_SCOUT_INTERVAL_SECONDS: ${GIGBID_SCOUT_INTERVAL_SECONDS:-3600}
+    volumes:
+      - ../data/processed:/app/data/processed
+    depends_on:
+      api:
+        condition: service_healthy
