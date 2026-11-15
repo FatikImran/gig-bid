@@ -41,3 +41,21 @@ and independent proposal-quality scoring remain open.
 Both runs skipped the risky and below-budget jobs before calling the model. In the 20B churn
 case, the final draft had no text after claim verification. Use 120B for the hosted smoke test
 based on draft completion in this small sample.
+
+## Architecture evaluation
+
+Install the optional dependencies with `python -m pip install ".[architecture-eval]"`.
+With the private Groq key already configured, run
+`python -m evals.runners.evaluate_architectures --resume` from the project root.
+Add `--pilot` to run one eligible, one unpaid, and one low-fit case. Pilot and full runs
+write to separate files. The full run saves each case so it can resume after rate limits
+or an interruption.
+
+The three paths use GPT-OSS 120B with their respective orchestration and prompts. The
+single ReAct agent holds all three read-only evaluation tools. The prebuilt supervisor
+routes between a triage worker and a drafting worker. The hand-built graph uses rules
+for triage and its configured Writer and Critic. These evaluation tools cover inspection,
+quote calculation and draft review. Simulator scoring calls the local outcome function
+with a common per-job random seed and creates no marketplace records. Reply rates count
+interviews, replies and hires among drafts that pass the shared offline gate. Compare
+coverage alongside accuracy because provider failures can change the completed subset.

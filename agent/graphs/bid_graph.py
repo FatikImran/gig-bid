@@ -246,7 +246,7 @@ def build_bid_graph(checkpointer=None):
     graph.add_node("compliance", _compliance)
     graph.add_node("approval", _approval)
     graph.add_node("post_approval", _post_approval)
-    graph.add_conditional_edges(START, _dispatch)
+    graph.add_conditional_edges(START, _dispatch, ["job_analyst", "risk_assessor", "fit_matcher"])
     for branch in ("job_analyst", "risk_assessor", "fit_matcher"):
         graph.add_edge(branch, "decision")
     graph.add_conditional_edges("decision", _route_decision, {"price": "price", "finish": END})

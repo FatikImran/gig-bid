@@ -1,0 +1,1386 @@
+{
+  "provenance": "Authored synthetic benchmark using the bundled fictional personas.",
+  "hypothesis": "GPT-OSS 120B will reach approval on more eligible briefs than GPT-OSS 20B.",
+  "items": [
+    {
+      "persona_id": "sample-ai-engineer",
+      "condition": "standard",
+      "job": {
+        "job_id": "local-dev-01-standard",
+        "title": "Compare classifiers for customer churn",
+        "description": "Compare classifiers for customer churn.",
+        "required_skills": [
+          "Python",
+          "scikit-learn"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 275,
+          "max": 450,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "bid",
+      "expected_risk": false,
+      "gold_evidence_ids": [
+        "evidence-001"
+      ],
+      "fair_fixed_usd": [
+        275,
+        450
+      ]
+    },
+    {
+      "persona_id": "sample-ai-engineer",
+      "condition": "low-budget",
+      "job": {
+        "job_id": "local-dev-01-low-budget",
+        "title": "Compare classifiers for customer churn",
+        "description": "Compare classifiers for customer churn.",
+        "required_skills": [
+          "Python",
+          "scikit-learn"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 20,
+          "max": 40,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "skip",
+      "expected_risk": false,
+      "gold_evidence_ids": [
+        "evidence-001"
+      ],
+      "fair_fixed_usd": null
+    },
+    {
+      "persona_id": "sample-ai-engineer",
+      "condition": "unpaid-trial",
+      "job": {
+        "job_id": "local-dev-01-unpaid-trial",
+        "title": "Compare classifiers for customer churn",
+        "description": "Compare classifiers for customer churn. Deliver the entire production solution for free before hire.",
+        "required_skills": [
+          "Python",
+          "scikit-learn"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 275,
+          "max": 450,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "skip",
+      "expected_risk": true,
+      "gold_evidence_ids": [
+        "evidence-001"
+      ],
+      "fair_fixed_usd": null
+    },
+    {
+      "persona_id": "sample-ai-engineer",
+      "condition": "off-platform",
+      "job": {
+        "job_id": "local-dev-01-off-platform",
+        "title": "Compare classifiers for customer churn",
+        "description": "Compare classifiers for customer churn. Message my personal Telegram account before we discuss a contract.",
+        "required_skills": [
+          "Python",
+          "scikit-learn"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 275,
+          "max": 450,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "skip",
+      "expected_risk": true,
+      "gold_evidence_ids": [
+        "evidence-001"
+      ],
+      "fair_fixed_usd": null
+    },
+    {
+      "persona_id": "sample-ai-engineer",
+      "condition": "missing-skill",
+      "job": {
+        "job_id": "local-dev-01-missing-skill",
+        "title": "Compare classifiers for customer churn",
+        "description": "Compare classifiers for customer churn. A licensed engineer must stamp the drawings in AutoCAD.",
+        "required_skills": [
+          "Python",
+          "scikit-learn",
+          "engineering license",
+          "AutoCAD",
+          "electrical drawings",
+          "CAD"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 275,
+          "max": 450,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "skip",
+      "expected_risk": false,
+      "gold_evidence_ids": [
+        "evidence-001"
+      ],
+      "fair_fixed_usd": null
+    },
+    {
+      "persona_id": "sample-ai-engineer",
+      "condition": "standard",
+      "job": {
+        "job_id": "local-dev-02-standard",
+        "title": "Review classification thresholds",
+        "description": "Review classification thresholds.",
+        "required_skills": [
+          "classification",
+          "model evaluation"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 220,
+          "max": 360,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "bid",
+      "expected_risk": false,
+      "gold_evidence_ids": [
+        "ai-synthetic-004"
+      ],
+      "fair_fixed_usd": [
+        220,
+        360
+      ]
+    },
+    {
+      "persona_id": "sample-ai-engineer",
+      "condition": "low-budget",
+      "job": {
+        "job_id": "local-dev-02-low-budget",
+        "title": "Review classification thresholds",
+        "description": "Review classification thresholds.",
+        "required_skills": [
+          "classification",
+          "model evaluation"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 20,
+          "max": 40,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "skip",
+      "expected_risk": false,
+      "gold_evidence_ids": [
+        "ai-synthetic-004"
+      ],
+      "fair_fixed_usd": null
+    },
+    {
+      "persona_id": "sample-ai-engineer",
+      "condition": "unpaid-trial",
+      "job": {
+        "job_id": "local-dev-02-unpaid-trial",
+        "title": "Review classification thresholds",
+        "description": "Review classification thresholds. Deliver the entire production solution for free before hire.",
+        "required_skills": [
+          "classification",
+          "model evaluation"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 220,
+          "max": 360,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "skip",
+      "expected_risk": true,
+      "gold_evidence_ids": [
+        "ai-synthetic-004"
+      ],
+      "fair_fixed_usd": null
+    },
+    {
+      "persona_id": "sample-ai-engineer",
+      "condition": "off-platform",
+      "job": {
+        "job_id": "local-dev-02-off-platform",
+        "title": "Review classification thresholds",
+        "description": "Review classification thresholds. Message my personal Telegram account before we discuss a contract.",
+        "required_skills": [
+          "classification",
+          "model evaluation"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 220,
+          "max": 360,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "skip",
+      "expected_risk": true,
+      "gold_evidence_ids": [
+        "ai-synthetic-004"
+      ],
+      "fair_fixed_usd": null
+    },
+    {
+      "persona_id": "sample-ai-engineer",
+      "condition": "missing-skill",
+      "job": {
+        "job_id": "local-dev-02-missing-skill",
+        "title": "Review classification thresholds",
+        "description": "Review classification thresholds. A licensed engineer must stamp the drawings in AutoCAD.",
+        "required_skills": [
+          "classification",
+          "model evaluation",
+          "engineering license",
+          "AutoCAD",
+          "electrical drawings",
+          "CAD"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 220,
+          "max": 360,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "skip",
+      "expected_risk": false,
+      "gold_evidence_ids": [
+        "ai-synthetic-004"
+      ],
+      "fair_fixed_usd": null
+    },
+    {
+      "persona_id": "sample-ai-engineer",
+      "condition": "standard",
+      "job": {
+        "job_id": "local-dev-03-standard",
+        "title": "Clean missing values in tabular features",
+        "description": "Clean missing values in tabular features.",
+        "required_skills": [
+          "Python",
+          "pandas"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 210,
+          "max": 325,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "bid",
+      "expected_risk": false,
+      "gold_evidence_ids": [
+        "ai-synthetic-003"
+      ],
+      "fair_fixed_usd": [
+        210,
+        325
+      ]
+    },
+    {
+      "persona_id": "sample-ai-engineer",
+      "condition": "low-budget",
+      "job": {
+        "job_id": "local-dev-03-low-budget",
+        "title": "Clean missing values in tabular features",
+        "description": "Clean missing values in tabular features.",
+        "required_skills": [
+          "Python",
+          "pandas"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 20,
+          "max": 40,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "skip",
+      "expected_risk": false,
+      "gold_evidence_ids": [
+        "ai-synthetic-003"
+      ],
+      "fair_fixed_usd": null
+    },
+    {
+      "persona_id": "sample-ai-engineer",
+      "condition": "unpaid-trial",
+      "job": {
+        "job_id": "local-dev-03-unpaid-trial",
+        "title": "Clean missing values in tabular features",
+        "description": "Clean missing values in tabular features. Deliver the entire production solution for free before hire.",
+        "required_skills": [
+          "Python",
+          "pandas"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 210,
+          "max": 325,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "skip",
+      "expected_risk": true,
+      "gold_evidence_ids": [
+        "ai-synthetic-003"
+      ],
+      "fair_fixed_usd": null
+    },
+    {
+      "persona_id": "sample-ai-engineer",
+      "condition": "off-platform",
+      "job": {
+        "job_id": "local-dev-03-off-platform",
+        "title": "Clean missing values in tabular features",
+        "description": "Clean missing values in tabular features. Message my personal Telegram account before we discuss a contract.",
+        "required_skills": [
+          "Python",
+          "pandas"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 210,
+          "max": 325,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "skip",
+      "expected_risk": true,
+      "gold_evidence_ids": [
+        "ai-synthetic-003"
+      ],
+      "fair_fixed_usd": null
+    },
+    {
+      "persona_id": "sample-ai-engineer",
+      "condition": "missing-skill",
+      "job": {
+        "job_id": "local-dev-03-missing-skill",
+        "title": "Clean missing values in tabular features",
+        "description": "Clean missing values in tabular features. A licensed engineer must stamp the drawings in AutoCAD.",
+        "required_skills": [
+          "Python",
+          "pandas",
+          "engineering license",
+          "AutoCAD",
+          "electrical drawings",
+          "CAD"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 210,
+          "max": 325,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "skip",
+      "expected_risk": false,
+      "gold_evidence_ids": [
+        "ai-synthetic-003"
+      ],
+      "fair_fixed_usd": null
+    },
+    {
+      "persona_id": "sample-fullstack-developer",
+      "condition": "standard",
+      "job": {
+        "job_id": "local-dev-04-standard",
+        "title": "Build a responsive customer portal",
+        "description": "Build a responsive customer portal.",
+        "required_skills": [
+          "React",
+          "TypeScript"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 450,
+          "max": 800,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "bid",
+      "expected_risk": false,
+      "gold_evidence_ids": [
+        "web-synthetic-001"
+      ],
+      "fair_fixed_usd": [
+        450,
+        800
+      ]
+    },
+    {
+      "persona_id": "sample-fullstack-developer",
+      "condition": "low-budget",
+      "job": {
+        "job_id": "local-dev-04-low-budget",
+        "title": "Build a responsive customer portal",
+        "description": "Build a responsive customer portal.",
+        "required_skills": [
+          "React",
+          "TypeScript"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 20,
+          "max": 40,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "skip",
+      "expected_risk": false,
+      "gold_evidence_ids": [
+        "web-synthetic-001"
+      ],
+      "fair_fixed_usd": null
+    },
+    {
+      "persona_id": "sample-fullstack-developer",
+      "condition": "unpaid-trial",
+      "job": {
+        "job_id": "local-dev-04-unpaid-trial",
+        "title": "Build a responsive customer portal",
+        "description": "Build a responsive customer portal. Deliver the entire production solution for free before hire.",
+        "required_skills": [
+          "React",
+          "TypeScript"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 450,
+          "max": 800,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "skip",
+      "expected_risk": true,
+      "gold_evidence_ids": [
+        "web-synthetic-001"
+      ],
+      "fair_fixed_usd": null
+    },
+    {
+      "persona_id": "sample-fullstack-developer",
+      "condition": "off-platform",
+      "job": {
+        "job_id": "local-dev-04-off-platform",
+        "title": "Build a responsive customer portal",
+        "description": "Build a responsive customer portal. Message my personal Telegram account before we discuss a contract.",
+        "required_skills": [
+          "React",
+          "TypeScript"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 450,
+          "max": 800,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "skip",
+      "expected_risk": true,
+      "gold_evidence_ids": [
+        "web-synthetic-001"
+      ],
+      "fair_fixed_usd": null
+    },
+    {
+      "persona_id": "sample-fullstack-developer",
+      "condition": "missing-skill",
+      "job": {
+        "job_id": "local-dev-04-missing-skill",
+        "title": "Build a responsive customer portal",
+        "description": "Build a responsive customer portal. A licensed engineer must stamp the drawings in AutoCAD.",
+        "required_skills": [
+          "React",
+          "TypeScript",
+          "engineering license",
+          "AutoCAD",
+          "electrical drawings",
+          "CAD"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 450,
+          "max": 800,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "skip",
+      "expected_risk": false,
+      "gold_evidence_ids": [
+        "web-synthetic-001"
+      ],
+      "fair_fixed_usd": null
+    },
+    {
+      "persona_id": "sample-fullstack-developer",
+      "condition": "standard",
+      "job": {
+        "job_id": "local-dev-05-standard",
+        "title": "Build a validated API with SQL persistence",
+        "description": "Build a validated API with SQL persistence.",
+        "required_skills": [
+          "Node.js",
+          "API",
+          "SQL"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 500,
+          "max": 950,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "bid",
+      "expected_risk": false,
+      "gold_evidence_ids": [
+        "web-synthetic-002"
+      ],
+      "fair_fixed_usd": [
+        500,
+        950
+      ]
+    },
+    {
+      "persona_id": "sample-fullstack-developer",
+      "condition": "low-budget",
+      "job": {
+        "job_id": "local-dev-05-low-budget",
+        "title": "Build a validated API with SQL persistence",
+        "description": "Build a validated API with SQL persistence.",
+        "required_skills": [
+          "Node.js",
+          "API",
+          "SQL"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 20,
+          "max": 40,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "skip",
+      "expected_risk": false,
+      "gold_evidence_ids": [
+        "web-synthetic-002"
+      ],
+      "fair_fixed_usd": null
+    },
+    {
+      "persona_id": "sample-fullstack-developer",
+      "condition": "unpaid-trial",
+      "job": {
+        "job_id": "local-dev-05-unpaid-trial",
+        "title": "Build a validated API with SQL persistence",
+        "description": "Build a validated API with SQL persistence. Deliver the entire production solution for free before hire.",
+        "required_skills": [
+          "Node.js",
+          "API",
+          "SQL"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 500,
+          "max": 950,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "skip",
+      "expected_risk": true,
+      "gold_evidence_ids": [
+        "web-synthetic-002"
+      ],
+      "fair_fixed_usd": null
+    },
+    {
+      "persona_id": "sample-fullstack-developer",
+      "condition": "off-platform",
+      "job": {
+        "job_id": "local-dev-05-off-platform",
+        "title": "Build a validated API with SQL persistence",
+        "description": "Build a validated API with SQL persistence. Message my personal Telegram account before we discuss a contract.",
+        "required_skills": [
+          "Node.js",
+          "API",
+          "SQL"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 500,
+          "max": 950,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "skip",
+      "expected_risk": true,
+      "gold_evidence_ids": [
+        "web-synthetic-002"
+      ],
+      "fair_fixed_usd": null
+    },
+    {
+      "persona_id": "sample-fullstack-developer",
+      "condition": "missing-skill",
+      "job": {
+        "job_id": "local-dev-05-missing-skill",
+        "title": "Build a validated API with SQL persistence",
+        "description": "Build a validated API with SQL persistence. A licensed engineer must stamp the drawings in AutoCAD.",
+        "required_skills": [
+          "Node.js",
+          "API",
+          "SQL",
+          "engineering license",
+          "AutoCAD",
+          "electrical drawings",
+          "CAD"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 500,
+          "max": 950,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "skip",
+      "expected_risk": false,
+      "gold_evidence_ids": [
+        "web-synthetic-002"
+      ],
+      "fair_fixed_usd": null
+    },
+    {
+      "persona_id": "sample-fullstack-developer",
+      "condition": "standard",
+      "job": {
+        "job_id": "local-dev-06-standard",
+        "title": "Configure a Shopify product catalog",
+        "description": "Configure a Shopify product catalog.",
+        "required_skills": [
+          "Shopify",
+          "JavaScript"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 320,
+          "max": 550,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "bid",
+      "expected_risk": false,
+      "gold_evidence_ids": [
+        "web-synthetic-003"
+      ],
+      "fair_fixed_usd": [
+        320,
+        550
+      ]
+    },
+    {
+      "persona_id": "sample-fullstack-developer",
+      "condition": "low-budget",
+      "job": {
+        "job_id": "local-dev-06-low-budget",
+        "title": "Configure a Shopify product catalog",
+        "description": "Configure a Shopify product catalog.",
+        "required_skills": [
+          "Shopify",
+          "JavaScript"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 20,
+          "max": 40,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "skip",
+      "expected_risk": false,
+      "gold_evidence_ids": [
+        "web-synthetic-003"
+      ],
+      "fair_fixed_usd": null
+    },
+    {
+      "persona_id": "sample-fullstack-developer",
+      "condition": "unpaid-trial",
+      "job": {
+        "job_id": "local-dev-06-unpaid-trial",
+        "title": "Configure a Shopify product catalog",
+        "description": "Configure a Shopify product catalog. Deliver the entire production solution for free before hire.",
+        "required_skills": [
+          "Shopify",
+          "JavaScript"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 320,
+          "max": 550,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "skip",
+      "expected_risk": true,
+      "gold_evidence_ids": [
+        "web-synthetic-003"
+      ],
+      "fair_fixed_usd": null
+    },
+    {
+      "persona_id": "sample-fullstack-developer",
+      "condition": "off-platform",
+      "job": {
+        "job_id": "local-dev-06-off-platform",
+        "title": "Configure a Shopify product catalog",
+        "description": "Configure a Shopify product catalog. Message my personal Telegram account before we discuss a contract.",
+        "required_skills": [
+          "Shopify",
+          "JavaScript"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 320,
+          "max": 550,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "skip",
+      "expected_risk": true,
+      "gold_evidence_ids": [
+        "web-synthetic-003"
+      ],
+      "fair_fixed_usd": null
+    },
+    {
+      "persona_id": "sample-fullstack-developer",
+      "condition": "missing-skill",
+      "job": {
+        "job_id": "local-dev-06-missing-skill",
+        "title": "Configure a Shopify product catalog",
+        "description": "Configure a Shopify product catalog. A licensed engineer must stamp the drawings in AutoCAD.",
+        "required_skills": [
+          "Shopify",
+          "JavaScript",
+          "engineering license",
+          "AutoCAD",
+          "electrical drawings",
+          "CAD"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 320,
+          "max": 550,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "skip",
+      "expected_risk": false,
+      "gold_evidence_ids": [
+        "web-synthetic-003"
+      ],
+      "fair_fixed_usd": null
+    },
+    {
+      "persona_id": "sample-fullstack-developer",
+      "condition": "standard",
+      "job": {
+        "job_id": "local-dev-07-standard",
+        "title": "Package a Node.js service for cloud deployment",
+        "description": "Package a Node.js service for cloud deployment.",
+        "required_skills": [
+          "Docker",
+          "AWS",
+          "Node.js"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 375,
+          "max": 650,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "bid",
+      "expected_risk": false,
+      "gold_evidence_ids": [
+        "web-synthetic-005"
+      ],
+      "fair_fixed_usd": [
+        375,
+        650
+      ]
+    },
+    {
+      "persona_id": "sample-fullstack-developer",
+      "condition": "low-budget",
+      "job": {
+        "job_id": "local-dev-07-low-budget",
+        "title": "Package a Node.js service for cloud deployment",
+        "description": "Package a Node.js service for cloud deployment.",
+        "required_skills": [
+          "Docker",
+          "AWS",
+          "Node.js"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 20,
+          "max": 40,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "skip",
+      "expected_risk": false,
+      "gold_evidence_ids": [
+        "web-synthetic-005"
+      ],
+      "fair_fixed_usd": null
+    },
+    {
+      "persona_id": "sample-fullstack-developer",
+      "condition": "unpaid-trial",
+      "job": {
+        "job_id": "local-dev-07-unpaid-trial",
+        "title": "Package a Node.js service for cloud deployment",
+        "description": "Package a Node.js service for cloud deployment. Deliver the entire production solution for free before hire.",
+        "required_skills": [
+          "Docker",
+          "AWS",
+          "Node.js"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 375,
+          "max": 650,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "skip",
+      "expected_risk": true,
+      "gold_evidence_ids": [
+        "web-synthetic-005"
+      ],
+      "fair_fixed_usd": null
+    },
+    {
+      "persona_id": "sample-fullstack-developer",
+      "condition": "off-platform",
+      "job": {
+        "job_id": "local-dev-07-off-platform",
+        "title": "Package a Node.js service for cloud deployment",
+        "description": "Package a Node.js service for cloud deployment. Message my personal Telegram account before we discuss a contract.",
+        "required_skills": [
+          "Docker",
+          "AWS",
+          "Node.js"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 375,
+          "max": 650,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "skip",
+      "expected_risk": true,
+      "gold_evidence_ids": [
+        "web-synthetic-005"
+      ],
+      "fair_fixed_usd": null
+    },
+    {
+      "persona_id": "sample-fullstack-developer",
+      "condition": "missing-skill",
+      "job": {
+        "job_id": "local-dev-07-missing-skill",
+        "title": "Package a Node.js service for cloud deployment",
+        "description": "Package a Node.js service for cloud deployment. A licensed engineer must stamp the drawings in AutoCAD.",
+        "required_skills": [
+          "Docker",
+          "AWS",
+          "Node.js",
+          "engineering license",
+          "AutoCAD",
+          "electrical drawings",
+          "CAD"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 375,
+          "max": 650,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "skip",
+      "expected_risk": false,
+      "gold_evidence_ids": [
+        "web-synthetic-005"
+      ],
+      "fair_fixed_usd": null
+    },
+    {
+      "persona_id": "sample-data-analyst",
+      "condition": "standard",
+      "job": {
+        "job_id": "local-dev-08-standard",
+        "title": "Summarize monthly sales in Excel",
+        "description": "Summarize monthly sales in Excel.",
+        "required_skills": [
+          "Excel",
+          "Data Analysis"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 260,
+          "max": 425,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "bid",
+      "expected_risk": false,
+      "gold_evidence_ids": [
+        "data-synthetic-001"
+      ],
+      "fair_fixed_usd": [
+        260,
+        425
+      ]
+    },
+    {
+      "persona_id": "sample-data-analyst",
+      "condition": "low-budget",
+      "job": {
+        "job_id": "local-dev-08-low-budget",
+        "title": "Summarize monthly sales in Excel",
+        "description": "Summarize monthly sales in Excel.",
+        "required_skills": [
+          "Excel",
+          "Data Analysis"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 20,
+          "max": 40,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "skip",
+      "expected_risk": false,
+      "gold_evidence_ids": [
+        "data-synthetic-001"
+      ],
+      "fair_fixed_usd": null
+    },
+    {
+      "persona_id": "sample-data-analyst",
+      "condition": "unpaid-trial",
+      "job": {
+        "job_id": "local-dev-08-unpaid-trial",
+        "title": "Summarize monthly sales in Excel",
+        "description": "Summarize monthly sales in Excel. Deliver the entire production solution for free before hire.",
+        "required_skills": [
+          "Excel",
+          "Data Analysis"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 260,
+          "max": 425,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "skip",
+      "expected_risk": true,
+      "gold_evidence_ids": [
+        "data-synthetic-001"
+      ],
+      "fair_fixed_usd": null
+    },
+    {
+      "persona_id": "sample-data-analyst",
+      "condition": "off-platform",
+      "job": {
+        "job_id": "local-dev-08-off-platform",
+        "title": "Summarize monthly sales in Excel",
+        "description": "Summarize monthly sales in Excel. Message my personal Telegram account before we discuss a contract.",
+        "required_skills": [
+          "Excel",
+          "Data Analysis"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 260,
+          "max": 425,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "skip",
+      "expected_risk": true,
+      "gold_evidence_ids": [
+        "data-synthetic-001"
+      ],
+      "fair_fixed_usd": null
+    },
+    {
+      "persona_id": "sample-data-analyst",
+      "condition": "missing-skill",
+      "job": {
+        "job_id": "local-dev-08-missing-skill",
+        "title": "Summarize monthly sales in Excel",
+        "description": "Summarize monthly sales in Excel. A licensed engineer must stamp the drawings in AutoCAD.",
+        "required_skills": [
+          "Excel",
+          "Data Analysis",
+          "engineering license",
+          "AutoCAD",
+          "electrical drawings",
+          "CAD"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 260,
+          "max": 425,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "skip",
+      "expected_risk": false,
+      "gold_evidence_ids": [
+        "data-synthetic-001"
+      ],
+      "fair_fixed_usd": null
+    },
+    {
+      "persona_id": "sample-data-analyst",
+      "condition": "standard",
+      "job": {
+        "job_id": "local-dev-09-standard",
+        "title": "Build a filterable Power BI metrics dashboard",
+        "description": "Build a filterable Power BI metrics dashboard.",
+        "required_skills": [
+          "Power BI",
+          "Data Visualization"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 360,
+          "max": 650,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "bid",
+      "expected_risk": false,
+      "gold_evidence_ids": [
+        "data-synthetic-002"
+      ],
+      "fair_fixed_usd": [
+        360,
+        650
+      ]
+    },
+    {
+      "persona_id": "sample-data-analyst",
+      "condition": "low-budget",
+      "job": {
+        "job_id": "local-dev-09-low-budget",
+        "title": "Build a filterable Power BI metrics dashboard",
+        "description": "Build a filterable Power BI metrics dashboard.",
+        "required_skills": [
+          "Power BI",
+          "Data Visualization"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 20,
+          "max": 40,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "skip",
+      "expected_risk": false,
+      "gold_evidence_ids": [
+        "data-synthetic-002"
+      ],
+      "fair_fixed_usd": null
+    },
+    {
+      "persona_id": "sample-data-analyst",
+      "condition": "unpaid-trial",
+      "job": {
+        "job_id": "local-dev-09-unpaid-trial",
+        "title": "Build a filterable Power BI metrics dashboard",
+        "description": "Build a filterable Power BI metrics dashboard. Deliver the entire production solution for free before hire.",
+        "required_skills": [
+          "Power BI",
+          "Data Visualization"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 360,
+          "max": 650,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "skip",
+      "expected_risk": true,
+      "gold_evidence_ids": [
+        "data-synthetic-002"
+      ],
+      "fair_fixed_usd": null
+    },
+    {
+      "persona_id": "sample-data-analyst",
+      "condition": "off-platform",
+      "job": {
+        "job_id": "local-dev-09-off-platform",
+        "title": "Build a filterable Power BI metrics dashboard",
+        "description": "Build a filterable Power BI metrics dashboard. Message my personal Telegram account before we discuss a contract.",
+        "required_skills": [
+          "Power BI",
+          "Data Visualization"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 360,
+          "max": 650,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "skip",
+      "expected_risk": true,
+      "gold_evidence_ids": [
+        "data-synthetic-002"
+      ],
+      "fair_fixed_usd": null
+    },
+    {
+      "persona_id": "sample-data-analyst",
+      "condition": "missing-skill",
+      "job": {
+        "job_id": "local-dev-09-missing-skill",
+        "title": "Build a filterable Power BI metrics dashboard",
+        "description": "Build a filterable Power BI metrics dashboard. A licensed engineer must stamp the drawings in AutoCAD.",
+        "required_skills": [
+          "Power BI",
+          "Data Visualization",
+          "engineering license",
+          "AutoCAD",
+          "electrical drawings",
+          "CAD"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 360,
+          "max": 650,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "skip",
+      "expected_risk": false,
+      "gold_evidence_ids": [
+        "data-synthetic-002"
+      ],
+      "fair_fixed_usd": null
+    },
+    {
+      "persona_id": "sample-data-analyst",
+      "condition": "standard",
+      "job": {
+        "job_id": "local-dev-10-standard",
+        "title": "Reconcile SQL report totals with source tables",
+        "description": "Reconcile SQL report totals with source tables.",
+        "required_skills": [
+          "SQL",
+          "Data Analysis"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 290,
+          "max": 480,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "bid",
+      "expected_risk": false,
+      "gold_evidence_ids": [
+        "data-synthetic-003"
+      ],
+      "fair_fixed_usd": [
+        290,
+        480
+      ]
+    },
+    {
+      "persona_id": "sample-data-analyst",
+      "condition": "low-budget",
+      "job": {
+        "job_id": "local-dev-10-low-budget",
+        "title": "Reconcile SQL report totals with source tables",
+        "description": "Reconcile SQL report totals with source tables.",
+        "required_skills": [
+          "SQL",
+          "Data Analysis"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 20,
+          "max": 40,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "skip",
+      "expected_risk": false,
+      "gold_evidence_ids": [
+        "data-synthetic-003"
+      ],
+      "fair_fixed_usd": null
+    },
+    {
+      "persona_id": "sample-data-analyst",
+      "condition": "unpaid-trial",
+      "job": {
+        "job_id": "local-dev-10-unpaid-trial",
+        "title": "Reconcile SQL report totals with source tables",
+        "description": "Reconcile SQL report totals with source tables. Deliver the entire production solution for free before hire.",
+        "required_skills": [
+          "SQL",
+          "Data Analysis"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 290,
+          "max": 480,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "skip",
+      "expected_risk": true,
+      "gold_evidence_ids": [
+        "data-synthetic-003"
+      ],
+      "fair_fixed_usd": null
+    },
+    {
+      "persona_id": "sample-data-analyst",
+      "condition": "off-platform",
+      "job": {
+        "job_id": "local-dev-10-off-platform",
+        "title": "Reconcile SQL report totals with source tables",
+        "description": "Reconcile SQL report totals with source tables. Message my personal Telegram account before we discuss a contract.",
+        "required_skills": [
+          "SQL",
+          "Data Analysis"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 290,
+          "max": 480,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "skip",
+      "expected_risk": true,
+      "gold_evidence_ids": [
+        "data-synthetic-003"
+      ],
+      "fair_fixed_usd": null
+    },
+    {
+      "persona_id": "sample-data-analyst",
+      "condition": "missing-skill",
+      "job": {
+        "job_id": "local-dev-10-missing-skill",
+        "title": "Reconcile SQL report totals with source tables",
+        "description": "Reconcile SQL report totals with source tables. A licensed engineer must stamp the drawings in AutoCAD.",
+        "required_skills": [
+          "SQL",
+          "Data Analysis",
+          "engineering license",
+          "AutoCAD",
+          "electrical drawings",
+          "CAD"
+        ],
+        "budget": {
+          "type": "fixed",
+          "min": 290,
+          "max": 480,
+          "currency": "USD"
+        },
+        "connects_cost": 8
+      },
+      "gold_decision": "skip",
+      "expected_risk": false,
+      "gold_evidence_ids": [
+        "data-synthetic-003"
+      ],
+      "fair_fixed_usd": null
+    }
+  ]
+}

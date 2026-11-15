@@ -104,27 +104,38 @@ model-based tool-selection study. The exact tool surface is listed in
 
 ## 4. R&D question B — retrieval and claim verification
 
-**Exploratory hypothesis:** requirement decomposition and hybrid lexical ranking will be no worse
-than token-vector cosine on the bundled sample labels. This small corpus cannot support a
-generalization claim. V0, V1, V2, V3, V4, and V8 were run by
-`python -m evals.runners.run_demo_eval`; no neural model or network API was used.
+**Hypothesis.** Requirement decomposition improves mean reciprocal rank over V0. The
+50-case synthetic dev set (ten briefs crossed with five conditions across three personas) was
+evaluated with `python -m evals.runners.evaluate_local_retrieval`.
 
-| Variant | Evidence Recall@5 | MRR | nDCG@10 | Positive queries |
-|---|---:|---:|---:|---:|
-| V0 token-vector cosine | 1.00 | 1.00 | 1.00 | 1 |
-| V1 requirement decomposition | 1.00 | 1.00 | 1.00 | 1 |
-| V2 BM25/token-cosine RRF | 1.00 | 1.00 | 1.00 | 1 |
-| V3 lexical reranking | 1.00 | 1.00 | 1.00 | 1 |
-| V4 outcome-aware ranking | 1.00 | 1.00 | 1.00 | 1 |
-| V8 corrective retrieval | 1.00 | 1.00 | 1.00 | 1 |
+| Variant | Evidence Recall@5 | MRR | nDCG@10 |
+|---|---:|---:|---:|
+| V0 token-vector cosine | 1.000 | 0.857 | 0.893 |
+| V1 requirement decomposition | 1.000 | 0.760 | 0.821 |
+| V2 BM25/token-cosine RRF | 1.000 | 0.903 | 0.928 |
+| V3 lexical reranking | 1.000 | 0.867 | 0.901 |
+| V4 outcome-aware ranking | 1.000 | 0.903 | 0.928 |
+| V8 corrective retrieval | 1.000 | 0.903 | 0.928 |
 
-![Measured sample retrieval results](images/local-smoke-eval.svg)
+V1 lost rank quality on this benchmark. The pipeline retains V2, which tied for the highest
+MRR and nDCG@10. Recall@5 saturated with five evidence records per persona. Related dev cases
+share a brief and relevance labels. The breakdown is in
+[retrieval results](../evals/results/local_dev_retrieval.json).
 
-The baseline smoke test deliberately retains one evidence item and one positive query, so the tie is
-uninformative. The current pipeline selects V2 for deterministic exact-term behavior; it is not
-established as a quality winner. Three synthetic portfolios are now available for end-to-end fit,
-but no gold evidence labels, multi-persona retrieval benchmark, ablation, blind proposal panel, or
-calibrated LLM judge has been run. Cohen's kappa is therefore not applicable.
+**Judge calibration.** The student independently labeled 30 shuffled synthetic excerpts for
+past-work claim support. GPT-OSS 120B scored the same cases with the human labels withheld.
+Agreement was **30/30 (100%)** and **Cohen’s κ = 1.00**. Both raters marked 20 supported and
+10 unsupported. The excerpts use repeated patterns based on ten briefs. This measures agreement
+on claim support in those examples. [Calibration results](../evals/results/judge_calibration.json).
+
+**Blind classmate panel.** Three reviewers rated six matched proposal pairs covering all three
+personas. Model identities were hidden and A/B placement was balanced. Of 18 ratings, **8 favored
+20B, 2 favored 120B, and 8 were ties**. Reviewers preferred drafts that stayed focused on the brief
+and matched the evidence closely. They flagged an overstated project domain, an incorrect evidence
+identifier, and claims that turned one prior project into several. Both models often described
+past work with little detail about the proposed approach. Only pairs where both drafts reached
+approval were included, so the results describe preferences among completed drafts on this small
+synthetic sample. [Panel tally](../evals/results/blind_proposal_panel_summary.json).
 
 On the one bid-eligible sample job, the proposal had **0 unsupported sentences before and 0 after**
 the verifier. This is a one-proposal sample and does not establish a general hallucination rate. The
@@ -238,9 +249,14 @@ The `open` profile now runs the Writer and Critic with open-weight inference. An
 on Groq. Both reached the approval gate. The 20B run took 11.16 seconds with one revision and
 an estimated API cost of $0.00110. The 120B run took 5.65 seconds with no revision and an
 estimated API cost of $0.00076. These one-case estimates depend on generation length and queue time.
-The labeled dev-set comparison and deployment verification remain open.
+On the 50-case local dev set, 20B reached approval on 3 of 10 eligible cases and 120B on 4 of 10.
+Groq rate-limited the other eligible cases after a short retry. All completed drafts reached
+approval, leaving relative proposal quality unresolved. The measured median for those drafts was
+4.59 seconds for 20B and 4.43 seconds for 120B. Estimated costs across each run were $0.00333
+and $0.00564, respectively. A fresh evidence-cited draft reached review in the hosted app after
+the Groq key was configured. [Dev-set model results](../evals/results/local_dev_groq.json).
 
-The latest recorded Python suite passed **57 tests**, the standard Playwright suite passed **8 tests**, the
+The latest recorded Python suite passed **58 tests**, the standard Playwright suite passed **8 tests**, the
 React production build succeeded, Ruff passed, and `docker compose ... config --quiet` passed. The
 generated metrics and SVG figure can be reproduced locally. These checks do not replace the required
 GigSim hidden test, private reviewer credential delivery, public traces, video submission, or

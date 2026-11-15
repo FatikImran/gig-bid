@@ -37,17 +37,40 @@ def cases():
     return [(churn, "bid"), (unpaid, "skip"), (threshold_review, "bid"), (low_budget, "skip")]
 
 
-def run_case(job, expected, model, usage_path):
+def run_case(
+    job,
+    expected,
+    model,
+    usage_path,
+    *,
+    persona_id=None,
+    retry_rate_limits=False,
+    max_rate_limit_retries=1,
+):
     usage_path.write_text("", encoding="utf-8")
     graph = build_bid_graph()
     config = {"configurable": {"thread_id": job["job_id"]}}
     started = time.perf_counter()
     error = None
-    try:
-        graph.invoke({"job": job}, config)
-    except GroqInferenceError as exc:
-        error = {"http_status": exc.status_code, "retry_after": exc.retry_after}
-        print(f"  HTTP {exc.status_code}, retry-after: {exc.retry_after}", flush=True)
+    graph_input = {"job": job, "persona_id": persona_id}
+    attempts = max_rate_limit_retries + 1 if retry_rate_limits else 1
+    for attempt in range(attempts):
+        try:
+            graph.invoke(graph_input, config)
+            break
+        except GroqInferenceError as exc:
+            print(f"  HTTP {exc.status_code}, retry-after: {exc.retry_after}", flush=True)
+            retry_after = exc.retry_after or ""
+            if (
+                attempt + 1 < attempts
+                and exc.status_code == 429
+                and retry_after.isdecimal()
+                and int(retry_after) <= 30
+            ):
+                time.sleep(int(retry_after) + 1)
+                graph_input = None
+                continue
+            error = {"http_status": exc.status_code, "retry_after": exc.retry_after}
     snapshot = graph.get_state(config)
     state = snapshot.values
     approval_waiting = error is None and "approval" in snapshot.next
@@ -55,15 +78,22 @@ def run_case(job, expected, model, usage_path):
     usage = [json.loads(line) for line in usage_path.read_text(encoding="utf-8").splitlines()]
     draft = state.get("proposal_draft") or {}
     text = draft.get("cover_letter", "")
-    unsupported = sum(
-        claim["status"] != "supported"
-        for claim in verify_claims(text, state.get("evidence", []))
-    ) if text else None
+    unsupported = (
+        sum(
+            claim["status"] != "supported"
+            for claim in verify_claims(text, state.get("evidence", []))
+        )
+        if text
+        else None
+    )
     return {
         "job_id": job["job_id"],
         "model": model,
         "expected_decision": expected,
         "decision": state.get("decision", {}).get("action"),
+        "risk_score": state.get("risk_report", {}).get("score"),
+        "ranked_evidence_ids": [item["evidence_id"] for item in state.get("evidence", [])],
+        "price_usd": state.get("price_quote", {}).get("amount"),
         "provider_error": error,
         "approval_waiting": approval_waiting,
         "latency_seconds": round(elapsed, 3),
@@ -88,9 +118,11 @@ def summarize(rows):
         "drafts_at_approval": len(approved),
         "provider_errors": sum(row["provider_error"] is not None for row in rows),
         "skip_cases_with_zero_model_calls": sum(row["model_calls"] == 0 for row in skips),
-        "median_draft_latency_seconds": round(statistics.median(
-            row["latency_seconds"] for row in approved
-        ), 3) if approved else None,
+        "median_draft_latency_seconds": round(
+            statistics.median(row["latency_seconds"] for row in approved), 3
+        )
+        if approved
+        else None,
         "estimated_total_api_usd": round(sum(row["estimated_api_usd"] for row in rows), 9),
     }
 
@@ -123,8 +155,7 @@ def main():
             "Cost uses standard Groq token prices without caching discounts."
         ),
         "summary": {
-            model: summarize([row for row in runs if row["model"] == model])
-            for model in MODELS
+            model: summarize([row for row in runs if row["model"] == model]) for model in MODELS
         },
         "runs": runs,
     }

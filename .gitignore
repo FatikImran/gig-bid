@@ -28,6 +28,16 @@ evals/results/*
 !evals/results/negotiation_eval.json
 !evals/results/open_model_eval.json
 !evals/results/open_model_smoke.json
+!evals/results/local_dev_fixtures.json
+!evals/results/local_dev_groq.json
+!evals/results/local_dev_groq_pilot.json
+!evals/results/local_dev_retrieval.json
+!evals/results/judge_calibration.json
+!evals/results/blind_panel_additional_runs.json
+!evals/results/blind_proposal_panel_summary.json
+!evals/results/architectures.json
+!evals/results/architectures_pilot.json
+!evals/results/architecture_*.mmd
 *.log
 *.egg-info/
 .DS_Store

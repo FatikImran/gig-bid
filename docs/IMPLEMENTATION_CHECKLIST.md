@@ -27,7 +27,7 @@
 - [x] Add a reproducible synthetic-client outcome evaluation; its reply/hire metrics are not real-marketplace results.
 - [x] Implement the X5 negotiation subgraph with offer parsing, persona floors, budget walk-away rules, review-only replies, and a 40-case synthetic evaluation.
 - [ ] Improve the contract dataset's role: currently only aggregate descriptive statistics are generated; no pricing model consumes it.
-- [ ] Instructor's three persona corpora, gold dev sets, hidden set, and official policy update are not in the workspace; do not claim those official evaluations.
+- [x] Build a labeled local dev benchmark from the available synthetic personas and run the fixture baseline on 50 cases. See the [data card](DATA_CARD.md) for provenance and limitations.
 - [ ] Neural dense embeddings, true cross-encoder, vector store, PDF/GitHub ingestion, upload UI.
 - [x] Terminal proposal previews use local owner portfolio evidence and a LangGraph approval gate. Approval and duplicate-check behavior are covered by local tests.
 - [x] The read-only Upwork preflight completed the invitation and prior-proposal checks on a live listing.
@@ -36,8 +36,10 @@
 - [ ] Third-party GitHub MCP server configuration and least-privilege token.
 - [ ] Multi-user authentication and encrypted tenant OAuth storage.
 - [ ] Postgres/Redis production deployment, distributed worker queue, and hosted service.
-- [ ] LangSmith/Langfuse exporter, token/cost tracing, calibrated LLM judge, human panel.
-- [ ] Required model-based 40-task tool-design study, three-architecture comparison, ten failed dev-job taxonomy, and instructor hidden-set metrics; the supplied dev set and local model runtime are unavailable.
+- [ ] Hosted LangSmith/Langfuse exporter.
+- [x] Blind classmate panel completed with three reviewers and 18 ratings across six proposal pairs. See the [panel tally](../evals/results/blind_proposal_panel_summary.json).
+- [x] Calibrate GPT-OSS 120B for claim support using 30 independently labeled synthetic excerpts. Agreement was 30/30 and Cohen’s κ was 1.00. See [calibration results](../evals/results/judge_calibration.json).
+- [ ] Required model-based 40-task tool-design study, three-architecture comparison, ten failed dev-job taxonomy, and instructor hidden-set metrics.
 - [x] Seven Playwright E2E tests covering onboarding, proposal approval/rejection/edit, conversation and negotiation replies, and degraded mode.
 - [x] Twelve-case authored synthetic failure-mode regression runner and results; this is not a substitute for ten failed instructor dev jobs.
 - [x] Negotiation evaluation gate reports walk-away precision/recall, accepted-counter outcomes, and below-floor counter safety.
