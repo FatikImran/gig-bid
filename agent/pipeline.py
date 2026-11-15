@@ -155,4 +155,4 @@ def analyze_job(job: dict[str, Any], persona_id: str | None = None) -> dict[str,
 
 
 def _draft_proposal(spec: JobSpec, evidence: list[dict[str, Any]]) -> ProposalDraft:
-    return draft(spec, evidence)
+    return draft(spec, evidence, use_model=False)

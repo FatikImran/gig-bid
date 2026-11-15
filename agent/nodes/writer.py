@@ -4,17 +4,19 @@ from agent.handoffs import JobSpec, ProposalDraft
 from agent.model_runtime import enabled, generate
 
 
-def draft(job: JobSpec, evidence: list[dict]) -> ProposalDraft:
+def draft(
+    job: JobSpec, evidence: list[dict], *, feedback: list[str] | None = None, use_model: bool = True
+) -> ProposalDraft:
     if not evidence:
         return ProposalDraft(
             job_id=job.job_id,
             cover_letter="I do not have verified portfolio evidence to support a proposal for this job.",
         )
     item = evidence[0]
-    if enabled():
+    if use_model and enabled():
         result = generate(
             "writer",
-            {"job": job.model_dump(), "evidence": evidence},
+            {"job": job.model_dump(), "evidence": evidence, "revision_feedback": feedback or []},
             {
                 "type": "object",
                 "properties": {"cover_letter": {"type": "string"}},

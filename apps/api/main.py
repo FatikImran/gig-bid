@@ -450,7 +450,9 @@ async def analyze(
     result["trace_id"] = thread_id
     proposal_id = str(uuid.uuid4())
     proposal_status = (
-        "awaiting_review" if result["decision"]["action"] == "bid" else "not_recommended"
+        "awaiting_review"
+        if "approval" in _bid_graph.get_state(graph_config).next
+        else "not_recommended"
     )
     payload = {
         "analysis": result,

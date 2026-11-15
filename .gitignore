@@ -27,6 +27,7 @@ evals/results/*
 !evals/results/failure_modes.json
 !evals/results/negotiation_eval.json
 !evals/results/open_model_eval.json
+!evals/results/open_model_smoke.json
 *.log
 *.egg-info/
 .DS_Store

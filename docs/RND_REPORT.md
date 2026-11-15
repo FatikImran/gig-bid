@@ -233,6 +233,13 @@ single-user prototype should not be exposed as a production SaaS without the upg
 
 ## 8. Reproducibility and final outcome
 
+The `open` profile now runs the Writer and Critic with open-weight inference. An initial
+[comparison on one synthetic job](../evals/results/open_model_eval.json) ran GPT-OSS 20B and 120B
+on Groq. Both reached the approval gate. The 20B run took 11.16 seconds with one revision and
+an estimated API cost of $0.00110. The 120B run took 5.65 seconds with no revision and an
+estimated API cost of $0.00076. These one-case estimates depend on generation length and queue time.
+The labeled dev-set comparison and deployment verification remain open.
+
 The latest recorded Python suite passed **57 tests**, the standard Playwright suite passed **8 tests**, the
 React production build succeeded, Ruff passed, and `docker compose ... config --quiet` passed. The
 generated metrics and SVG figure can be reproduced locally. These checks do not replace the required

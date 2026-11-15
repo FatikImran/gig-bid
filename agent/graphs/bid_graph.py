@@ -35,6 +35,7 @@ class BidState(TypedDict, total=False):
     compliance_verdict: dict[str, Any]
     revision_count: int
     approval_status: str
+    writer_feedback: list[str]
     external_action: str
     errors: Annotated[list[str], lambda left, right: left + right]
 
@@ -139,6 +140,7 @@ def _write(state: BidState) -> dict:
     proposal = draft(
         analyze_job(state["job"]),
         state.get("evidence", []),
+        feedback=state.get("writer_feedback"),
     ).model_dump()
     return {"proposal_draft": proposal}
 
@@ -174,15 +176,16 @@ def _critic(state: BidState) -> dict:
     return {
         "critique": result.model_dump(),
         "revision_count": revision + (0 if result.approved else 1),
+        "writer_feedback": result.issues,
     }
 
 
 def _route_critic(state: BidState) -> str:
     if state["critique"]["approved"]:
         return "compliance"
-    if state.get("revision_count", 0) < agent_config()["budgets"]["max_revisions"]:
+    if state.get("revision_count", 0) <= agent_config()["budgets"]["max_revisions"]:
         return "writer"
-    return "compliance"
+    return "finish"
 
 
 def _compliance(state: BidState) -> dict:
@@ -253,7 +256,7 @@ def build_bid_graph(checkpointer=None):
     graph.add_conditional_edges(
         "critic",
         _route_critic,
-        {"writer": "writer", "compliance": "compliance"},
+        {"writer": "writer", "compliance": "compliance", "finish": END},
     )
     graph.add_conditional_edges(
         "compliance",

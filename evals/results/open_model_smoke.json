@@ -1,0 +1,188 @@
+{
+  "dataset": "Two bundled synthetic jobs and two variants, one pass per model.",
+  "method": "The decision uses shared rules. Only Writer and Critic use the model. Claim checks use the pipeline's heuristic verifier. Cost uses standard Groq token prices without caching discounts.",
+  "summary": {
+    "openai/gpt-oss-20b": {
+      "cases": 4,
+      "correct_decisions": 4,
+      "draft_cases": 2,
+      "drafts_at_approval": 1,
+      "provider_errors": 0,
+      "skip_cases_with_zero_model_calls": 2,
+      "median_draft_latency_seconds": 4.001,
+      "estimated_total_api_usd": 0.000633525
+    },
+    "openai/gpt-oss-120b": {
+      "cases": 4,
+      "correct_decisions": 4,
+      "draft_cases": 2,
+      "drafts_at_approval": 2,
+      "provider_errors": 0,
+      "skip_cases_with_zero_model_calls": 2,
+      "median_draft_latency_seconds": 4.519,
+      "estimated_total_api_usd": 0.0015069
+    }
+  },
+  "runs": [
+    {
+      "job_id": "sample-job-001",
+      "model": "openai/gpt-oss-20b",
+      "expected_decision": "bid",
+      "decision": "bid",
+      "provider_error": null,
+      "approval_waiting": false,
+      "latency_seconds": 2.611,
+      "revisions": 0,
+      "draft": {
+        "job_id": "sample-job-001",
+        "cover_letter": "",
+        "screening_answers": [],
+        "evidence_ids": [],
+        "status": "pending_review"
+      },
+      "unsupported_final_claims_by_heuristic": null,
+      "model_calls": 1,
+      "prompt_tokens": 964,
+      "completion_tokens": 692,
+      "estimated_api_usd": 0.0002799
+    },
+    {
+      "job_id": "sample-job-002",
+      "model": "openai/gpt-oss-20b",
+      "expected_decision": "skip",
+      "decision": "skip",
+      "provider_error": null,
+      "approval_waiting": false,
+      "latency_seconds": 0.021,
+      "revisions": 0,
+      "draft": null,
+      "unsupported_final_claims_by_heuristic": null,
+      "model_calls": 0,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "estimated_api_usd": 0
+    },
+    {
+      "job_id": "synthetic-threshold-review",
+      "model": "openai/gpt-oss-20b",
+      "expected_decision": "bid",
+      "decision": "bid",
+      "provider_error": null,
+      "approval_waiting": true,
+      "latency_seconds": 4.001,
+      "revisions": 0,
+      "draft": {
+        "job_id": "synthetic-threshold-review",
+        "cover_letter": "I can review classification thresholds and summarize model evaluation results with precision, recall, and error analysis, as demonstrated in my synthetic model validation report (ai-synthetic-004).",
+        "screening_answers": [],
+        "evidence_ids": [
+          "ai-synthetic-004"
+        ],
+        "status": "pending_review"
+      },
+      "unsupported_final_claims_by_heuristic": 0,
+      "model_calls": 2,
+      "prompt_tokens": 1831,
+      "completion_tokens": 721,
+      "estimated_api_usd": 0.000353625
+    },
+    {
+      "job_id": "synthetic-low-budget",
+      "model": "openai/gpt-oss-20b",
+      "expected_decision": "skip",
+      "decision": "skip",
+      "provider_error": null,
+      "approval_waiting": false,
+      "latency_seconds": 0.016,
+      "revisions": 0,
+      "draft": null,
+      "unsupported_final_claims_by_heuristic": null,
+      "model_calls": 0,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "estimated_api_usd": 0
+    },
+    {
+      "job_id": "sample-job-001",
+      "model": "openai/gpt-oss-120b",
+      "expected_decision": "bid",
+      "decision": "bid",
+      "provider_error": null,
+      "approval_waiting": true,
+      "latency_seconds": 4.668,
+      "revisions": 0,
+      "draft": {
+        "job_id": "sample-job-001",
+        "cover_letter": "I have built a reproducible churn classification experiment in Python with scikit-learn, comparing logistic regression and random forest and reporting precision and recall (evidence-001). I also created a scikit-learn classification baseline, evaluated precision and recall, and documented model evaluation limitations (ai-synthetic-002).",
+        "screening_answers": [],
+        "evidence_ids": [
+          "ai-synthetic-002",
+          "evidence-001"
+        ],
+        "status": "pending_review"
+      },
+      "unsupported_final_claims_by_heuristic": 0,
+      "model_calls": 2,
+      "prompt_tokens": 1868,
+      "completion_tokens": 856,
+      "estimated_api_usd": 0.0007938
+    },
+    {
+      "job_id": "sample-job-002",
+      "model": "openai/gpt-oss-120b",
+      "expected_decision": "skip",
+      "decision": "skip",
+      "provider_error": null,
+      "approval_waiting": false,
+      "latency_seconds": 0.017,
+      "revisions": 0,
+      "draft": null,
+      "unsupported_final_claims_by_heuristic": null,
+      "model_calls": 0,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "estimated_api_usd": 0
+    },
+    {
+      "job_id": "synthetic-threshold-review",
+      "model": "openai/gpt-oss-120b",
+      "expected_decision": "bid",
+      "decision": "bid",
+      "provider_error": null,
+      "approval_waiting": true,
+      "latency_seconds": 4.37,
+      "revisions": 0,
+      "draft": {
+        "job_id": "synthetic-threshold-review",
+        "cover_letter": "I have created Python and scikit-learn classification baselines and compared precision and recall, documenting model evaluation limitations (ai-synthetic-002). I also compared classification thresholds and summarized evaluation results with precision, recall, and error analysis (ai-synthetic-004).",
+        "screening_answers": [],
+        "evidence_ids": [
+          "ai-synthetic-002",
+          "ai-synthetic-004"
+        ],
+        "status": "pending_review"
+      },
+      "unsupported_final_claims_by_heuristic": 0,
+      "model_calls": 2,
+      "prompt_tokens": 1850,
+      "completion_tokens": 726,
+      "estimated_api_usd": 0.0007131
+    },
+    {
+      "job_id": "synthetic-low-budget",
+      "model": "openai/gpt-oss-120b",
+      "expected_decision": "skip",
+      "decision": "skip",
+      "provider_error": null,
+      "approval_waiting": false,
+      "latency_seconds": 0.011,
+      "revisions": 0,
+      "draft": null,
+      "unsupported_final_claims_by_heuristic": null,
+      "model_calls": 0,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "estimated_api_usd": 0
+    }
+  ]
+}

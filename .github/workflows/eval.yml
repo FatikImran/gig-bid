@@ -5,6 +5,8 @@ on:
 jobs:
   smoke-eval:
     runs-on: ubuntu-latest
+    env:
+      GIGBID_MODEL_PROFILE: fixtures
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

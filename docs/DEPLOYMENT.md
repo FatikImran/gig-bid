@@ -53,9 +53,12 @@ requires real portfolio evidence.
 - **Redis/worker queue:** not required by the local worker; the worker polls at least every 15
   minutes and keeps its seen IDs in SQLite. A production queue and separate tenant-safe scheduler
   are not wired.
-- **Model provider:** the shipped open profile is deterministic local code and does not require an
-  API key. No paid provider is configured, and no LLM inference costs were incurred in the measured
-  smoke test.
+- **Model provider.** Set `GIGBID_MODEL_PROFILE=open`, `GIGBID_MODEL_PROVIDER=groq`,
+  `GROQ_MODEL=openai/gpt-oss-120b`, and the private `GROQ_API_KEY` on the Railway API service.
+  Deploy the revision with the Groq runtime. Then open a synthetic sample job through the
+  authenticated web app and confirm the generated draft reaches approval. Check the Writer and
+  Critic usage records under `/app/data/processed/model_usage.jsonl` for `provider=groq` and the
+  configured model. The public health endpoint checks service availability. See [model setup](MODELS.md).
 - **GitHub MCP:** add a separately installed official GitHub MCP server with a narrowly scoped
   read-only token before using it. It is not configured in the provided starter tree.
 - **Observability:** local trace IDs and audit events exist. LangSmith/Langfuse credentials are not

@@ -1,0 +1,77 @@
+{
+  "dataset": "one bundled synthetic job; exploratory model comparison",
+  "runs": [
+    {
+      "decision": {
+        "action": "bid",
+        "reasons": [
+          "Skill coverage meets threshold and no high-risk signal matched."
+        ]
+      },
+      "proposal_draft": {
+        "job_id": "sample-job-001",
+        "cover_letter": "I built a reproducible customer churn classification experiment with Python and scikit-learn, comparing logistic regression and random forest and documenting precision and recall (evidence-001). I also designed a model validation report that compared classification thresholds and summarized precision, recall, and error analysis using Python (evidence-004).",
+        "screening_answers": [],
+        "evidence_ids": [
+          "ai-synthetic-004",
+          "evidence-001"
+        ],
+        "status": "pending_review"
+      },
+      "critique": {
+        "approved": true,
+        "issues": [],
+        "revision_count": 1
+      },
+      "revision_count": 1,
+      "compliance_verdict": {
+        "allowed": true,
+        "violations": [],
+        "sanitized_text": "I built a reproducible customer churn classification experiment with Python and scikit-learn, comparing logistic regression and random forest and documenting precision and recall (evidence-001). I also designed a model validation report that compared classification thresholds and summarized precision, recall, and error analysis using Python (evidence-004)."
+      },
+      "approval_waiting": true,
+      "latency_seconds": 11.16126939999981,
+      "model": "openai/gpt-oss-20b",
+      "prompt_tokens": 3758,
+      "completion_tokens": 2732,
+      "total_tokens": 6490,
+      "estimated_api_usd": 0.00110145
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "reasons": [
+          "Skill coverage meets threshold and no high-risk signal matched."
+        ]
+      },
+      "proposal_draft": {
+        "job_id": "sample-job-001",
+        "cover_letter": "I have built a reproducible churn classification experiment in Python with scikit-learn, comparing logistic regression and random forest and reporting precision and recall (evidence-001). I also created a scikit-learn classification baseline, evaluated precision and recall, and documented model evaluation limitations (ai-synthetic-002).",
+        "screening_answers": [],
+        "evidence_ids": [
+          "ai-synthetic-002",
+          "evidence-001"
+        ],
+        "status": "pending_review"
+      },
+      "critique": {
+        "approved": true,
+        "issues": [],
+        "revision_count": 0
+      },
+      "revision_count": 0,
+      "compliance_verdict": {
+        "allowed": true,
+        "violations": [],
+        "sanitized_text": "I have built a reproducible churn classification experiment in Python with scikit-learn, comparing logistic regression and random forest and reporting precision and recall (evidence-001). I also created a scikit-learn classification baseline, evaluated precision and recall, and documented model evaluation limitations (ai-synthetic-002)."
+      },
+      "model": "openai/gpt-oss-120b",
+      "latency_seconds": 5.648726999999781,
+      "approval_waiting": true,
+      "prompt_tokens": 1868,
+      "completion_tokens": 797,
+      "total_tokens": 2665,
+      "estimated_api_usd": 0.0007584
+    }
+  ]
+}

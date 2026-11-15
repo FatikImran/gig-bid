@@ -17,6 +17,13 @@ load_dotenv(ROOT / ".env", override=False)
 _lock = threading.Lock()
 
 
+class GroqInferenceError(RuntimeError):
+    def __init__(self, status_code: int, retry_after: str | None):
+        super().__init__(f"Groq inference failed with HTTP {status_code}.")
+        self.status_code = status_code
+        self.retry_after = retry_after
+
+
 def enabled() -> bool:
     return os.getenv("GIGBID_MODEL_PROFILE", agent_config()["models"]["profile"]) == "open"
 
@@ -66,7 +73,7 @@ def generate(node: str, payload: dict, schema: dict) -> dict:
                 },
             )
         if reply.status_code != 200:
-            raise RuntimeError(f"Groq inference failed with HTTP {reply.status_code}.")
+            raise GroqInferenceError(reply.status_code, reply.headers.get("retry-after"))
         response = reply.json()
     elif provider == "local":
         model_name = Path(path).name
@@ -94,10 +101,11 @@ def generate(node: str, payload: dict, schema: dict) -> dict:
             + response["usage"]["completion_tokens"] * 0.30
         )
         / 1_000_000
-        if provider == "groq" and model_name == "openai/gpt-oss-20b"
+        * (2 if model_name == "openai/gpt-oss-120b" else 1)
+        if provider == "groq" and model_name in {"openai/gpt-oss-20b", "openai/gpt-oss-120b"}
         else (0 if provider == "local" else None),
     }
-    usage_path = ROOT / "data" / "processed" / "model_usage.jsonl"
+    usage_path = ROOT / os.getenv("GIGBID_MODEL_USAGE_PATH", "data/processed/model_usage.jsonl")
     usage_path.parent.mkdir(parents=True, exist_ok=True)
     with _lock, usage_path.open("a", encoding="utf-8") as output:
         output.write(json.dumps(usage) + "\n")
