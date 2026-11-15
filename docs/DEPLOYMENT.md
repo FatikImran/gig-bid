@@ -40,11 +40,10 @@ separate private service, use a distinct persistent volume, and configure the AP
 `GIGSIM_BASE_URL` and matching `GIGSIM_API_TOKEN`. This is our deterministic simulator, not the
 instructor's service and not a real marketplace.
 
-Do not configure the Upwork adapter until its official OAuth flow and scopes are completed by the
-account owner. The current live adapter accepts an OAuth access token supplied by environment but
-does not implement the OAuth authorization/callback flow or live writes. The Docker Compose
-`gigsim` service is our local deterministic simulator, not the instructor's service. Its
-synthetic outcomes and Connects are not suitable as production or hidden-test results.
+Keep the hosted app in GigSim mode. See [Upwork MCP setup](UPWORK_SETUP.md) for the account owner's
+local OAuth and schema discovery steps and the current restriction on custom hosted callbacks.
+The web app's live tool mappings and draft flow still require verification with an authorized
+account.
 
 ## Other services and manual steps
 
