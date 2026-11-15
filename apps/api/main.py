@@ -10,14 +10,14 @@ import uuid
 from collections.abc import Iterator
 from contextlib import asynccontextmanager, contextmanager
 from pathlib import Path
-from typing import Any
+from typing import Annotated, Any
 
 import httpx
 from fastapi import Depends, FastAPI, Header, HTTPException, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.types import Command
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 
 from agent.graphs.bid_graph import build_bid_graph
 from agent.graphs.conversation_graph import build_conversation_graph
@@ -25,7 +25,7 @@ from agent.marketplace_port import create_marketplace_port
 from agent.nodes.compliance import check as compliance_check
 from agent.pipeline import analyze_job
 from agent.sample_data import freelancers, portfolio_items
-from rag.verify import remove_unsupported_claims, verify_claims
+from rag.verify import verify_claims
 
 ROOT = Path(__file__).resolve().parents[2]
 DB_PATH = Path(os.getenv("GIGBID_DB_PATH", str(ROOT / "data" / "processed" / "gigbid.sqlite3")))
@@ -39,7 +39,9 @@ _approval_lock = asyncio.Lock()
 class EditProposalRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     cover_letter: str = Field(min_length=1, max_length=5000)
-    screening_answers: list[str] = Field(default_factory=list, max_length=20)
+    screening_answers: list[
+        Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=5000)]
+    ] = Field(default_factory=list, max_length=20)
 
 
 class RejectProposalRequest(BaseModel):
@@ -463,6 +465,39 @@ async def list_message_drafts(tenant: str = Depends(current_tenant)) -> list[dic
     return [_message(row) for row in rows]
 
 
+def _validate_proposal_content(
+    cover_letter: str, screening_answers: list[str], evidence: list[dict[str, Any]]
+) -> tuple[list[str], list[dict[str, Any]], dict[str, Any]]:
+    sections = [("cover_letter", cover_letter)]
+    sections.extend(
+        (f"screening_answers[{index}]", answer) for index, answer in enumerate(screening_answers)
+    )
+    checks = []
+    for field, text in sections:
+        section_checks = verify_claims(text, evidence)
+        if not section_checks or any(
+            check["status"] != "supported" or not check["evidence_ids"] for check in section_checks
+        ):
+            raise HTTPException(
+                status_code=422,
+                detail={
+                    "message": "Every proposal sentence must be supported by portfolio evidence",
+                    "field": field,
+                    "checks": section_checks,
+                },
+            )
+        checks.extend(section_checks)
+
+    evidence_ids = sorted({evidence_id for check in checks for evidence_id in check["evidence_ids"]})
+    compliance = compliance_check("\n\n".join(text for _, text in sections), evidence_ids)
+    if not compliance.allowed:
+        raise HTTPException(
+            status_code=422,
+            detail={"message": "Draft failed compliance", "violations": compliance.violations},
+        )
+    return evidence_ids, checks, compliance.model_dump()
+
+
 @app.put("/api/proposals/{proposal_id}")
 async def edit_proposal(
     proposal_id: str,
@@ -473,30 +508,14 @@ async def edit_proposal(
     if row["status"] not in {"awaiting_review", "edited"}:
         raise HTTPException(status_code=409, detail="Only pending proposals can be edited")
     payload = json.loads(row["payload"])
-    evidence = payload["analysis"]["evidence"]
-    checks = verify_claims(request.cover_letter, evidence)
-    filtered, supported = remove_unsupported_claims(request.cover_letter, checks)
-    if filtered != request.cover_letter.strip() or not supported:
-        raise HTTPException(
-            status_code=422,
-            detail={
-                "message": "Every proposal sentence must be supported by portfolio evidence",
-                "checks": checks,
-            },
-        )
-    evidence_ids = sorted(
-        {evidence_id for check in supported for evidence_id in check["evidence_ids"]}
+    evidence_ids, checks, compliance = _validate_proposal_content(
+        request.cover_letter, request.screening_answers, payload["analysis"]["evidence"]
     )
-    compliance = compliance_check(filtered, evidence_ids)
-    if not compliance.allowed:
-        raise HTTPException(
-            status_code=422,
-            detail={"message": "Draft failed compliance", "violations": compliance.violations},
-        )
-    payload["proposal"]["cover_letter"] = filtered
+    payload["proposal"]["cover_letter"] = request.cover_letter.strip()
     payload["proposal"]["screening_answers"] = request.screening_answers
     payload["proposal"]["evidence_ids"] = evidence_ids
     payload["analysis"]["claim_verification"] = checks
+    payload["analysis"]["compliance_verdict"] = compliance
     if _bid_graph is not None and payload.get("graph_thread_id"):
         _bid_graph.update_state(
             {"configurable": {"thread_id": payload["graph_thread_id"]}},
@@ -547,6 +566,13 @@ async def approve_proposal(
             raise HTTPException(status_code=409, detail="Proposal is not eligible for approval")
         if _bid_graph is None or not payload.get("graph_thread_id"):
             raise HTTPException(status_code=503, detail="Approval graph checkpoint is unavailable")
+        proposal = payload["proposal"]
+        evidence_ids, checks, compliance = _validate_proposal_content(
+            proposal["cover_letter"], proposal.get("screening_answers", []), analysis["evidence"]
+        )
+        proposal["evidence_ids"] = evidence_ids
+        analysis["claim_verification"] = checks
+        analysis["compliance_verdict"] = compliance
         with connection() as conn:
             conn.execute(
                 "UPDATE proposals SET status='approving', updated_at=CURRENT_TIMESTAMP "

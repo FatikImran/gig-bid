@@ -1,3 +1,5 @@
+import json
+
 from fastapi.testclient import TestClient
 
 from agent.sample_data import jobs
@@ -31,6 +33,24 @@ def test_api_approval_and_persistence(tmp_path, monkeypatch):
         )
         assert bad_edit.status_code == 422
 
+        cover_letter = analysis.json()["proposal"]["cover_letter"]
+        unsupported_answer = client.put(
+            f"/api/proposals/{proposal_id}",
+            headers=headers,
+            json={"cover_letter": cover_letter, "screening_answers": ["I am a licensed attorney."]},
+        )
+        assert unsupported_answer.status_code == 422
+        assert unsupported_answer.json()["detail"]["field"] == "screening_answers[0]"
+
+        grounded_answer = cover_letter.split(". ", 1)[0] + "."
+        safe_edit = client.put(
+            f"/api/proposals/{proposal_id}",
+            headers=headers,
+            json={"cover_letter": cover_letter, "screening_answers": [grounded_answer]},
+        )
+        assert safe_edit.status_code == 200
+        assert safe_edit.json()["analysis"]["claim_verification"][-1]["claim"] == grounded_answer
+
         approval_headers = {**headers, "Idempotency-Key": "approve-test-0001"}
         approved = client.post(
             f"/api/proposals/{proposal_id}/approve",
@@ -46,6 +66,29 @@ def test_api_approval_and_persistence(tmp_path, monkeypatch):
         )
         assert replay.status_code == 200
         assert replay.headers["Idempotent-Replay"] == "true"
+
+
+def test_approval_rechecks_legacy_screening_answers(tmp_path, monkeypatch):
+    monkeypatch.setattr(main, "DB_PATH", tmp_path / "legacy-draft.sqlite3")
+    monkeypatch.delenv("GIGSIM_BASE_URL", raising=False)
+    headers = {"Authorization": "Bearer local-dev-token"}
+    with TestClient(main.app) as client:
+        created = client.post("/api/jobs/sample-job-001/analyze", headers=headers).json()
+        proposal_path = f"/api/proposals/{created['id']}"
+        with main.connection() as conn:
+            row = conn.execute("SELECT payload FROM proposals WHERE id=?", (created["id"],)).fetchone()
+            payload = json.loads(row["payload"])
+            payload["proposal"]["screening_answers"] = ["I am a licensed attorney."]
+            conn.execute(
+                "UPDATE proposals SET payload=? WHERE id=?", (json.dumps(payload), created["id"])
+            )
+
+        result = client.post(
+            f"{proposal_path}/approve", headers={**headers, "Idempotency-Key": "legacy-draft-0001"}
+        )
+        assert result.status_code == 422
+        assert result.json()["detail"]["field"] == "screening_answers[0]"
+        assert client.get(proposal_path, headers=headers).json()["status"] == "awaiting_review"
 
 
 def test_reject_requires_reason_and_records_status(tmp_path, monkeypatch):
