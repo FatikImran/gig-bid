@@ -36,6 +36,6 @@ Portfolio MCP checkout/install instructions are in
 GitHub server is the official GitHub MCP endpoint; its trust rationale is that it is the first-party
 repository API integration, but access is disabled unless an owner supplies a read-scoped token.
 The client filters all tools by agent allowlist and only grants GitHub code/file reads to the
-Fit Matcher and Writer. For the official Upwork MCP server, configure `UPWORK_MCP_URL` and an
-OAuth-issued `UPWORK_ACCESS_TOKEN`; live writes remain disabled until the owner completes OAuth
-and verifies the upstream tool schemas and draft-confirmation semantics.
+Fit Matcher and Writer. The official Upwork MCP server provides first-party marketplace access
+through account OAuth. The local browse adapter uses `upwork__list_accounts` and `upwork__find_jobs`
+with encrypted credentials. See [Upwork setup](UPWORK_SETUP.md) for live verification.

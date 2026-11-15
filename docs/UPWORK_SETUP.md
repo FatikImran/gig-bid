@@ -31,12 +31,11 @@ public Railway app in GigSim mode while using this local setup.
 5. If setup succeeds, inspect the live action schemas for the freelancer workflow.
 
    ```powershell
-   python -m agent.upwork_oauth --tool-help find_jobs
-   python -m agent.upwork_oauth --tool-help manage_proposals
-   python -m agent.upwork_oauth --tool-help send_message
+   python -m agent.upwork_oauth --tool-help find_jobs --tool-help get_profile --tool-help list_freelancer_proposals --tool-help manage_proposals --tool-help get_messages --tool-help send_message > data/processed/upwork-tool-help.json
    ```
 
-   Share only tool names and parameter schemas, or the exact error text with credentials and URLs
+   The command requests the tool schemas in one MCP session. Share only tool names and parameter
+   schemas, or the exact error text with credentials and URLs
    containing OAuth query parameters removed. Keep the encryption key, `code`, access token,
    refresh token, account identifiers, and browser cookies private.
 
@@ -55,16 +54,23 @@ send the error text and timestamp with the query string removed. An OAuth error 
 
 ## Verification and deployment
 
+- In the same PowerShell window, run `python -m agent.upwork_marketplace` to verify job search and
+  one job detail. The command reports counts and field availability. If your login expires, rerun
+  `python -m agent.upwork_oauth` in that terminal to renew authorization.
+- To browse live listings in the local web app, set `$env:GIGBID_MARKETPLACE_MODE = 'upwork'` and
+  start the API bound to localhost from the authorized terminal. Set a private `GIGBID_API_TOKEN`
+  for that session and use it in the local UI. The live browser view shows job details without
+  generating recommendations or drafts from the synthetic personas.
 - If port `8765` is in use, close the program using it and rerun the command. If Upwork rejects
   registration or the callback, capture the rejection message. A provider-side rejection needs
   Upwork support or the instructor's guidance for grading A4.
 - Disconnect from Upwork under **Account Settings → Connected Apps** if you want to revoke consent.
-- The setup command establishes the OAuth and discovery path. The FastAPI/React live workflow still
-  needs role and account selection, mapping the authenticated tool schemas to the marketplace port,
-  and end-to-end verification. Do not switch Railway to Upwork mode for this step.
+- GigBid automatically selects one eligible freelancer profile. If your Upwork account returns more
+  than one eligible profile, supply the intended freelancer organization ID in `UPWORK_ORG_UID` in
+  your local session. Keep Railway in GigSim mode.
 - Upwork's proposal workflow returns a preview after the draft action. GigBid must show that
   preview after its own approval step and leave the final confirmation with the account owner.
-  Confirm messaging semantics against the authenticated schema before enabling any live message
-  action.
+  The authenticated `send_message` schema sends directly. GigBid's live flow keeps messages local
+  until a draft-only workflow is available.
 
 [Official Upwork MCP workflow](https://github.com/upwork/upwork-agent-plugin/tree/master/skills/upwork-workflows)

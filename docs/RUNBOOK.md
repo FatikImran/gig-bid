@@ -45,9 +45,10 @@ queued for later delivery.
   Docker Compose service name `gigsim` is accepted for simulator writes.
 - `GIGSIM_API_TOKEN`: separate bearer credential for the local simulator.
 - `GIGBID_USE_KAGGLE_FEED`: include the generated local seed in the inbox.
-- `GIGBID_MARKETPLACE_MODE`: adapter selector scaffold; live Upwork submission remains disabled.
-- `UPWORK_MCP_URL`, `UPWORK_ACCESS_TOKEN`: optional OAuth-managed live read connection. Do not put
-  real credentials in `.env.example` or Git.
+- `GIGBID_MARKETPLACE_MODE`: `gigsim` for test workflows or `upwork` for local live browsing.
+- `GIGBID_OAUTH_ENCRYPTION_KEY`: key for the encrypted local Upwork credentials store.
+- `UPWORK_ORG_UID`: optional local selection when more than one freelancer profile is available.
+  See [Upwork setup](UPWORK_SETUP.md) for account authorization.
 - `GIGBID_SCOUT_INTERVAL_SECONDS`: worker interval, clamped to at least 900 seconds.
 - Local MCP marketplace tools allow at most 20 requests/minute. No scraping or browser automation
   is used.

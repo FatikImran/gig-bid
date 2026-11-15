@@ -42,8 +42,8 @@ instructor's service and not a real marketplace.
 
 Keep the hosted app in GigSim mode. See [Upwork MCP setup](UPWORK_SETUP.md) for the account owner's
 local OAuth and schema discovery steps and the current restriction on custom hosted callbacks.
-The web app's live tool mappings and draft flow still require verification with an authorized
-account.
+The local live job browser and draft workflow must be verified separately. Live drafting also
+requires real portfolio evidence.
 
 ## Other services and manual steps
 
