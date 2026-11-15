@@ -45,7 +45,8 @@ Connects. The local Upwork OAuth integration serves browse requests.
   API resumes the approval interrupt and performs simulator writes.
 - **Marketplace port:** `agent/marketplace_port.py` selects the sample adapter, the local simulator,
   or the official Upwork MCP adapter. Upwork OAuth, search and job detail were verified in the
-  local CLI. [Upwork setup](UPWORK_SETUP.md)
+  local CLI, and the live Playwright smoke test verified the inbox and listing detail in the
+  browser. [Upwork setup](UPWORK_SETUP.md)
 
 ## RAG decision
 

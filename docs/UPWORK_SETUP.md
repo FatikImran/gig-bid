@@ -57,6 +57,11 @@ send the error text and timestamp with the query string removed. An OAuth error 
 - In the same PowerShell window, run `python -m agent.upwork_marketplace` to verify job search and
   one job detail. The command reports counts and field availability. If your login expires, rerun
   `python -m agent.upwork_oauth` in that terminal to renew authorization.
+- To test the inbox in a real browser automatically, run `npm.cmd --prefix apps/web run test:upwork`
+  in the same terminal. Playwright starts a loopback API and web server, signs in with a temporary
+  local bearer token, checks the listing grid, and opens one listing through the live API. The test
+  reads listings and does not save screenshots or traces. If Chromium is missing, run
+  `npm.cmd --prefix apps/web exec -- playwright install chromium` first.
 - To browse live listings in the local web app, set `$env:GIGBID_MARKETPLACE_MODE = 'upwork'` and
   start the API bound to localhost from the authorized terminal. Set a private `GIGBID_API_TOKEN`
   for that session and use it in the local UI. The live browser view shows job details without

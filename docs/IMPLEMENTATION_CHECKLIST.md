@@ -5,6 +5,7 @@
 - [x] Typed job/risk/fit/decision/price/proposal/compliance handoffs with validation.
 - [x] Single marketplace port with sample fixtures and a guarded official Upwork MCP client adapter.
 - [x] Local Upwork OAuth and live job search/detail verified with an authorized freelancer account.
+- [x] Live Playwright inbox smoke test passed against the local API and official Upwork MCP server.
 - [x] Portfolio, marketplace, and workspace FastMCP local servers with typed tools/resources/prompt.
 - [x] In-memory MCP client tests, bounded schemas, per-agent tool allowlists, and a checked-in tool-schema snapshot.
 - [x] Marketplace MCP reads use the configured port; direct non-dry-run writes are blocked and API approval gates simulator writes.
