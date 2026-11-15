@@ -11,8 +11,13 @@ async def test_job_detail_accepts_nested_posting_without_a_repeated_id(monkeypat
     operation = AsyncMock(
         return_value={
             "connects_cost": 10,
+            "applied": False,
             "data": {
-                "marketplaceJobPosting": {"title": "Sample posting", "description": "Sample scope"}
+                "marketplaceJobPosting": {
+                    "id": "1234",
+                    "url": "https://www.upwork.com/jobs/sample",
+                    "content": {"title": "Sample posting", "description": "Sample scope"},
+                }
             },
         }
     )
@@ -25,6 +30,7 @@ async def test_job_detail_accepts_nested_posting_without_a_repeated_id(monkeypat
     assert detail["title"] == "Sample posting"
     assert detail["description"] == "Sample scope"
     assert detail["connects_cost"] == 10
+    assert detail["upwork_url"] == "https://www.upwork.com/jobs/sample"
 
 
 @pytest.mark.asyncio
@@ -35,14 +41,16 @@ async def test_invalid_detail_diagnostic_excludes_values(monkeypatch):
         "_operation",
         AsyncMock(
             return_value={
-                "data": {"marketplaceJobPosting": {"description": "private example text"}},
+                "data": {
+                    "marketplaceJobPosting": {"content": {"description": "private example text"}}
+                },
                 "client": {"title": "private client title"},
             }
         ),
     )
 
     with pytest.raises(
-        UpworkMarketplaceError, match=r"data\.marketplaceJobPosting: description"
+        UpworkMarketplaceError, match=r"data\.marketplaceJobPosting\.content: description"
     ) as error:
         await adapter.get_job("1234")
     assert "private" not in str(error.value)

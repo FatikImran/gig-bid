@@ -95,6 +95,7 @@ _DETAIL_WRAPPERS = (
     "job_posting",
     "jobPosting",
     "marketplaceJobPosting",
+    "content",
     "job_details",
     "jobDetails",
     "posting",
