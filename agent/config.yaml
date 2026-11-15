@@ -9,8 +9,12 @@ models:
   profile: open
   profiles:
     open:
+      runtime: llama_cpp
+      model_path: data/processed/models/qwen2.5-0.5b-instruct-q4_k_m.gguf
+      temperature: 0.2
+      note: Qwen open weights running on the CPU.
+    fixtures:
       runtime: deterministic_local
-      note: Local deterministic workflow; no external model API is used.
     paid:
       runtime: disabled
       note: Optional profile placeholder; enable only with measured cost and provider credentials.
@@ -20,8 +24,8 @@ models:
     risk_assessor: deterministic_rules
     fit_matcher: deterministic_retrieval
     pricing: deterministic_rules
-    writer: evidence_template
-    critic: claim_overlap_verifier
+    writer: open
+    critic: open
     client_liaison: deterministic_rules
   embeddings: token_vector_cosine
   reranker: lexical_overlap

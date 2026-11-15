@@ -11,6 +11,7 @@ from agent.handoffs import (
 )
 from agent.nodes.compliance import check as compliance_check
 from agent.nodes.risk_assessor import assess as assess_risk
+from agent.nodes.writer import draft
 from agent.sample_data import freelancers, portfolio_items
 from agent.settings import agent_config
 from rag.retriever import retrieve
@@ -154,14 +155,4 @@ def analyze_job(job: dict[str, Any], persona_id: str | None = None) -> dict[str,
 
 
 def _draft_proposal(spec: JobSpec, evidence: list[dict[str, Any]]) -> ProposalDraft:
-    if not evidence:
-        text = "I do not have verified portfolio evidence to support a proposal for this job."
-        return ProposalDraft(job_id=spec.job_id, cover_letter=text)
-    best = evidence[0]
-    text = f"My portfolio includes {best['title']}. {best['summary']}"
-    return ProposalDraft(
-        job_id=spec.job_id,
-        cover_letter=text,
-        screening_answers=[],
-        evidence_ids=[str(best["evidence_id"])],
-    )
+    return draft(spec, evidence)

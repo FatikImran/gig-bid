@@ -2,7 +2,7 @@
 
 **Course:** AI-4016 · Assignment 2  
 **Student:** Muhammad Fatik · **Roll number:** 23I-0655 · **Section:** A  
-**Report date:** 12 November 2026  
+**Report date:** 15 November 2026<br />
 **Status:** Public Railway prototype is live in sample mode; this is not a deployed instructor GigSim submission.
 
 ## Executive summary
@@ -28,8 +28,9 @@ performance. Results are in [`evals/results/demo_eval.json`](../evals/results/de
 Freelancers spend time triaging listings and risk Connects on poor-fit or unsafe work. GigBid should
 reduce that effort without impersonating the freelancer. The system must never follow instructions
 embedded in untrusted job/client text, invent experience, contact clients off-platform, or send a
-proposal/message or spend Connects without approval. The app never writes to a real marketplace. When configured, explicit approval submits only to the
-local simulator and spends fictional Connects.
+proposal/message or spend Connects without approval. Simulator approvals can submit to the local
+simulator and spend fictional Connects. Upwork mode can request a preview after approval and leaves
+final submission to the account owner.
 
 Three fictional profiles and authored synthetic portfolio items are available for local fit tests.
 `data/sample/jobs.json` still provides one plausible job and one unpaid off-platform trial. The
@@ -232,7 +233,7 @@ single-user prototype should not be exposed as a production SaaS without the upg
 
 ## 8. Reproducibility and final outcome
 
-At this report run, the Python suite passed **42 tests**, the Playwright suite passed **7 tests**, the
+The latest recorded Python suite passed **57 tests**, the standard Playwright suite passed **8 tests**, the
 React production build succeeded, Ruff passed, and `docker compose ... config --quiet` passed. The
 generated metrics and SVG figure can be reproduced locally. These checks do not replace the required
 GigSim hidden test, private reviewer credential delivery, public traces, video submission, or
@@ -244,6 +245,6 @@ synthetic outcomes, approval-safe LangGraph graphs, SQLite checkpoints, three lo
 six lightweight RAG variants, claim filtering, local Upwork browsing, and partial workspace UI
 screens. **Open work:** live marketplace drafts, instructor GigSim compatibility, neural embeddings/reranking,
 multi-user production identity, architecture-comparison evidence, hosted tracing, or the remaining
-message-inbox, portfolio-ingestion, and budget-enforcement workflows. The local GitHub-based
-Portfolio MCP install guide is prepared, but there is no PyPI release.
-This honest boundary is preferable to reporting invented performance.
+message-inbox, portfolio-ingestion, and budget-enforcement workflows. The prior verification of the
+public GitHub-based Portfolio MCP install at `92772fa` listed all three tools and successfully called
+`list_portfolio_skills`. See the [Portfolio MCP install guide](../mcp_servers/portfolio/README.md).

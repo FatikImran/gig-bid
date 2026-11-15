@@ -26,6 +26,7 @@ evals/results/*
 !evals/results/gigsim_eval.json
 !evals/results/failure_modes.json
 !evals/results/negotiation_eval.json
+!evals/results/open_model_eval.json
 *.log
 *.egg-info/
 .DS_Store

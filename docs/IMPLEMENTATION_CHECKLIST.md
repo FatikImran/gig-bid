@@ -46,7 +46,8 @@
 - [x] Deployed public web app and API; health, CORS, and the safe-job/risk UI flows were smoke-tested.
 - [x] Record the simulator walkthrough and add the [three-minute demo link](https://drive.google.com/file/d/1Uwdc9raaWPYdzyiXXXCgdgrCeBzIgED1/view?usp=sharing).
 - [x] Render both graphs from code and capture [four synthetic graph traces](GRAPH_TRACES.md).
-- [ ] Verify signed-out access to the demo link, submit reviewer credentials privately, confirm the public Portfolio MCP install link, and publish the technical write-up.
+- [x] Public Portfolio MCP `uvx` install verified at `92772fa` in the prior handoff. All three tools were listed and `list_portfolio_skills` returned `API`.
+- [ ] Verify signed-out access to the demo link, submit reviewer credentials privately, and publish the technical write-up.
 
 Local test results and environment limitations are documented in
 [RND_REPORT.md](./RND_REPORT.md), `evals/results/demo_eval.json`,
