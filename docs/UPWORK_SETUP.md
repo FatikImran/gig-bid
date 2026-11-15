@@ -52,6 +52,69 @@ to check the browser or network. If normal sign-in works but the authorization p
 send the error text and timestamp with the query string removed. An OAuth error shown on
 `www.upwork.com` and a connection error after redirecting to `127.0.0.1` point to different stages.
 
+## Preview an owner-approved proposal locally
+
+The terminal workflow loads `data/processed/upwork-portfolio.json`, which is Git-ignored. Start it
+in the same PowerShell session used to authorize Upwork. To see the available evidence IDs, run:
+
+```powershell
+python -m agent.live_proposal --list-evidence
+```
+
+Choose a relevant listing, a portfolio project that matches it, and your own bid. Set `--unit` to
+`hourly` or `fixed` to match the listing. This example uses placeholders for the URL and bid:
+
+```powershell
+python -m agent.live_proposal "YOUR_UPWORK_LISTING_URL" --evidence owner-raahnuma --bid YOUR_BID --unit hourly
+```
+
+Review the cover letter and exact bid. Type `PREVIEW` only if you want those details sent to
+Upwork for preview. GigBid checks previous proposals and invitations before calling the preview
+tool. It displays Upwork's response locally. The workflow stops before submission confirmation.
+Upwork may ask for screening answers or other application details. Keep the preview payload and
+IDs private, and share only the outcome or a sanitized error when reporting a test.
+
+If the prior-application check fails, run `python -m agent.live_proposal "UPWORK_JOB_ID" --preflight-only`
+to check the listing, invitations, and previous proposals without sending a cover letter or
+requesting a preview. Error diagnostics include field names only.
+
+To find a candidate that Upwork marks eligible, run `python -m agent.live_proposal --find-eligible "n8n workflow automation"`.
+The command searches Upwork and checks at most three listings. It performs read operations only.
+
+### Approve in the web app
+
+In the PowerShell terminal with your Upwork OAuth encryption key, start the API with a temporary
+local bearer token:
+
+```powershell
+$env:GIGBID_MARKETPLACE_MODE = 'upwork'
+$env:GIGBID_API_TOKEN = python -c "import secrets; print(secrets.token_urlsafe(32))"
+$env:GIGBID_CORS_ORIGINS = 'http://127.0.0.1:5173'
+$env:GIGBID_API_TOKEN
+python -m uvicorn apps.api.main:app --host 127.0.0.1 --port 8000
+```
+
+From a second project terminal, run:
+
+```powershell
+$env:VITE_API_URL = 'http://127.0.0.1:8000'
+npm.cmd --prefix apps/web run dev -- --host 127.0.0.1 --port 5173 --strictPort
+```
+
+Open the local UI at `http://127.0.0.1:5173`, enter the temporary API token, and search the inbox.
+Open a listing, choose an evidence project, enter your bid, and prepare a draft. Save any cover
+letter edits before clicking **Approve and request Upwork preview**. GigBid displays the available
+preview details and opens the listing for further review on Upwork. The app has no submission
+confirmation action. Some applications need screening answers or additional terms, which this web
+preview workflow reports so you can review them on Upwork.
+
+### Prepare a reply for Upwork Messages
+
+Open **Messages** in the local app and paste a message you received. Draft and review the reply,
+then approve it to enable **Copy approved reply**. Open the original conversation in Upwork to
+paste, review, and decide whether to send. Upwork MCP can send messages directly, so GigBid uses a
+manual handoff for draft-only messaging.
+
 ## Verification and deployment
 
 - In the same PowerShell window, run `python -m agent.upwork_marketplace` to verify job search and
@@ -65,7 +128,8 @@ send the error text and timestamp with the query string removed. An OAuth error 
 - To browse live listings in the local web app, set `$env:GIGBID_MARKETPLACE_MODE = 'upwork'` and
   start the API bound to localhost from the authorized terminal. Set a private `GIGBID_API_TOKEN`
   for that session and use it in the local UI. The live browser view shows job details without
-  generating recommendations or drafts from the synthetic personas.
+  generating recommendations or drafts from the synthetic personas. Live proposal previews use
+  the local owner portfolio and an explicit approval.
 - If port `8765` is in use, close the program using it and rerun the command. If Upwork rejects
   registration or the callback, capture the rejection message. A provider-side rejection needs
   Upwork support or the instructor's guidance for grading A4.

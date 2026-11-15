@@ -29,7 +29,10 @@
 - [ ] Improve the contract dataset's role: currently only aggregate descriptive statistics are generated; no pricing model consumes it.
 - [ ] Instructor's three persona corpora, gold dev sets, hidden set, and official policy update are not in the workspace; do not claim those official evaluations.
 - [ ] Neural dense embeddings, true cross-encoder, vector store, PDF/GitHub ingestion, upload UI.
-- [ ] Live Upwork proposal previews grounded in real portfolio evidence and a draft-only message workflow.
+- [x] Terminal proposal previews use local owner portfolio evidence and a LangGraph approval gate. Approval and duplicate-check behavior are covered by local tests.
+- [x] The read-only Upwork preflight completed the invitation and prior-proposal checks on a live listing.
+- [x] Web proposal preview approval and local draft-only message handoff are implemented and tested locally.
+- [ ] Verify a successful preview with the live account. The first authenticated preview request was rejected after Upwork flagged the listing as ineligible for the account.
 - [ ] Third-party GitHub MCP server configuration and least-privilege token.
 - [ ] Multi-user authentication and encrypted tenant OAuth storage.
 - [ ] Postgres/Redis production deployment, distributed worker queue, and hosted service.

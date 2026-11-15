@@ -9,21 +9,35 @@ from rag.retriever import retrieve
 
 
 def match(
-    job: dict[str, Any], persona_id: str | None = None
+    job: dict[str, Any],
+    persona_id: str | None = None,
+    *,
+    owner_evidence: list[dict[str, Any]] | None = None,
 ) -> tuple[FitReport, list[dict[str, Any]]]:
-    profile = next(
-        (item for item in freelancers() if not persona_id or item["freelancer_id"] == persona_id),
-        None,
-    )
-    if profile is None:
-        raise ValueError(f"Unknown persona: {persona_id}")
+    if owner_evidence is None:
+        profile = next(
+            (
+                item
+                for item in freelancers()
+                if not persona_id or item["freelancer_id"] == persona_id
+            ),
+            None,
+        )
+        if profile is None:
+            raise ValueError(f"Unknown persona: {persona_id}")
+        skill_names = profile.get("skills", [])
+        evidence = [
+            item
+            for item in portfolio_items()
+            if item.get("freelancer_id") == profile["freelancer_id"]
+        ]
+    else:
+        evidence = owner_evidence
+        skill_names = [skill for item in owner_evidence for skill in item["skills"]]
     required = [str(skill) for skill in job.get("required_skills", [])]
-    profile_skills = {str(skill).casefold() for skill in profile.get("skills", [])}
+    profile_skills = {str(skill).casefold() for skill in skill_names}
     matched = [skill for skill in required if skill.casefold() in profile_skills]
     missing = [skill for skill in required if skill.casefold() not in profile_skills]
-    evidence = [
-        item for item in portfolio_items() if item.get("freelancer_id") == profile["freelancer_id"]
-    ]
     retrieved: dict[str, dict[str, Any]] = {}
     queries = required or [str(job.get("title", ""))]
     for query in queries:

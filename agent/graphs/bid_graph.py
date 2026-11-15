@@ -6,7 +6,7 @@ from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END, START, StateGraph
 from langgraph.types import Send, interrupt
 
-from agent.handoffs import BidDecision
+from agent.handoffs import BidDecision, PriceQuote
 from agent.nodes.analyst import analyze as analyze_job
 from agent.nodes.compliance import check as compliance_check
 from agent.nodes.critic import critique
@@ -22,6 +22,7 @@ from rag.verify import remove_unsupported_claims, verify_claims
 class BidState(TypedDict, total=False):
     job: dict[str, Any]
     persona_id: str
+    owner_offer: dict[str, Any]
     job_spec: dict[str, Any]
     risk_report: dict[str, Any]
     fit_report: dict[str, Any]
@@ -57,7 +58,12 @@ def _risk_assessor(state: BidState) -> dict:
 
 
 def _fit_matcher(state: BidState) -> dict:
-    report, evidence = match_fit(state["job"], state.get("persona_id"))
+    owner_offer = state.get("owner_offer")
+    report, evidence = match_fit(
+        state["job"],
+        state.get("persona_id"),
+        owner_evidence=owner_offer["evidence"] if owner_offer else None,
+    )
     return {"fit_report": report.model_dump(), "evidence": evidence}
 
 
@@ -65,31 +71,42 @@ def _decide(state: BidState) -> dict:
     job = state["job"]
     risk = state["risk_report"]
     fit = state["fit_report"]
-    profile = next(
-        (item for item in freelancers() if item["freelancer_id"] == state.get("persona_id")),
-        freelancers()[0],
-    )
-    budget = job.get("budget") or {}
     thresholds = agent_config()["thresholds"]
     if risk["score"] >= thresholds["maximum_risk_score"]:
         decision = BidDecision(action="skip", reasons=["High-risk policy signal detected."])
+    elif state.get("owner_offer"):
+        eligible = bool(state["evidence"]) and not job.get("applied")
+        decision = BidDecision(
+            action="bid" if eligible else "skip",
+            reasons=["Owner selected the bid and portfolio evidence."]
+            if eligible
+            else ["An existing application or missing owner evidence prevents a draft."],
+        )
     elif fit["score"] < thresholds["minimum_fit_score"]:
         decision = BidDecision(
             action="watch", reasons=["Portfolio skill coverage is below threshold."]
         )
-    elif budget.get("max", 0) < (
-        profile["hourly_rate_usd"]
-        if budget.get("type") == "hourly"
-        else profile["minimum_project_budget_usd"]
-    ):
-        decision = BidDecision(
-            action="skip", reasons=["Budget is below the freelancer's stated floor."]
-        )
     else:
-        decision = BidDecision(
-            action="bid",
-            reasons=["Skill coverage meets threshold and no high-risk signal matched."],
+        profiles = freelancers()
+        profile = next(
+            (item for item in profiles if item["freelancer_id"] == state.get("persona_id")),
+            profiles[0],
         )
+        budget = job.get("budget") or {}
+        floor = (
+            profile["hourly_rate_usd"]
+            if budget.get("type") == "hourly"
+            else profile["minimum_project_budget_usd"]
+        )
+        if budget.get("max", 0) < floor:
+            decision = BidDecision(
+                action="skip", reasons=["Budget is below the freelancer's stated floor."]
+            )
+        else:
+            decision = BidDecision(
+                action="bid",
+                reasons=["Skill coverage meets threshold and no high-risk signal matched."],
+            )
     return {"decision": decision.model_dump(), "revision_count": 0}
 
 
@@ -98,6 +115,14 @@ def _route_decision(state: BidState) -> str:
 
 
 def _price(state: BidState) -> dict:
+    if owner_offer := state.get("owner_offer"):
+        price = PriceQuote(
+            amount=owner_offer["amount"],
+            unit=owner_offer["unit"],
+            connects_cost=state["job"]["connects_cost"],
+            rationale="Bid amount supplied by the account owner.",
+        )
+        return {"price_quote": price.model_dump()}
     profile = next(
         (item for item in freelancers() if item["freelancer_id"] == state.get("persona_id")),
         freelancers()[0],
@@ -161,6 +186,14 @@ def _route_critic(state: BidState) -> str:
 
 
 def _compliance(state: BidState) -> dict:
+    if not state["proposal_draft"]["cover_letter"].strip():
+        return {
+            "compliance_verdict": {
+                "allowed": False,
+                "violations": ["No supported claim."],
+                "sanitized_text": "",
+            }
+        }
     verdict = compliance_check(
         state["proposal_draft"]["cover_letter"],
         state["proposal_draft"].get("evidence_ids", []),

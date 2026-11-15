@@ -10,12 +10,12 @@ type Job = {
   job_id: string; title: string; description: string; required_skills: string[];
   budget: { min: number | null; max: number | null; currency: string; type?: string }; duration_days?: number | null;
   connects_cost: number | null; recommendation: string; fit_score: number | null; risk_score?: number;
-  suggested_price_usd?: number; upwork_url?: string; applied?: boolean;
+  suggested_price_usd?: number; upwork_url?: string; applied?: boolean; can_apply?: boolean | null;
   data_provenance?: string; published_date?: string; synthetic_scenario?: string;
 };
 
 type Proposal = {
-  id: string; job_id: string; status: string; analysis: {
+  id: string; job_id: string; status: string; marketplace?: string; analysis: {
     decision: { action: string; reasons: string[] }; risk_report: { score: number; flags: string[]; explanation: string };
     fit_report: { score: number; matched_skills: string[]; missing_skills: string[] };
     price_quote: { amount: number; unit: "fixed" | "hourly"; connects_cost: number; rationale: string };
@@ -26,10 +26,11 @@ type Proposal = {
     dry_run: { external_write_enabled: boolean; connects_cost: number };
   }; proposal: { cover_letter: string; screening_answers: string[] };
   external_submission?: string;
+  upwork_preview?: { ready: boolean; connects_cost: number | null; connects_balance: number | null; can_apply: boolean | null; screening_questions: string[] };
   simulator_result?: { outcome?: string; connects_spent?: number };
 };
 type Message = {
-  id: string; job_id: string; status: string; intent: string;
+  id: string; job_id: string; status: string; intent: string; marketplace?: string;
   incoming_message: string; draft: string; rejection_reason?: string;
   negotiation_decision?: {
     action: string; offered_amount: number | null; recommended_amount: number | null;
@@ -96,6 +97,11 @@ export default function App() {
   const [notice, setNotice] = useState("");
   const [messageJobId, setMessageJobId] = useState("");
   const [incomingMessage, setIncomingMessage] = useState("");
+  const [evidenceId, setEvidenceId] = useState("");
+  const [bid, setBid] = useState("");
+  const [bidUnit, setBidUnit] = useState("fixed");
+  const [proposalBusy, setProposalBusy] = useState(false);
+  const upworkMode = portfolio?.provenance === "local_owner_portfolio";
 
   const request = useCallback(async (path: string, init?: RequestInit) => {
     const response = await fetch(`${API}${path}`, {
@@ -109,12 +115,12 @@ export default function App() {
     return response.json();
   }, [token]);
 
-  const refresh = useCallback(async () => {
+  const refresh = useCallback(async (query = "") => {
     setLoading(true);
     setError("");
     try {
       const [jobData, proposalData, messageData, runData, analyticsData, portfolioData] = await Promise.all([
-        request(`/api/jobs?persona_id=${encodeURIComponent(personaId)}`),
+        request(`/api/jobs?persona_id=${encodeURIComponent(personaId)}${query ? `&query=${encodeURIComponent(query)}` : ""}`),
         request("/api/proposals"), request("/api/messages"), request("/api/runs"),
         request("/api/analytics"),
         request(`/api/portfolio?persona_id=${encodeURIComponent(personaId)}`),
@@ -142,12 +148,21 @@ export default function App() {
     setSelected(job);
     setProposal(null);
     setNotice("");
+    setError("");
     if (job.data_provenance === "upwork_live") {
+      setEvidenceId("");
+      setBid("");
+      setBidUnit(job.budget.type === "hourly" ? "hourly" : "fixed");
+      const existing = proposals.find((item) => item.marketplace === "upwork" && item.job_id === job.job_id);
+      if (existing && existing.status !== "rejected") {
+        setProposal(existing);
+        setDraft(existing.proposal.cover_letter);
+      }
       try {
         const details = await request(`/api/jobs/${encodeURIComponent(job.job_id)}`);
         setSelected((current) => current?.job_id === job.job_id ? { ...current, ...details } : current);
       } catch (reason) {
-        setNotice(reason instanceof Error ? reason.message : "Could not load the Upwork job details.");
+        setError(reason instanceof Error ? reason.message : "Could not load the Upwork job details.");
       }
       return;
     }
@@ -166,28 +181,67 @@ export default function App() {
     } finally { setLoading(false); }
   };
 
+  const draftUpworkProposal = async () => {
+    if (!selected || !evidenceId || !Number.isFinite(Number(bid)) || Number(bid) <= 0) return;
+    setProposalBusy(true);
+    setError("");
+    try {
+      const next = await request(`/api/jobs/${encodeURIComponent(selected.job_id)}/analyze`, {
+        method: "POST", body: JSON.stringify({ evidence_id: evidenceId, amount: Number(bid), unit: bidUnit }),
+      });
+      setProposal(next);
+      setProposals((current) => [next, ...current.filter((item) => item.id !== next.id)]);
+      setDraft(next.proposal.cover_letter);
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : "Could not prepare the Upwork draft.");
+    } finally { setProposalBusy(false); }
+  };
+
   const saveEdit = async () => {
     if (!proposal) return;
+    setProposalBusy(true);
+    setError("");
     try {
       const updated = await request(`/api/proposals/${proposal.id}`, {
         method: "PUT", body: JSON.stringify({ cover_letter: draft, screening_answers: proposal.proposal.screening_answers }),
       });
       setProposal(updated);
+      setProposals((current) => current.map((item) => item.id === updated.id ? updated : item));
+      setDraft(updated.proposal.cover_letter);
       setNotice("Draft saved and all claims re-verified.");
-      await refresh();
+      if (proposal.marketplace !== "upwork") await refresh();
     } catch (reason) { setError(reason instanceof Error ? reason.message : "Could not save draft."); }
+    finally { setProposalBusy(false); }
   };
 
   const approve = async () => {
-    if (!proposal) return;
+    if (!proposal || proposalBusy) return;
+    const live = proposal.marketplace === "upwork";
+    setProposalBusy(true);
+    setError("");
     try {
       const result = await request(`/api/proposals/${proposal.id}/approve`, {
         method: "POST", headers: { "Idempotency-Key": `proposal-approve-${proposal.id}` },
       });
-      setNotice(`Approved for your records. ${result.external_submission}`);
-      setProposal(null);
-      await refresh();
-    } catch (reason) { setError(reason instanceof Error ? reason.message : "Approval failed."); }
+      if (live) {
+        const approved = { ...proposal, ...result };
+        setProposal(approved);
+        setProposals((current) => current.map((item) => item.id === approved.id ? approved : item));
+      } else {
+        setNotice(`Approved for your records. ${result.external_submission}`);
+        setProposal(null);
+        await refresh();
+      }
+    } catch (reason) {
+      if (live) {
+        const latest = await request(`/api/proposals/${proposal.id}`).catch(() => null);
+        if (latest) {
+          setProposal(latest);
+          setProposals((current) => current.map((item) => item.id === latest.id ? latest : item));
+        }
+      }
+      setError(reason instanceof Error ? reason.message : "Approval failed.");
+    } finally { setProposalBusy(false); }
   };
 
   const reject = async () => {
@@ -203,15 +257,16 @@ export default function App() {
   };
 
   const draftMessage = async () => {
-    if (!messageJobId || !incomingMessage.trim()) return;
+    if ((!upworkMode && !messageJobId) || !incomingMessage.trim()) return;
     try {
       await request("/api/messages/draft", {
         method: "POST",
-        body: JSON.stringify({ job_id: messageJobId, message: incomingMessage, persona_id: personaId }),
+        body: JSON.stringify({ job_id: messageJobId || null, message: incomingMessage, persona_id: personaId }),
       });
       setIncomingMessage("");
       setNotice("Reply drafted for your review. Nothing was sent.");
-      await refresh();
+      if (upworkMode) setMessages(await request("/api/messages"));
+      else await refresh();
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Could not draft a reply.");
     }
@@ -233,15 +288,25 @@ export default function App() {
         },
       );
       setNotice(approve ? `Reply approved. ${result.external_send}` : "Reply rejected.");
-      await refresh();
+      if (upworkMode) setMessages(await request("/api/messages"));
+      else await refresh();
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : "Could not update reply.");
     }
   };
 
-  const filteredJobs = useMemo(() => jobs.filter((job) =>
+  const copyApprovedReply = async (message: Message) => {
+    try {
+      await navigator.clipboard.writeText(message.draft);
+      setNotice("Draft copied. Paste it into your Upwork conversation for final review.");
+    } catch {
+      setError("Clipboard access was unavailable. Select and copy the approved draft text.");
+    }
+  };
+
+  const filteredJobs = useMemo(() => upworkMode ? jobs : jobs.filter((job) =>
     `${job.title} ${job.description} ${job.required_skills.join(" ")}`.toLowerCase().includes(search.toLowerCase())
-  ), [jobs, search]);
+  ), [jobs, search, upworkMode]);
 
   const summary = useMemo(() => ({
     recommended: jobs.filter((job) => job.recommendation === "bid").length,
@@ -270,7 +335,7 @@ export default function App() {
       <input id="token" value={token} onChange={(event) => setToken(event.target.value)} />
       <button className="primary full" onClick={() => void refresh()}>Connect workspace <ArrowUpRight size={16} /></button>
       {error && <p className="error">{error}</p>}
-      <p className="fine">Local demo only. Approval may submit to the local simulator; no real marketplace action is enabled.</p>
+      <p className="fine">Use your workspace access token to connect.</p>
     </div>
     <div className="login-art"><span>Evidence in.</span><span>Confidence out.</span><div className="orbit o1" /><div className="orbit o2" /><div className="orbit o3" /></div>
   </div>;
@@ -287,7 +352,7 @@ export default function App() {
       <div className="sidebar-bottom"><div className="safe-card"><div className="safe-icon"><ShieldAlert size={16} /></div><div><b>Human-first by design</b><span>Nothing is sent without you.</span></div></div>                  <button className="profile-foot profile-button" onClick={() => setActiveNav("Settings")}><div className="avatar small">GB</div><div><b>{activeProfile?.display_name ?? "GigBid profile"}</b><span>Settings & profile</span></div><MoreHorizontal size={17} /></button></div>
     </aside>
     <main className="main">
-      <header className="topbar"><button className="icon-btn mobile-menu" aria-label="Menu"><Menu size={19} /></button><div className="breadcrumb">Workspace <span>/</span> <b>{activeNav}</b></div><div className="top-actions"><div className="connection"><i /> Sample mode · local data</div><button className="icon-btn" aria-label="Notifications"><Bell size={18} /><i className="notify-dot" /></button><div className="avatar small">AM</div></div></header>
+      <header className="topbar"><button className="icon-btn mobile-menu" aria-label="Menu"><Menu size={19} /></button><div className="breadcrumb">Workspace <span>/</span> <b>{activeNav}</b></div><div className="top-actions"><div className="connection"><i /> {upworkMode ? "Upwork · local workspace" : "Sample mode · local data"}</div><button className="icon-btn" aria-label="Notifications"><Bell size={18} /><i className="notify-dot" /></button><div className="avatar small">AM</div></div></header>
       <div className="content">
         <div className="page-heading"><div><p className="eyebrow">{todayLabel}</p><h1>{activeNav === "Job inbox" ? "Find your next good fit." : activeNav}</h1><p className="muted">A considered shortlist, grounded in your portfolio.</p></div><button className="quiet-button" onClick={() => void refresh()}><Activity size={15} /> Refresh feed</button></div>
         {error && <div className="alert error"><ShieldAlert size={16} /> {String(error)} <button onClick={() => setError("")}><X size={15} /></button></div>}
@@ -299,7 +364,7 @@ export default function App() {
           <div className="metric-card accent-card"><div className="accent-orb" /><div className="metric-top"><span>Portfolio match</span><span className="metric-icon dark"><Sparkles size={16} /></span></div><strong>Evidence<span className="brand-dot">.</span></strong><small>Every claim linked to real work</small></div>
         </section>}
         {(activeNav === "Overview" || activeNav === "Job inbox") && <section className="feed-section">
-          <div className="section-head"><div><h2>Curated for you <span className="count-pill">{filteredJobs.length}</span></h2><p>Ranked by fit, budget, and client safety signals.</p></div><div className="feed-controls"><label className="search"><Search size={16} /><input placeholder="Search opportunities..." value={search} onChange={(event) => setSearch(event.target.value)} /></label><button className="filter-btn"><Filter size={15} /> Filters <ChevronDown size={13} /></button></div></div>
+          <div className="section-head"><div><h2>{upworkMode ? "Upwork listings" : "Curated for you"} <span className="count-pill">{filteredJobs.length}</span></h2><p>{upworkMode ? "Search Upwork or open a listing to review it." : "Ranked by fit, budget, and client safety signals."}</p></div><div className="feed-controls"><label className="search"><Search size={16} /><input placeholder="Search opportunities..." maxLength={160} value={search} onChange={(event) => setSearch(event.target.value)} onKeyDown={(event) => { if (upworkMode && event.key === "Enter") void refresh(search.trim()); }} /></label>{upworkMode ? <button className="filter-btn" disabled={loading} onClick={() => void refresh(search.trim())}>Search Upwork</button> : <button className="filter-btn"><Filter size={15} /> Filters <ChevronDown size={13} /></button>}</div></div>
           {loading && <div className="loading"><span /> Refreshing your workspace…</div>}
           <div className="job-list">{filteredJobs.map((job, index) => <article key={job.job_id} className={`job-card ${selected?.job_id === job.job_id ? "chosen" : ""}`}>
             <div className="job-main"><div className={`company-mark mark-${index}`}>{index === 0 ? "N" : "!"}</div><div className="job-copy"><div className="job-labels"><span className={job.recommendation === "bid" ? "status good" : "status danger"}><i />{job.data_provenance === "upwork_live" ? "LIVE LISTING" : job.recommendation === "bid" ? "GOOD FIT" : "RISK FLAG"}</span><span className="posted">{job.data_provenance === "upwork_live" ? "Upwork" : job.data_provenance === "kaggle_posting" ? `Historical Kaggle posting${job.published_date ? ` · ${job.published_date}` : ""}` : job.data_provenance === "synthetic_scenario" ? `Synthetic test · ${job.synthetic_scenario ?? "scenario"}` : "Starter-kit synthetic sample"}</span></div><h3>{job.title}</h3><p>{job.description}</p><div className="skill-list">{job.required_skills.map((skill) => <span key={skill}>{skill}</span>)}</div></div></div>
@@ -325,17 +390,17 @@ export default function App() {
           <p className="screen-note">“Viewed” and “lost” states are not supplied by the local simulator unless explicitly returned; no events are inferred.</p>
         </section>}
         {activeNav === "Messages" && <section className="screen-card">
-          <div className="section-head"><div><h2>Conversation review</h2><p>Enter a received message to draft a reply. This local demo is not connected to a client inbox.</p></div></div>
-          <label className="field-label" htmlFor="message-job">Related job</label>
+          <div className="section-head"><div><h2>Conversation review</h2><p>{upworkMode ? "Paste a received Upwork message. After approval, copy the reply into Upwork Messages for final review." : "Enter a received simulator message to draft a reply."}</p></div></div>
+          {!upworkMode && <><label className="field-label" htmlFor="message-job">Related job</label>
           <select id="message-job" value={messageJobId} onChange={(event) => setMessageJobId(event.target.value)}>
             <option value="">Choose a job</option>
             {jobs.map((job) => <option value={job.job_id} key={job.job_id}>{job.title}</option>)}
-          </select>
+          </select></>}
           <label className="field-label" htmlFor="incoming-message">Received message</label>
           <textarea id="incoming-message" value={incomingMessage} onChange={(event) => setIncomingMessage(event.target.value)} placeholder="Paste or type a message for local intent classification…" />
-          <button className="primary" disabled={!messageJobId || !incomingMessage.trim()} onClick={() => void draftMessage()}><Send size={14} /> Draft reply</button>
+          <button className="primary" disabled={(!upworkMode && !messageJobId) || !incomingMessage.trim()} onClick={() => void draftMessage()}><Send size={14} /> Draft reply</button>
           <div className="message-list">{messages.map((message) => <article className="screen-card message-card" key={message.id}>
-            <div className="message-header"><b>{jobs.find((job) => job.job_id === message.job_id)?.title ?? message.job_id}</b><span>{message.intent} · {message.status}</span></div>
+            <div className="message-header"><b>{message.marketplace === "upwork" ? "Upwork conversation" : (jobs.find((job) => job.job_id === message.job_id)?.title ?? message.job_id)}</b><span>{message.intent} · {message.status === "ready_to_copy" ? "Ready to copy" : message.status}</span></div>
             <p><strong>Message:</strong> {message.incoming_message}</p>
             {message.negotiation_decision && <p><strong>Negotiation coach ({message.negotiation_decision.action}):</strong> {message.negotiation_decision.reason}</p>}
             {message.draft && <p><strong>Draft:</strong> {message.draft}</p>}
@@ -343,6 +408,10 @@ export default function App() {
             {message.status === "awaiting_review" && <div className="drawer-actions">
               <button className="secondary" onClick={() => void decideMessage(message, false)}>Reject</button>
               <button className="primary" onClick={() => void decideMessage(message, true)}>Approve reply</button>
+            </div>}
+            {message.status === "ready_to_copy" && <div className="drawer-actions">
+              <button className="secondary" onClick={() => void copyApprovedReply(message)}>Copy approved reply</button>
+              <a href="https://www.upwork.com/ab/messages/" target="_blank" rel="noopener noreferrer">Open Upwork Messages</a>
             </div>}
             {message.status === "blocked" && <span className="screen-note">Safety signal blocked this draft.</span>}
           </article>)}</div>
@@ -393,14 +462,53 @@ export default function App() {
     </main>
     {selected && <div className="drawer-backdrop" onClick={() => { setSelected(null); setProposal(null); }}><section className="proposal-drawer" onClick={(event) => event.stopPropagation()}>
       <div className="drawer-top"><div><span className="status good"><i /> OPPORTUNITY REVIEW</span><h2>{selected.title}</h2></div><button className="icon-btn" aria-label="Close" onClick={() => { setSelected(null); setProposal(null); }}><X size={18} /></button></div>
+      {error && <p className="alert danger" role="alert">{error}</p>}
       {proposal ? <><div className="decision-box"><div className="decision-icon"><BadgeCheck size={19} /></div><div><b>{proposal.analysis.decision.action === "bid" ? "Recommended: prepare a proposal" : "Recommendation: do not bid"}</b><span>{proposal.analysis.decision.reasons.join(" ")}</span></div><strong>{Math.round(proposal.analysis.fit_report.score * 100)}%<small>fit</small></strong></div>
         {proposal.analysis.risk_report.flags.length > 0 && <div className="risk-box"><ShieldAlert size={17} /><div><b>Safety signals detected</b><span>{proposal.analysis.risk_report.flags.join(" · ")}</span></div><strong>{Math.round(proposal.analysis.risk_report.score * 100)}%</strong></div>}
         <div className="detail-grid"><div><small>RECOMMENDED PRICE</small><b>${proposal.analysis.price_quote.amount} <em>USD{proposal.analysis.price_quote.unit === "hourly" ? "/hr" : ""}</em></b><span>{proposal.analysis.price_quote.rationale}</span></div><div><small>CONNECTS PREVIEW</small><b>{proposal.analysis.price_quote.connects_cost} credits</b><span>No Connects are spent by this preview.</span></div></div>
         <div className="drawer-section"><div className="drawer-section-head"><h3>Evidence behind this match</h3><span>{proposal.analysis.evidence.length} items</span></div>{proposal.analysis.evidence.map((item) => <div className="evidence-card" key={item.evidence_id}><div className="evidence-icon"><FileText size={16} /></div><div><b>{item.title}</b><p>{item.summary}</p><span>{item.outcome} · {item.source}</span></div><BadgeCheck size={16} /></div>)}</div>
         <div className="drawer-section"><div className="drawer-section-head"><h3>Proposal studio</h3><span className="verified"><BadgeCheck size={14} /> Claim checks on</span></div><textarea value={draft} onChange={(event) => setDraft(event.target.value)} aria-label="Proposal draft" /><div className="claim-list">{proposal.analysis.claim_verification.map((claim, index) => <div key={`${claim.claim}-${index}`}><i className={claim.status === "supported" ? "claim-ok" : "claim-warn"} /> <span>{claim.claim}</span><small>{claim.status}</small></div>)}</div><div className="compliance"><ShieldAlert size={15} /><span>{proposal.analysis.compliance_verdict.allowed ? "Compliance check passed" : `Review required: ${proposal.analysis.compliance_verdict.violations.join("; ")}`}</span></div></div>
         <div className="dryrun"><div><b><Wallet size={15} /> Dry-run preview</b><span>Proposed amount ${proposal.analysis.price_quote.amount} · {proposal.analysis.dry_run.connects_cost} Connects</span></div><span className="no-send">NO EXTERNAL SEND</span></div>
-        <div className="drawer-actions"><button className="secondary" onClick={() => void reject()}>Reject</button><button className="secondary" onClick={() => void saveEdit()}>Save edits</button><button className="primary" disabled={!proposal.analysis.compliance_verdict.allowed || proposal.analysis.decision.action !== "bid"} onClick={() => void approve()}><Check size={15} /> Approve draft</button></div>
-      </> : selected.data_provenance === "upwork_live" ? <div className="skip-panel"><h3>Upwork listing</h3><p>{selected.description}</p><p>{jobBudget(selected)} · {selected.connects_cost === null ? "Connects cost unavailable" : `${selected.connects_cost} Connects`}{selected.applied ? " · Already applied" : ""}</p>{selected.upwork_url && <a href={selected.upwork_url} target="_blank" rel="noopener noreferrer">Open on Upwork</a>}</div> : selected.recommendation === "skip" ? <div className="skip-panel"><ShieldAlert size={22} /><h3>This opportunity has a high-risk signal.</h3><p>{selected.description}</p><p>GigBid recommends skipping and will not draft or submit a proposal. You can inspect the job, but the platform safety rules remain in force.</p></div> : <div className="loading"><span /> Building evidence-backed analysis…</div>}
+        {proposal.marketplace === "upwork" && proposal.upwork_preview && <div className="drawer-section">
+          <h3>{proposal.upwork_preview.ready ? "Upwork preview received" : "Upwork preview needs details"}</h3>
+          <p>{proposal.external_submission}</p>
+          {proposal.upwork_preview.connects_cost !== null && <p>Connects required: {proposal.upwork_preview.connects_cost}</p>}
+          {proposal.upwork_preview.connects_balance !== null && <p>Connects balance: {proposal.upwork_preview.connects_balance}</p>}
+          {proposal.upwork_preview.can_apply === false && <p>Upwork reports this account cannot currently apply.</p>}
+          {proposal.upwork_preview.screening_questions.length > 0 && <ul>{proposal.upwork_preview.screening_questions.map((question) => <li key={question}>{question}</li>)}</ul>}
+          {selected.upwork_url && <a href={selected.upwork_url} target="_blank" rel="noopener noreferrer">Review listing on Upwork</a>}
+        </div>}
+        {proposal.marketplace === "upwork" && ["preview_failed", "preview_requested"].includes(proposal.status) && <div className="drawer-section">
+          <p>{proposal.status === "preview_failed" ? "Upwork did not return a preview." : "The preview request has no recorded outcome."}</p>
+          <button className="secondary" onClick={() => setProposal(null)}>Start a new draft</button>
+        </div>}
+        {(proposal.marketplace !== "upwork" || ["awaiting_review", "edited"].includes(proposal.status)) && <div className="drawer-actions">
+          <button className="secondary" disabled={proposalBusy} onClick={() => void reject()}>Reject</button>
+          <button className="secondary" disabled={proposalBusy} onClick={() => void saveEdit()}>Save edits</button>
+          <button className="primary" disabled={proposalBusy || !proposal.analysis.compliance_verdict.allowed || proposal.analysis.decision.action !== "bid" || (proposal.marketplace === "upwork" && draft !== proposal.proposal.cover_letter)} onClick={() => void approve()}>
+            <Check size={15} /> {proposal.marketplace === "upwork" ? "Approve and request Upwork preview" : "Approve draft"}
+          </button>
+        </div>}
+      </> : selected.data_provenance === "upwork_live" ? <div className="skip-panel">
+        <h3>Upwork listing</h3><p>{selected.description}</p>
+        <p>{jobBudget(selected)} · {selected.connects_cost === null ? "Connects cost unavailable" : `${selected.connects_cost} Connects`}{selected.applied ? " · Already applied" : ""}</p>
+        {selected.can_apply === false && <p>Upwork reports this account cannot currently apply.</p>}
+        {selected.upwork_url && <a href={selected.upwork_url} target="_blank" rel="noopener noreferrer">Open on Upwork</a>}
+        {!selected.applied && Boolean(portfolio?.evidence.length) && <div className="drawer-section">
+          <label className="field-label" htmlFor="offer-evidence">Portfolio evidence</label>
+          <select id="offer-evidence" value={evidenceId} onChange={(event) => setEvidenceId(event.target.value)}>
+            <option value="">Choose a project</option>
+            {portfolio?.evidence.map((item) => <option key={item.evidence_id} value={item.evidence_id}>{item.title}</option>)}
+          </select>
+          <label className="field-label" htmlFor="offer-amount">Bid in USD</label>
+          <input id="offer-amount" type="number" min="0.01" step="0.01" value={bid} onChange={(event) => setBid(event.target.value)} />
+          <label className="field-label" htmlFor="offer-unit">Bid type</label>
+          <select id="offer-unit" value={bidUnit} onChange={(event) => setBidUnit(event.target.value)}>
+            <option value="fixed">Fixed price</option><option value="hourly">Hourly</option>
+          </select>
+          <button className="primary" disabled={proposalBusy || !evidenceId || !Number.isFinite(Number(bid)) || Number(bid) <= 0} onClick={() => void draftUpworkProposal()}>Prepare proposal draft</button>
+        </div>}
+      </div> : selected.recommendation === "skip" ? <div className="skip-panel"><ShieldAlert size={22} /><h3>This opportunity has a high-risk signal.</h3><p>{selected.description}</p><p>GigBid recommends skipping and will not draft or submit a proposal. You can inspect the job, but the platform safety rules remain in force.</p></div> : <div className="loading"><span /> Building evidence-backed analysis…</div>}
     </section></div>}
   </div>;
 }

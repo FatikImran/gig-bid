@@ -1,5 +1,6 @@
 import json
 
+import pytest
 from fastapi.testclient import TestClient
 
 from agent.sample_data import jobs
@@ -20,9 +21,136 @@ def test_live_listings_do_not_use_synthetic_portfolio_or_approval(tmp_path, monk
         assert listing["recommendation"] == "watch"
         assert listing["fit_score"] is None
         assert client.post("/api/jobs/1234/analyze").status_code == 409
-        assert client.post(
-            "/api/proposals/old-draft/approve", headers={"Idempotency-Key": "live-approval-01"}
-        ).status_code == 409
+        assert (
+            client.post(
+                "/api/proposals/old-draft/approve", headers={"Idempotency-Key": "live-approval-01"}
+            ).status_code
+            == 404
+        )
+
+
+@pytest.mark.parametrize("rejected", [False, True])
+def test_upwork_web_approval_returns_preview_and_replays_without_resending(
+    tmp_path, monkeypatch, rejected
+):
+    monkeypatch.setattr(main, "DB_PATH", tmp_path / "preview.sqlite3")
+    monkeypatch.setenv("GIGBID_MARKETPLACE_MODE", "upwork")
+    portfolio = tmp_path / "owner.json"
+    portfolio.write_text(
+        json.dumps(
+            [
+                {
+                    "evidence_id": "owner-example",
+                    "freelancer_id": "local-owner",
+                    "title": "Python workflow",
+                    "summary": "Built a Python workflow that classifies support requests.",
+                    "skills": ["Python"],
+                    "outcome": "Local fixture",
+                    "source": "Owner-provided résumé",
+                }
+            ]
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(main, "PORTFOLIO_PATH", portfolio)
+    calls = []
+
+    class LiveJobs:
+        async def get_job(self, job_id):
+            return {
+                "job_id": job_id,
+                "title": "Python support workflow",
+                "description": "Classify requests",
+                "required_skills": ["Python"],
+                "budget": {"type": "hourly"},
+                "applied": False,
+                "data_provenance": "upwork_live",
+                "upwork_reference": "1234",
+                "connects_cost": 8,
+            }
+
+        async def create_proposal_draft(self, payload, idempotency_key, approved, dry_run):
+            assert approved is True and dry_run is False
+            calls.append(payload)
+            if rejected:
+                raise main.UpworkMarketplaceError("Upwork rejected this preview (EXAMPLE_CODE).")
+            return {
+                "preview_id": "local-test-preview",
+                "preview": {"connects_cost": 8, "connects_balance": 20},
+            }
+
+    monkeypatch.setattr(main, "create_marketplace_port", LiveJobs)
+    headers = {"Authorization": "Bearer local-dev-token"}
+    with TestClient(main.app, headers=headers) as client:
+        assert client.get("/api/portfolio").json()["evidence"][0]["evidence_id"] == "owner-example"
+        response = client.post(
+            "/api/jobs/1234/analyze",
+            json={
+                "evidence_id": "owner-example",
+                "amount": 50,
+                "unit": "hourly",
+            },
+        )
+        assert response.status_code == 201
+        result = response.json()
+        assert result["status"] == "awaiting_review"
+        assert calls == []
+
+        approval = f"/api/proposals/{result['id']}/approve"
+        approval_headers = {"Idempotency-Key": "upwork-approval-test"}
+        first = client.post(approval, headers=approval_headers)
+        if rejected:
+            assert first.status_code == 502
+            assert "EXAMPLE_CODE" in first.json()["detail"]
+            assert client.get(f"/api/proposals/{result['id']}").json()["status"] == "preview_failed"
+            assert client.post(approval, headers=approval_headers).status_code == 409
+            assert len(calls) == 1
+            return
+        assert first.status_code == 200
+        assert first.json()["status"] == "preview_ready"
+        assert first.json()["upwork_preview"]["connects_cost"] == 8
+        assert "local-test-preview" not in first.text
+        assert (
+            client.post(approval, headers=approval_headers).headers["Idempotent-Replay"] == "true"
+        )
+        assert (
+            client.post(approval, headers={"Idempotency-Key": "different-key-test"}).status_code
+            == 409
+        )
+        assert calls == [
+            {
+                "job_reference": "1234",
+                "charged_amount": 50,
+                "cover_letter": result["proposal"]["cover_letter"],
+            }
+        ]
+
+
+def test_upwork_message_approval_only_releases_local_draft(tmp_path, monkeypatch):
+    monkeypatch.setattr(main, "DB_PATH", tmp_path / "live-reply.sqlite3")
+    monkeypatch.setenv("GIGBID_MARKETPLACE_MODE", "upwork")
+
+    def forbidden_marketplace():
+        raise AssertionError("The draft handoff must not call Upwork or the simulator")
+
+    monkeypatch.setattr(main, "create_marketplace_port", forbidden_marketplace)
+    headers = {"Authorization": "Bearer local-dev-token"}
+    with TestClient(main.app, headers=headers) as client:
+        response = client.post(
+            "/api/messages/draft", json={"message": "Can we discuss the budget?"}
+        )
+        assert response.status_code == 201
+        draft = response.json()
+        assert draft["status"] == "awaiting_review"
+        assert draft["negotiation_decision"] is None
+        result = client.post(
+            f"/api/messages/{draft['id']}/approve", headers={"Idempotency-Key": "upwork-reply-test"}
+        )
+        assert result.status_code == 200
+        assert result.json()["status"] == "ready_to_copy"
+        saved = client.get("/api/messages").json()[0]
+        assert saved["draft"] == draft["draft"]
+        assert saved["external_send_enabled"] is False
 
 
 def test_api_approval_and_persistence(tmp_path, monkeypatch):
@@ -95,7 +223,9 @@ def test_approval_rechecks_legacy_screening_answers(tmp_path, monkeypatch):
         created = client.post("/api/jobs/sample-job-001/analyze", headers=headers).json()
         proposal_path = f"/api/proposals/{created['id']}"
         with main.connection() as conn:
-            row = conn.execute("SELECT payload FROM proposals WHERE id=?", (created["id"],)).fetchone()
+            row = conn.execute(
+                "SELECT payload FROM proposals WHERE id=?", (created["id"],)
+            ).fetchone()
             payload = json.loads(row["payload"])
             payload["proposal"]["screening_answers"] = ["I am a licensed attorney."]
             conn.execute(

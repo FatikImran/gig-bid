@@ -1,4 +1,4 @@
-"""Read-side mapping for the authenticated Upwork MCP tool contract."""
+"""Map authenticated Upwork MCP reads and proposal previews to GigBid."""
 
 from __future__ import annotations
 
@@ -8,6 +8,8 @@ import math
 import os
 import re
 import sys
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlsplit
@@ -84,9 +86,14 @@ def _job(raw: dict[str, Any], requested_id: str | None = None) -> dict[str, Any]
             "type": job_type if job_type in {"hourly", "fixed"} else "unspecified",
         },
         "connects_cost": int(connects) if connects is not None and connects.is_integer() else None,
+        "connects_balance": _amount(raw.get("connects_balance")),
         "data_provenance": "upwork_live",
         "upwork_url": safe_url,
+        "upwork_reference": str(upstream_id)
+        if str(upstream_id).isascii() and str(upstream_id).isdigit()
+        else None,
         "applied": raw.get("applied") is True,
+        "can_apply": raw["can_apply"] if isinstance(raw.get("can_apply"), bool) else None,
     }
 
 
@@ -130,6 +137,50 @@ def _detail_shape(data: dict[str, Any], path: str = "root", depth: int = 0) -> s
     return "; ".join(levels)
 
 
+def _application_page(data: Any, action: str) -> tuple[list[dict[str, Any]], str | None]:
+    keys = (
+        ("invitations", "freelancerInvitations", "jobInvitations", "invites")
+        if action == "invitations"
+        else ("proposals", "freelancerProposals", "jobProposals", "applications")
+    ) + ("data", "results", "nodes", "edges", "items", "records")
+    resource = "invitations?" if action == "invitations" else "(?:proposals?|applications?)"
+    wrapper = re.compile(rf"(?:{resource})(?:list|connection)?(?:v\d+)?$", re.IGNORECASE)
+    page: dict[str, Any] = {}
+    levels = []
+    for _ in range(5):
+        if not isinstance(data, dict):
+            break
+        levels.append(
+            ", ".join(
+                sorted(key for key in data if re.fullmatch(r"[A-Za-z][A-Za-z0-9_]{0,39}", key))[:20]
+            )
+        )
+        page.update(data)
+        children = (*keys, *(key for key in data if wrapper.search(key.replace("_", ""))))
+        data = next(
+            (data[key] for key in children if isinstance(data.get(key), (list, dict))), None
+        )
+    if not isinstance(data, list) or any(not isinstance(row, dict) for row in data):
+        shape = " / ".join(levels) or type(data).__name__
+        raise UpworkMarketplaceError(f"Upwork returned an unrecognized {action} page ({shape}).")
+    rows = [row.get("node", row) for row in data]
+    if any(not isinstance(row, dict) for row in rows):
+        raise UpworkMarketplaceError("Upwork returned an invalid prior application record.")
+
+    info = page.get("pageInfo", page.get("page_info", {}))
+    if not isinstance(info, dict):
+        raise UpworkMarketplaceError("Upwork returned invalid prior-application pagination.")
+    has_more = info.get(
+        "hasNextPage", info.get("has_next_page", page.get("hasMore", page.get("has_more")))
+    )
+    cursor = info.get("endCursor", info.get("end_cursor", page.get("next_cursor")))
+    if has_more is False or (has_more is None and not cursor and len(rows) < 25):
+        return rows, None
+    if not isinstance(cursor, str) or not cursor:
+        raise UpworkMarketplaceError("Upwork did not supply the next prior-application page.")
+    return rows, cursor
+
+
 class UpworkMCPAdapter:
     def __init__(self, client: MultiServerMCPClient, org_uid: str | None = None):
         self.client = client
@@ -137,23 +188,41 @@ class UpworkMCPAdapter:
 
     async def _call(self, session: ClientSession, name: str, arguments: dict[str, Any]) -> Any:
         result = await session.call_tool(f"upwork__{name}", arguments)
-        if result.isError:
-            raise UpworkMarketplaceError(f"Upwork rejected the {name} request.")
+        content = "\n".join(item.text for item in result.content if isinstance(item, TextContent))
         data = result.structuredContent
         if data is None:
             try:
-                data = json.loads(
-                    "\n".join(item.text for item in result.content if isinstance(item, TextContent))
-                )
+                data = json.loads(content)
             except ValueError:
-                raise UpworkMarketplaceError(f"Upwork returned invalid JSON for {name}.") from None
-        if isinstance(data, dict) and (data.get("status") == "error" or data.get("error_code")):
-            raise UpworkMarketplaceError(f"Upwork could not complete the {name} request.")
+                if not result.isError:
+                    raise UpworkMarketplaceError(
+                        f"Upwork returned invalid JSON for {name}."
+                    ) from None
+        if result.isError or (
+            isinstance(data, dict) and (data.get("status") == "error" or data.get("error_code"))
+        ):
+            error = data.get("error") if isinstance(data, dict) else None
+            fields = error if isinstance(error, dict) else (data if isinstance(data, dict) else {})
+            code = fields.get("error_code", fields.get("code"))
+            if isinstance(code, str) and re.fullmatch(r"[A-Z][A-Z0-9_]{2,63}", code):
+                raise UpworkMarketplaceError(f"Upwork rejected the {name} request ({code}).")
+            reason = (
+                " ".join(str(fields.get(key, "")) for key in ("message", "reason", "error"))
+                + content
+            )
+            if re.search(r"(?:insufficient|not enough)\s+connects", reason, re.IGNORECASE):
+                raise UpworkMarketplaceError(
+                    "Upwork reports insufficient Connects for this listing."
+                )
+            raise UpworkMarketplaceError(
+                f"Upwork rejected the {name} request without a recognized error code."
+            )
         return data
 
-    async def _operation(self, tool: str, action: str, params: dict[str, Any]) -> Any:
+    @asynccontextmanager
+    async def _account_session(self) -> AsyncIterator[tuple[ClientSession, str]]:
         try:
-            async with asyncio.timeout(30), self.client.session("upwork") as session:
+            async with asyncio.timeout(60), self.client.session("upwork") as session:
                 org_uid = self.org_uid
                 if org_uid is None:
                     accounts = await self._call(session, "list_accounts", {})
@@ -175,9 +244,7 @@ class UpworkMCPAdapter:
                             "Upwork browsing requires exactly one eligible freelancer profile or a configured UPWORK_ORG_UID."
                         )
                     org_uid = eligible[0]
-                return await self._call(
-                    session, tool, {"action": action, "org_uid": org_uid, "params": params}
-                )
+                yield session, org_uid
         except UpworkMarketplaceError:
             raise
         except Exception as exc:  # noqa: BLE001
@@ -190,6 +257,12 @@ class UpworkMCPAdapter:
             raise UpworkMarketplaceError(
                 f"Upwork MCP request failed ({error_kind(exc)})."
             ) from None
+
+    async def _operation(self, tool: str, action: str, params: dict[str, Any]) -> Any:
+        async with self._account_session() as (session, org_uid):
+            return await self._call(
+                session, tool, {"action": action, "org_uid": org_uid, "params": params}
+            )
 
     async def search_jobs(self, query: str = "") -> list[dict[str, Any]]:
         params: dict[str, Any] = {"limit": 5, "include_full_details": True}
@@ -212,6 +285,10 @@ class UpworkMCPAdapter:
             raise UpworkMarketplaceError(
                 f"Upwork returned an unexpected job-detail response ({_detail_shape(data)})."
             )
+        envelope = data.get("data")
+        posting = envelope.get("marketplaceJobPosting") if isinstance(envelope, dict) else None
+        if isinstance(posting, dict) and "id" in posting:
+            fields = {**fields, "id": posting["id"]}
         return _job(fields, requested_id=job_id)
 
     async def get_connects_balance(self) -> dict[str, Any]:
@@ -233,11 +310,89 @@ class UpworkMCPAdapter:
             raise PermissionError("Human approval is required")
         if not idempotency_key or len(idempotency_key) < 8:
             raise ValueError("A valid idempotency key is required")
-        if not dry_run:
+        if dry_run:
+            return {"preview": payload, "idempotency_key": idempotency_key, "external_write": False}
+
+        reference = payload.get("job_reference")
+        if not isinstance(reference, str) or not re.fullmatch(r"[0-9]+", reference):
             raise UpworkMarketplaceError(
-                "Live proposal previews require a verified personal portfolio."
+                "An Upwork numeric job reference is required for the preview."
             )
-        return {"preview": payload, "idempotency_key": idempotency_key, "external_write": False}
+        letter = payload.get("cover_letter")
+        amount = _amount(payload.get("charged_amount"))
+        if not isinstance(letter, str) or not letter.strip() or len(letter) > 5000 or not amount:
+            raise UpworkMarketplaceError("The preview requires a cover letter and a positive bid.")
+        params = {"job_reference": reference, "cover_letter": letter, "charged_amount": amount}
+        async with self._account_session() as (session, org_uid):
+            await self._check_previous_application(session, org_uid, reference)
+            result = await self._call(
+                session,
+                "manage_proposals",
+                {
+                    "action": "create",
+                    "org_uid": org_uid,
+                    "params": params,
+                },
+            )
+        if not isinstance(result, dict):
+            raise UpworkMarketplaceError("Upwork returned an unexpected proposal preview.")
+        return result
+
+    async def _check_previous_application(
+        self, session: ClientSession, org_uid: str, reference: str
+    ) -> None:
+        checks = [("invitations", {"job_posting_id": reference})]
+        checks.extend(
+            ("list", {"status": status})
+            for status in (
+                "Pending",
+                "Accepted",
+                "Activated",
+                "Declined",
+                "Offered",
+                "Hired",
+            )
+        )
+        for action, filters in checks:
+            params = {**filters, "limit": 25}
+            for _ in range(2):
+                data = await self._call(
+                    session,
+                    "list_freelancer_proposals",
+                    {
+                        "action": action,
+                        "org_uid": org_uid,
+                        "params": params,
+                    },
+                )
+                try:
+                    rows, cursor = _application_page(data, action)
+                except UpworkMarketplaceError as exc:
+                    check = filters.get("status", "invitations")
+                    raise UpworkMarketplaceError(
+                        f"Prior application check ({check}): {exc}"
+                    ) from None
+                if action == "invitations" and rows:
+                    raise UpworkMarketplaceError("Check this job's existing invitation on Upwork.")
+                for row in rows:
+                    job = row.get("jobPosting", row.get("job_posting", row.get("job")))
+                    job_id = job.get("id") if isinstance(job, dict) else None
+                    job_id = job_id or row.get("job_posting_id") or row.get("job_id")
+                    if not re.fullmatch(r"[0-9]+", str(job_id)):
+                        raise UpworkMarketplaceError(
+                            "An existing proposal has an unrecognized job ID."
+                        )
+                    if str(job_id) == reference:
+                        raise UpworkMarketplaceError("This job already has a proposal on Upwork.")
+                if cursor is None:
+                    break
+                params["cursor"] = cursor
+            else:
+                raise UpworkMarketplaceError("The prior-application check exceeded its page limit.")
+
+    async def check_previous_application(self, reference: str) -> None:
+        async with self._account_session() as (session, org_uid):
+            await self._check_previous_application(session, org_uid, reference)
 
     async def submit_proposal(
         self, payload: dict[str, Any], idempotency_key: str, approved: bool

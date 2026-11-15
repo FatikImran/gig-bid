@@ -15,7 +15,7 @@ _negotiation_graph = build_negotiation_graph()
 class ConversationState(TypedDict, total=False):
     message: str
     job: dict[str, Any]
-    profile: dict[str, Any]
+    profile: dict[str, Any] | None
     intent: str
     draft: str
     status: str
@@ -26,7 +26,7 @@ class ConversationState(TypedDict, total=False):
 
 def _liaison(state: ConversationState) -> dict[str, Any]:
     result = draft_reply(state["message"])
-    if result["intent"] == "negotiation":
+    if result["intent"] == "negotiation" and state.get("profile") is not None:
         negotiation = _negotiation_graph.invoke(
             {
                 "message": state["message"],

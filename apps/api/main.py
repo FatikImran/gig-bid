@@ -10,10 +10,10 @@ import uuid
 from collections.abc import Iterator
 from contextlib import asynccontextmanager, contextmanager
 from pathlib import Path
-from typing import Annotated, Any
+from typing import Annotated, Any, Literal
 
 import httpx
-from fastapi import Depends, FastAPI, Header, HTTPException, Response, status
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.types import Command
@@ -21,6 +21,12 @@ from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 
 from agent.graphs.bid_graph import build_bid_graph
 from agent.graphs.conversation_graph import build_conversation_graph
+from agent.live_proposal import (
+    PORTFOLIO_PATH,
+    build_owner_draft,
+    load_resume_evidence,
+    preview_summary,
+)
 from agent.marketplace_port import create_marketplace_port
 from agent.nodes.compliance import check as compliance_check
 from agent.pipeline import analyze_job
@@ -52,9 +58,16 @@ class RejectProposalRequest(BaseModel):
 
 class MessageDraftRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    job_id: str = Field(min_length=1, max_length=128)
+    job_id: str | None = Field(default=None, min_length=1, max_length=128)
     message: str = Field(min_length=1, max_length=3000)
     persona_id: str = Field(default="sample-ai-engineer", min_length=1, max_length=128)
+
+
+class OwnerOfferRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    evidence_id: str = Field(min_length=1, max_length=128)
+    amount: float = Field(gt=0, allow_inf_nan=False)
+    unit: Literal["hourly", "fixed"]
 
 
 @contextmanager
@@ -141,9 +154,10 @@ async def _marketplace_job(job_id: str) -> dict[str, Any]:
     return job
 
 
-async def _marketplace_jobs() -> list[dict[str, Any]]:
+async def _marketplace_jobs(query: str = "") -> list[dict[str, Any]]:
     try:
-        return await create_marketplace_port().search_jobs()
+        port = create_marketplace_port()
+        return await port.search_jobs(query) if query else await port.search_jobs()
     except httpx.RequestError as exc:
         raise HTTPException(status_code=503, detail="Marketplace service is unavailable") from exc
     except httpx.HTTPStatusError as exc:
@@ -154,12 +168,8 @@ async def _marketplace_jobs() -> list[dict[str, Any]]:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
 
 
-def _require_simulator_for_drafting() -> None:
-    if os.getenv("GIGBID_MARKETPLACE_MODE", "gigsim").casefold() == "upwork":
-        raise HTTPException(
-            status_code=409,
-            detail="Live mode supports browsing. Drafting and approvals require the simulator.",
-        )
+def _live_mode() -> bool:
+    return os.getenv("GIGBID_MARKETPLACE_MODE", "gigsim").casefold() == "upwork"
 
 
 async def _simulator_write(path: str, payload: dict[str, Any]) -> dict[str, Any] | None:
@@ -170,9 +180,7 @@ async def _simulator_write(path: str, payload: dict[str, Any]) -> dict[str, Any]
     port = create_marketplace_port()
     try:
         if path == "/api/proposals":
-            result = await port.submit_proposal(
-                payload, payload["idempotency_key"], approved=True
-            )
+            result = await port.submit_proposal(payload, payload["idempotency_key"], approved=True)
         elif path == "/api/messages":
             result = await port.send_message(payload, payload["idempotency_key"], approved=True)
         else:
@@ -192,7 +200,9 @@ async def _simulator_write(path: str, payload: dict[str, Any]) -> dict[str, Any]
             detail=detail,
         ) from exc
     if not isinstance(result, dict):
-        raise HTTPException(status_code=502, detail="Marketplace adapter returned an invalid response")
+        raise HTTPException(
+            status_code=502, detail="Marketplace adapter returned an invalid response"
+        )
     return result
 
 
@@ -295,13 +305,18 @@ async def health() -> dict[str, str]:
 @app.get("/api/jobs")
 async def list_jobs(
     persona_id: str | None = None,
+    query: Annotated[str, Query(max_length=160)] = "",
     tenant: str = Depends(current_tenant),
 ) -> list[dict[str, Any]]:
     del tenant
-    if persona_id and persona_id not in {profile["freelancer_id"] for profile in freelancers()}:
+    if (
+        not _live_mode()
+        and persona_id
+        and persona_id not in {profile["freelancer_id"] for profile in freelancers()}
+    ):
         raise HTTPException(status_code=404, detail="Persona not found")
     results = []
-    for job in await _marketplace_jobs():
+    for job in await _marketplace_jobs(query.strip()):
         if job.get("data_provenance") == "upwork_live":
             results.append({**job, "recommendation": "watch", "fit_score": None})
             continue
@@ -330,6 +345,19 @@ async def get_portfolio(
     tenant: str = Depends(current_tenant),
 ) -> dict[str, Any]:
     del tenant
+    if _live_mode():
+        try:
+            evidence = (
+                load_resume_evidence(PORTFOLIO_PATH).values() if PORTFOLIO_PATH.is_file() else []
+            )
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+        return {
+            "profiles": [],
+            "evidence": [record.model_dump() for record in evidence],
+            "provenance": "local_owner_portfolio",
+            "uploads_enabled": False,
+        }
     profiles = freelancers()
     if persona_id:
         profiles = [profile for profile in profiles if profile["freelancer_id"] == persona_id]
@@ -350,28 +378,61 @@ async def get_portfolio(
 async def analyze(
     job_id: str,
     persona_id: str | None = None,
+    owner_offer: OwnerOfferRequest | None = None,
     tenant: str = Depends(current_tenant),
 ) -> dict[str, Any]:
-    _require_simulator_for_drafting()
-    job = await _marketplace_job(job_id)
-    if persona_id and persona_id not in {profile["freelancer_id"] for profile in freelancers()}:
+    live = _live_mode()
+    if live and owner_offer is None:
+        raise HTTPException(
+            status_code=409, detail="Choose local portfolio evidence and enter your bid."
+        )
+    if not live and owner_offer is not None:
+        raise HTTPException(status_code=409, detail="Owner offers are available in Upwork mode.")
+    if (
+        not live
+        and persona_id
+        and persona_id not in {profile["freelancer_id"] for profile in freelancers()}
+    ):
         raise HTTPException(status_code=404, detail="Persona not found")
+    job = await _marketplace_job(job_id)
     with connection() as conn:
         existing = conn.execute(
             "SELECT * FROM proposals WHERE tenant_id=? AND job_id=? "
+            "AND COALESCE(json_extract(payload, '$.marketplace'),'gigsim')=? "
             "AND status IN ('awaiting_review', 'edited') ORDER BY created_at DESC LIMIT 1",
-            (tenant, job_id),
+            (tenant, job_id, "upwork" if live else "gigsim"),
         ).fetchone()
     if existing is not None:
-        return _proposal(existing)
+        result = _proposal(existing)
+        if owner_offer is not None and result.get("owner_offer") != owner_offer.model_dump():
+            raise HTTPException(
+                status_code=409,
+                detail="Review or reject the existing draft before changing its bid or evidence.",
+            )
+        return result
     if _bid_graph is None:
         raise HTTPException(status_code=503, detail="Bid graph is not initialized")
     thread_id = str(uuid.uuid4())
-    graph_state = _bid_graph.invoke(
-        {"job": job, "persona_id": persona_id},
-        {"configurable": {"thread_id": thread_id}},
-    )
-    result = analyze_job(job, persona_id)
+    graph_config = {"configurable": {"thread_id": thread_id}}
+    if owner_offer is not None:
+        try:
+            evidence = load_resume_evidence(PORTFOLIO_PATH).get(owner_offer.evidence_id)
+            if evidence is None:
+                raise ValueError("The selected local portfolio evidence was not found.")
+            graph_state = build_owner_draft(
+                _bid_graph, job, evidence, owner_offer.amount, owner_offer.unit, graph_config
+            )
+        except (ValueError, UpworkMarketplaceError) as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+        result = {
+            "dry_run": {
+                "connects_cost": graph_state["price_quote"]["connects_cost"],
+                "external_write_enabled": False,
+            }
+        }
+    else:
+        graph_state = _bid_graph.invoke({"job": job, "persona_id": persona_id}, graph_config)
+        result = analyze_job(job, persona_id)
     for field in (
         "job_spec",
         "risk_report",
@@ -396,6 +457,13 @@ async def analyze(
         "proposal": result["proposal_draft"],
         "graph_thread_id": thread_id,
     }
+    if owner_offer is not None:
+        payload.update(
+            marketplace="upwork",
+            owner_offer=owner_offer.model_dump(),
+            upwork_reference=job["upwork_reference"],
+            upwork_url=job.get("upwork_url"),
+        )
     with connection() as conn:
         conn.execute(
             "INSERT INTO proposals (id, tenant_id, job_id, status, payload) VALUES (?, ?, ?, ?, ?)",
@@ -503,7 +571,9 @@ def _validate_proposal_content(
             )
         checks.extend(section_checks)
 
-    evidence_ids = sorted({evidence_id for check in checks for evidence_id in check["evidence_ids"]})
+    evidence_ids = sorted(
+        {evidence_id for check in checks for evidence_id in check["evidence_ids"]}
+    )
     compliance = compliance_check("\n\n".join(text for _, text in sections), evidence_ids)
     if not compliance.allowed:
         raise HTTPException(
@@ -552,7 +622,6 @@ async def approve_proposal(
     idempotency_key: str = Header(alias="Idempotency-Key", min_length=8, max_length=128),
     tenant: str = Depends(current_tenant),
 ) -> dict[str, Any]:
-    _require_simulator_for_drafting()
     request_hash = hashlib.sha256(proposal_id.encode()).hexdigest()
     async with _approval_lock:
         with connection() as conn:
@@ -577,6 +646,16 @@ async def approve_proposal(
         if row["status"] not in {"awaiting_review", "edited", "approving"}:
             raise HTTPException(status_code=409, detail=f"Proposal is {row['status']}")
         payload = json.loads(row["payload"])
+        live = payload.get("marketplace") == "upwork"
+        if live != _live_mode():
+            raise HTTPException(
+                status_code=409, detail="Open this draft in its original marketplace mode."
+            )
+        if live and payload["proposal"].get("screening_answers"):
+            raise HTTPException(
+                status_code=422,
+                detail="This preview supports cover letters without screening answers.",
+            )
         analysis = payload["analysis"]
         if analysis["decision"]["action"] != "bid" or not analysis["compliance_verdict"]["allowed"]:
             raise HTTPException(status_code=409, detail="Proposal is not eligible for approval")
@@ -590,58 +669,98 @@ async def approve_proposal(
         analysis["claim_verification"] = checks
         analysis["compliance_verdict"] = compliance
         with connection() as conn:
-            conn.execute(
-                "UPDATE proposals SET status='approving', updated_at=CURRENT_TIMESTAMP "
-                "WHERE id=? AND tenant_id=?",
-                (proposal_id, tenant),
+            claimed = conn.execute(
+                "UPDATE proposals SET status=?, updated_at=CURRENT_TIMESTAMP "
+                "WHERE id=? AND tenant_id=? AND status=?",
+                ("preview_requested" if live else "approving", proposal_id, tenant, row["status"]),
             )
+            if claimed.rowcount != 1:
+                raise HTTPException(
+                    status_code=409, detail="The proposal changed. Refresh and review it again."
+                )
         _bid_graph.update_state(
             {"configurable": {"thread_id": payload["graph_thread_id"]}},
             {"proposal_draft": payload["proposal"]},
         )
         _resume_approval(payload["graph_thread_id"], approved=True)
         payload["proposal"]["status"] = "approved"
-        job = await _marketplace_job(row["job_id"])
-        simulation = await _simulator_write(
-            "/api/proposals",
-            {
-                "job_id": row["job_id"],
-                "client_id": job["client_id"],
-                "cover_letter": payload["proposal"]["cover_letter"],
-                "screening_answers": payload["proposal"].get("screening_answers", []),
-                "evidence_ids": payload["proposal"].get("evidence_ids", []),
-                "amount": analysis["price_quote"]["amount"],
-                "idempotency_key": "proposal-" + hashlib.sha256(proposal_id.encode()).hexdigest(),
-                "approved": True,
-            },
-        )
-        if simulation is None:
-            payload["external_submission"] = "disabled; no marketplace write was made"
-        else:
-            payload["simulator_result"] = simulation
-            payload["external_submission"] = (
-                "submitted to local GigSim; synthetic outcome: "
-                f"{simulation['outcome']}"
+        operation_key = "proposal-" + request_hash
+        simulation = None
+        next_status = "approved"
+        event = "proposal_approved_no_external_write"
+        if live:
+            try:
+                upstream = await create_marketplace_port().create_proposal_draft(
+                    {
+                        "job_reference": payload["upwork_reference"],
+                        "cover_letter": proposal["cover_letter"],
+                        "charged_amount": analysis["price_quote"]["amount"],
+                    },
+                    operation_key,
+                    approved=True,
+                    dry_run=False,
+                )
+            except UpworkMarketplaceError as exc:
+                with connection() as conn:
+                    conn.execute(
+                        "UPDATE proposals SET status='preview_failed', updated_at=CURRENT_TIMESTAMP "
+                        "WHERE id=? AND tenant_id=?",
+                        (proposal_id, tenant),
+                    )
+                raise HTTPException(status_code=502, detail=str(exc)) from exc
+            payload["upwork_preview"] = preview_summary(upstream)
+            next_status = (
+                "preview_ready" if payload["upwork_preview"]["ready"] else "preview_needs_details"
             )
+            event = f"upwork_proposal_{next_status}"
+            payload["external_submission"] = (
+                "Upwork returned a preview. No proposal was submitted."
+                if payload["upwork_preview"]["ready"]
+                else "Upwork returned no confirmation-ready preview. Review the listing on Upwork."
+            )
+        else:
+            job = await _marketplace_job(row["job_id"])
+            simulation = await _simulator_write(
+                "/api/proposals",
+                {
+                    "job_id": row["job_id"],
+                    "client_id": job["client_id"],
+                    "cover_letter": proposal["cover_letter"],
+                    "screening_answers": proposal.get("screening_answers", []),
+                    "evidence_ids": proposal.get("evidence_ids", []),
+                    "amount": analysis["price_quote"]["amount"],
+                    "idempotency_key": operation_key,
+                    "approved": True,
+                },
+            )
+            if simulation is None:
+                payload["external_submission"] = "disabled; no marketplace write was made"
+            else:
+                payload["simulator_result"] = simulation
+                payload["external_submission"] = (
+                    f"submitted to local GigSim; synthetic outcome: {simulation['outcome']}"
+                )
         result = {
             "id": proposal_id,
             "job_id": row["job_id"],
-            "status": "approved",
+            "status": next_status,
             "external_submission": payload["external_submission"],
         }
         if simulation is not None:
             result["simulator_result"] = simulation
+        if live:
+            result["upwork_preview"] = payload["upwork_preview"]
         with connection() as conn:
             conn.execute(
-                "UPDATE proposals SET status='approved', payload=?, updated_at=CURRENT_TIMESTAMP "
+                "UPDATE proposals SET status=?, payload=?, updated_at=CURRENT_TIMESTAMP "
                 "WHERE id=? AND tenant_id=?",
-                (json.dumps(payload), proposal_id, tenant),
+                (next_status, json.dumps(payload), proposal_id, tenant),
             )
             conn.execute(
                 "INSERT INTO audit (tenant_id, event, trace_id, details) VALUES (?, ?, ?, ?)",
                 (
                     tenant,
-                    "proposal_approved_no_external_write",
+                    event,
                     analysis["trace_id"],
                     json.dumps({"proposal_id": proposal_id}),
                 ),
@@ -680,14 +799,21 @@ async def reject_proposal(
 async def draft_message(
     request: MessageDraftRequest, tenant: str = Depends(current_tenant)
 ) -> dict[str, Any]:
-    _require_simulator_for_drafting()
-    job = await _marketplace_job(request.job_id)
-    profile = next(
-        (item for item in freelancers() if item["freelancer_id"] == request.persona_id),
-        None,
-    )
-    if profile is None:
-        raise HTTPException(status_code=422, detail="Unknown freelancer persona")
+    live = _live_mode()
+    job = {}
+    profile = None
+    if not request.message.strip():
+        raise HTTPException(status_code=422, detail="Enter the received message.")
+    if not live:
+        if not request.job_id:
+            raise HTTPException(status_code=422, detail="Choose a related simulator job.")
+        job = await _marketplace_job(request.job_id)
+        profile = next(
+            (item for item in freelancers() if item["freelancer_id"] == request.persona_id),
+            None,
+        )
+        if profile is None:
+            raise HTTPException(status_code=422, detail="Unknown freelancer persona")
     if _conversation_graph is None:
         raise HTTPException(status_code=503, detail="Conversation graph is not initialized")
     thread_id = str(uuid.uuid4())
@@ -705,16 +831,19 @@ async def draft_message(
         "graph_thread_id": thread_id,
         "external_send_enabled": False,
     }
+    if live:
+        payload["marketplace"] = "upwork"
+    job_id = request.job_id or ""
     with connection() as conn:
         conn.execute(
             "INSERT INTO messages (id, tenant_id, job_id, status, payload) VALUES (?, ?, ?, ?, ?)",
-            (message_id, tenant, request.job_id, message_status, json.dumps(payload)),
+            (message_id, tenant, job_id, message_status, json.dumps(payload)),
         )
         conn.execute(
             "INSERT INTO audit (tenant_id, event, trace_id, details) VALUES (?, ?, ?, ?)",
             (tenant, "message_drafted", thread_id, json.dumps({"message_id": message_id})),
         )
-    return {"id": message_id, "job_id": request.job_id, "status": message_status, **payload}
+    return {"id": message_id, "job_id": job_id, "status": message_status, **payload}
 
 
 @app.post("/api/messages/{message_id}/reject")
@@ -759,7 +888,6 @@ async def approve_message(
     idempotency_key: str = Header(alias="Idempotency-Key", min_length=8, max_length=128),
     tenant: str = Depends(current_tenant),
 ) -> dict[str, Any]:
-    _require_simulator_for_drafting()
     request_hash = hashlib.sha256(f"message:{message_id}".encode()).hexdigest()
     async with _approval_lock:
         with connection() as conn:
@@ -784,34 +912,44 @@ async def approve_message(
         if row["status"] != "awaiting_review":
             raise HTTPException(status_code=409, detail=f"Message draft is {row['status']}")
         payload = json.loads(row["payload"])
+        live = payload.get("marketplace") == "upwork"
+        if live != _live_mode():
+            raise HTTPException(
+                status_code=409, detail="Open this reply in its original marketplace mode."
+            )
         _resume_conversation(payload["graph_thread_id"], approved=True)
-        job = await _marketplace_job(row["job_id"])
-        simulation = await _simulator_write(
-            "/api/messages",
-            {
-                "job_id": row["job_id"],
-                "client_id": job["client_id"],
-                "message": payload["draft"],
-                "idempotency_key": "message-" + hashlib.sha256(message_id.encode()).hexdigest(),
-                "approved": True,
-            },
-        )
+        simulation = None
+        if not live:
+            job = await _marketplace_job(row["job_id"])
+            simulation = await _simulator_write(
+                "/api/messages",
+                {
+                    "job_id": row["job_id"],
+                    "client_id": job["client_id"],
+                    "message": payload["draft"],
+                    "idempotency_key": "message-" + hashlib.sha256(message_id.encode()).hexdigest(),
+                    "approved": True,
+                },
+            )
+        next_status = "ready_to_copy" if live else "approved"
+        if live:
+            send_status = "Copy the draft into your Upwork conversation for final review."
+        elif simulation is None:
+            send_status = "disabled; no message was sent"
+        else:
+            send_status = "sent to local GigSim; outcome is simulated"
         result = {
             "id": message_id,
-            "status": "approved",
-            "external_send": (
-                "disabled; no message was sent"
-                if simulation is None
-                else "sent to local GigSim; outcome is simulated"
-            ),
+            "status": next_status,
+            "external_send": send_status,
         }
         if simulation is not None:
             result["simulator_result"] = simulation
         with connection() as conn:
             conn.execute(
-                "UPDATE messages SET status='approved', updated_at=CURRENT_TIMESTAMP "
+                "UPDATE messages SET status=?, updated_at=CURRENT_TIMESTAMP "
                 "WHERE id=? AND tenant_id=?",
-                (message_id, tenant),
+                (next_status, message_id, tenant),
             )
             conn.execute(
                 "INSERT INTO idempotency (tenant_id, key, request_hash, response) VALUES (?, ?, ?, ?)",

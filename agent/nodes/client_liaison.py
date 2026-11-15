@@ -46,7 +46,7 @@ def draft_reply(message: str) -> dict[str, str]:
     if intent == "interview_request":
         response = "Thanks for reaching out. I can discuss the project; please share a few suitable times here."
     elif intent == "negotiation":
-        response = "Thanks for sharing the budget. I can review the scope and confirm a suitable fixed price."
+        response = "Thanks for sharing the budget. I can review the scope and follow up on pricing."
     elif intent == "question":
         response = "Thanks for the question. I will review the project details and respond with a specific answer."
     else:

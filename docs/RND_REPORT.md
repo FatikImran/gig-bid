@@ -64,8 +64,11 @@ Marketplace reads use the configured port; write-intent calls only preview and r
 requests. The account owner verified OAuth, tool discovery, job search and job detail locally
 against the official Upwork MCP server using `python -m agent.upwork_marketplace`. The live OAuth
 check used the CLI. The local Playwright smoke test also passed against the live adapter and
-verified that the browser loaded the inbox and opened a listing. Live proposal previews and a
-separate GitHub MCP integration remain open.
+verified that the browser loaded the inbox and opened a listing. The local web workflow can request
+an Upwork proposal preview after approval and hand off an approved message draft to the account
+owner. The live invitation and prior-proposal checks passed. Upwork rejected the authenticated
+preview attempt after reporting that the account could not apply to that listing. A successful
+live preview and a separate GitHub MCP integration remain open.
 
 The React UI supplies Pipeline, Messages, Agent runs, Analytics, Portfolio, and Settings sections,
 along with job/risk/evidence review, proposal editing, approval/rejection, and Connects preview.

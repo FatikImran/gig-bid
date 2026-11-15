@@ -141,6 +141,62 @@ test("onboarding connects to the job inbox", async ({ page }) => {
   await expect(page.getByText("Build a customer churn prediction baseline")).toBeVisible();
 });
 
+test("Upwork approval requests a proposal preview and releases a reply for manual handoff", async ({ page }) => {
+  await installApiMocks(page);
+  const listing = { ...job, fit_score: null, data_provenance: "upwork_live", upwork_url: "https://www.upwork.com/jobs/example" };
+  const liveProposal = { ...proposal, marketplace: "upwork" };
+  const reply = { id: "upwork-reply", job_id: "", marketplace: "upwork", status: "awaiting_review", intent: "question",
+    incoming_message: "Could you clarify the timeline?", draft: "Thanks. I will review the details and follow up." };
+  let messageStatus = "";
+  let approvals = 0;
+  await page.route("http://localhost:8000/api/**", async (route) => {
+    const request = route.request();
+    const path = new URL(request.url()).pathname;
+    if (path === "/api/jobs") await route.fulfill({ json: [listing] });
+    else if (path === `/api/jobs/${job.job_id}`) await route.fulfill({ json: listing });
+    else if (path === "/api/portfolio") await route.fulfill({ json: {
+      provenance: "local_owner_portfolio", profiles: [], evidence: proposal.analysis.evidence,
+    } });
+    else if (path.endsWith("/analyze")) {
+      expect(request.postDataJSON()).toEqual({ evidence_id: "evidence-001", amount: 250, unit: "fixed" });
+      await route.fulfill({ json: liveProposal });
+    } else if (path === `/api/proposals/${proposal.id}/approve`) {
+      approvals += 1;
+      await route.fulfill({ json: { id: proposal.id, status: "preview_ready",
+        external_submission: "Upwork returned a preview. No proposal was submitted.",
+        upwork_preview: { ready: true, connects_cost: 8, connects_balance: 20, screening_questions: [] } } });
+    } else if (path === "/api/messages/draft") {
+      messageStatus = "awaiting_review";
+      await route.fulfill({ json: reply });
+    } else if (path === `/api/messages/${reply.id}/approve`) {
+      messageStatus = "ready_to_copy";
+      await route.fulfill({ json: { ...reply, status: messageStatus, external_send: "Copy for final review." } });
+    } else if (path === "/api/messages") await route.fulfill({ json: messageStatus ? [{ ...reply, status: messageStatus }] : [] });
+    else await route.fallback();
+  });
+
+  await signIn(page);
+  await page.getByRole("button", { name: "View Upwork listing" }).click();
+  await page.getByLabel("Portfolio evidence").selectOption("evidence-001");
+  await page.getByLabel("Bid in USD").fill("250");
+  await page.getByRole("button", { name: "Prepare proposal draft" }).click();
+  await expect(page.getByRole("heading", { name: "Proposal studio" })).toBeVisible();
+  expect(approvals).toBe(0);
+  await page.getByRole("button", { name: "Approve and request Upwork preview" }).click();
+  await expect(page.getByRole("heading", { name: "Upwork preview received" })).toBeVisible();
+  await expect(page.getByText("Connects balance: 20")).toBeVisible();
+  expect(approvals).toBe(1);
+
+  await page.getByRole("button", { name: "Close" }).click();
+  await page.getByRole("button", { name: "Messages" }).click();
+  await page.getByLabel("Received message").fill(reply.incoming_message);
+  await page.getByRole("button", { name: "Draft reply" }).click();
+  await expect(page.getByRole("button", { name: "Copy approved reply" })).toHaveCount(0);
+  await page.getByRole("button", { name: "Approve reply" }).click();
+  await expect(page.getByRole("button", { name: "Copy approved reply" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Open Upwork Messages" })).toHaveAttribute("href", /upwork\.com/);
+});
+
 test("proposal approval is confirmed in the review drawer", async ({ page }) => {
   await installApiMocks(page);
   await signIn(page);
