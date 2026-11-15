@@ -6,6 +6,25 @@ from agent.sample_data import jobs
 from apps.api import main
 
 
+def test_live_listings_do_not_use_synthetic_portfolio_or_approval(tmp_path, monkeypatch):
+    monkeypatch.setattr(main, "DB_PATH", tmp_path / "live-browse.sqlite3")
+    monkeypatch.setenv("GIGBID_MARKETPLACE_MODE", "upwork")
+
+    class LiveJobs:
+        async def search_jobs(self):
+            return [{"job_id": "1234", "title": "Live job", "data_provenance": "upwork_live"}]
+
+    monkeypatch.setattr(main, "create_marketplace_port", LiveJobs)
+    with TestClient(main.app, headers={"Authorization": "Bearer local-dev-token"}) as client:
+        listing = client.get("/api/jobs").json()[0]
+        assert listing["recommendation"] == "watch"
+        assert listing["fit_score"] is None
+        assert client.post("/api/jobs/1234/analyze").status_code == 409
+        assert client.post(
+            "/api/proposals/old-draft/approve", headers={"Idempotency-Key": "live-approval-01"}
+        ).status_code == 409
+
+
 def test_api_approval_and_persistence(tmp_path, monkeypatch):
     monkeypatch.setattr(main, "DB_PATH", tmp_path / "gigbid.sqlite3")
     monkeypatch.delenv("GIGSIM_BASE_URL", raising=False)

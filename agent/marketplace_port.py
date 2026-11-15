@@ -7,6 +7,7 @@ from urllib.parse import quote, urlparse
 import httpx
 
 from agent.sample_data import client_history, jobs
+from agent.upwork_marketplace import configured_upwork_marketplace
 
 
 class MarketplacePort(Protocol):
@@ -203,90 +204,6 @@ class LocalGigSimRESTAdapter:
         )
 
 
-class UpworkMCPAdapter:
-    """Official MCP client adapter; requires an OAuth access token obtained by the user."""
-
-    def __init__(self, endpoint: str, access_token: str):
-        if not endpoint.startswith("https://"):
-            raise ValueError("Upwork MCP endpoint must use HTTPS")
-        if not access_token.strip():
-            raise ValueError("Upwork OAuth access token is required")
-        self.endpoint = endpoint
-        self.access_token = access_token
-        self._client = None
-
-    async def _get_tool(self, name: str):
-        if self._client is None:
-            try:
-                from langchain_mcp_adapters.client import MultiServerMCPClient
-            except ImportError as exc:
-                raise RuntimeError(
-                    "Install langchain-mcp-adapters to use the live adapter"
-                ) from exc
-            self._client = MultiServerMCPClient(
-                {
-                    "upwork": {
-                        "transport": "streamable_http",
-                        "url": self.endpoint,
-                        "headers": {"Authorization": f"Bearer {self.access_token}"},
-                    }
-                }
-            )
-        tools = await self._client.get_tools()
-        tool = next((candidate for candidate in tools if candidate.name == name), None)
-        if tool is None:
-            raise RuntimeError(f"Configured Upwork server does not expose required tool: {name}")
-        return tool
-
-    async def _call(self, tool_name: str, arguments: dict[str, Any]) -> Any:
-        tool = await self._get_tool(tool_name)
-        return await tool.ainvoke(arguments)
-
-    async def search_jobs(self, query: str = "") -> list[dict[str, Any]]:
-        result = await self._call("search_jobs", {"query": query})
-        if not isinstance(result, list):
-            raise TypeError("Upwork search_jobs returned an invalid result")
-        return result
-
-    async def get_job(self, job_id: str) -> dict[str, Any]:
-        result = await self._call("get_job", {"job_id": job_id})
-        if not isinstance(result, dict):
-            raise TypeError("Upwork get_job returned an invalid result")
-        return result
-
-    async def get_client_history(self, client_id: str) -> dict[str, Any]:
-        result = await self._call("get_client_history", {"client_id": client_id})
-        if not isinstance(result, dict):
-            raise TypeError("Upwork client history returned an invalid result")
-        return result
-
-    async def get_connects_balance(self) -> dict[str, Any]:
-        result = await self._call("get_connects_balance", {})
-        if not isinstance(result, dict):
-            raise TypeError("Upwork Connects balance returned an invalid result")
-        return result
-
-    async def list_messages(self, client_id: str) -> list[dict[str, Any]]:
-        result = await self._call("list_messages", {"client_id": client_id})
-        if not isinstance(result, list):
-            raise TypeError("Upwork list_messages returned an invalid result")
-        return result
-
-    async def create_proposal_draft(
-        self, payload: dict[str, Any], idempotency_key: str, approved: bool, dry_run: bool = True
-    ) -> dict[str, Any]:
-        if not approved:
-            raise PermissionError("Human approval is required")
-        if not idempotency_key or len(idempotency_key) < 8:
-            raise ValueError("A valid idempotency key is required")
-        # Live write tool names and payload shape must be checked against the user's OAuth tool list.
-        if not dry_run:
-            raise RuntimeError(
-                "Live write is deliberately disabled until OAuth/tool scopes are verified"
-            )
-        return {"preview": payload, "idempotency_key": idempotency_key, "external_write": False}
-
-
 def create_marketplace_port() -> MarketplacePort:
     mode = os.getenv("GIGBID_MARKETPLACE_MODE", "gigsim").casefold()
     if mode == "gigsim":
@@ -298,8 +215,5 @@ def create_marketplace_port() -> MarketplacePort:
             )
         return GigSimAdapter()
     if mode == "upwork":
-        return UpworkMCPAdapter(
-            os.getenv("UPWORK_MCP_URL", "https://mcp.upwork.com/mcp"),
-            os.getenv("UPWORK_ACCESS_TOKEN", ""),
-        )
+        return configured_upwork_marketplace()
     raise ValueError("GIGBID_MARKETPLACE_MODE must be 'gigsim' or 'upwork'")

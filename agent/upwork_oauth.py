@@ -16,6 +16,7 @@ from pathlib import Path
 from time import monotonic
 from urllib.parse import parse_qs, urlsplit
 
+import httpx
 from cryptography.fernet import Fernet, InvalidToken
 from langchain_mcp_adapters.client import MultiServerMCPClient
 from mcp.client.auth import OAuthClientProvider
@@ -33,6 +34,7 @@ TOOL_HELP_NAMES = (
     "get_profile",
     "list_freelancer_proposals",
     "manage_proposals",
+    "get_messages",
     "send_message",
 )
 
@@ -168,43 +170,57 @@ class CallbackHandler(BaseHTTPRequestHandler):
         )
 
 
-async def inspect_tools(storage: EncryptedOAuthStorage, tool_help: str | None) -> None:
-    with LoopbackCallback() as callback:
-        auth = OAuthClientProvider(
-            server_url=UPWORK_MCP_URL,
-            client_metadata=OAuthClientMetadata(
-                redirect_uris=[CALLBACK_URL],
-                token_endpoint_auth_method="none",
-                client_name="GigBid",
-            ),
-            storage=storage,
-            redirect_handler=callback.redirect,
-            callback_handler=callback.receive,
-        )
-        client = MultiServerMCPClient(
-            {"upwork": {"transport": "streamable_http", "url": UPWORK_MCP_URL, "auth": auth}}
-        )
-        async with asyncio.timeout(240), client.session("upwork") as session:
-            if tool_help:
-                result = await session.call_tool("get_tool_help", {"tool_name": tool_help})
-                if result.isError:
-                    raise RuntimeError("Upwork did not return tool help for the requested tool.")
-                help_text = "\n".join(
-                    item.text for item in result.content if isinstance(item, TextContent)
-                )
-                print(
-                    json.dumps(result.structuredContent, indent=2)
-                    if result.structuredContent
-                    else help_text
-                )
-                return
+def create_upwork_client(
+    storage: EncryptedOAuthStorage, callback: LoopbackCallback | None = None
+) -> MultiServerMCPClient:
+    auth = OAuthClientProvider(
+        server_url=UPWORK_MCP_URL,
+        client_metadata=OAuthClientMetadata(
+            redirect_uris=[CALLBACK_URL], token_endpoint_auth_method="none", client_name="GigBid"
+        ),
+        storage=storage,
+        redirect_handler=callback.redirect if callback else None,
+        callback_handler=callback.receive if callback else None,
+    )
+    return MultiServerMCPClient(
+        {"upwork": {"transport": "streamable_http", "url": UPWORK_MCP_URL, "auth": auth}}
+    )
 
+
+async def inspect_tools(storage: EncryptedOAuthStorage, tool_help: list[str]) -> None:
+    with LoopbackCallback() as callback:
+        client = create_upwork_client(storage, callback)
+        async with asyncio.timeout(240), client.session("upwork") as session:
             tools = []
             page = await session.list_tools()
             tools.extend(page.tools)
             while page.nextCursor:
                 page = await session.list_tools(cursor=page.nextCursor)
                 tools.extend(page.tools)
+
+            if tool_help:
+                help_tool = next(
+                    (
+                        tool.name
+                        for tool in tools
+                        if tool.name in {"upwork__get_tool_help", "get_tool_help"}
+                    ),
+                    None,
+                )
+                if help_tool is None:
+                    raise RuntimeError("Upwork did not advertise a tool-help endpoint.")
+                schemas = {}
+                for name in tool_help:
+                    result = await session.call_tool(help_tool, {"tool_name": name})
+                    if result.isError:
+                        raise RuntimeError(f"Upwork did not return tool help for {name}.")
+                    help_text = "\n".join(
+                        item.text for item in result.content if isinstance(item, TextContent)
+                    )
+                    schemas[name] = result.structuredContent or help_text
+                print(json.dumps(schemas, indent=2))
+                return
+
             print(
                 json.dumps(
                     [tool.model_dump(mode="json", by_alias=True) for tool in tools], indent=2
@@ -212,10 +228,22 @@ async def inspect_tools(storage: EncryptedOAuthStorage, tool_help: str | None) -
             )
 
 
+def error_kind(error: BaseException) -> str:
+    if isinstance(error, BaseExceptionGroup):
+        return ", ".join(error_kind(child) for child in error.exceptions)
+    if isinstance(error, httpx.HTTPStatusError):
+        return f"HTTP {error.response.status_code}"
+    return type(error).__name__
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--tool-help", choices=TOOL_HELP_NAMES, help="Inspect an official tool's action schema"
+        "--tool-help",
+        action="append",
+        default=[],
+        choices=TOOL_HELP_NAMES,
+        help="Inspect an official tool's action schema. Repeat for multiple tools.",
     )
     args = parser.parse_args()
     key = os.getenv("GIGBID_OAUTH_ENCRYPTION_KEY", "")
@@ -232,11 +260,12 @@ def main() -> int:
             await inspect_tools(storage, args.tool_help)
 
         asyncio.run(run())
-    # Provider errors can embed OAuth state, codes or tokens. Print types only.
+    # Provider messages can embed OAuth credentials. Print types and HTTP status codes only.
     except Exception as exc:  # noqa: BLE001
-        errors = exc.exceptions if isinstance(exc, BaseExceptionGroup) else (exc,)
-        kinds = ", ".join(type(error).__name__ for error in errors)
-        print(f"Upwork MCP connection failed ({kinds}). See docs/UPWORK_SETUP.md.", file=sys.stderr)
+        print(
+            f"Upwork MCP connection failed ({error_kind(exc)}). See docs/UPWORK_SETUP.md.",
+            file=sys.stderr,
+        )
         return 1
     return 0
 

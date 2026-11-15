@@ -11,8 +11,8 @@ services:
       GIGBID_USE_KAGGLE_FEED: ${GIGBID_USE_KAGGLE_FEED:-true}
       GIGSIM_BASE_URL: http://gigsim:8010
       GIGSIM_API_TOKEN: ${GIGSIM_API_TOKEN:-local-gigsim-token}
-      UPWORK_MCP_URL: ${UPWORK_MCP_URL:-https://mcp.upwork.com/mcp}
-      UPWORK_ACCESS_TOKEN: ${UPWORK_ACCESS_TOKEN:-}
+      GIGBID_OAUTH_ENCRYPTION_KEY: ${GIGBID_OAUTH_ENCRYPTION_KEY:-}
+      UPWORK_ORG_UID: ${UPWORK_ORG_UID:-}
     ports:
       - "8000:8000"
     volumes:

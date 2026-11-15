@@ -25,6 +25,7 @@ from agent.marketplace_port import create_marketplace_port
 from agent.nodes.compliance import check as compliance_check
 from agent.pipeline import analyze_job
 from agent.sample_data import freelancers, portfolio_items
+from agent.upwork_marketplace import UpworkMarketplaceError
 from rag.verify import verify_claims
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -123,9 +124,8 @@ def current_tenant(authorization: str | None = Header(default=None)) -> str:
 
 
 async def _marketplace_job(job_id: str) -> dict[str, Any]:
-    port = create_marketplace_port()
     try:
-        job = await port.get_job(job_id)
+        job = await create_marketplace_port().get_job(job_id)
     except LookupError as exc:
         raise HTTPException(status_code=404, detail="Job not found") from exc
     except httpx.RequestError as exc:
@@ -134,21 +134,32 @@ async def _marketplace_job(job_id: str) -> dict[str, Any]:
         raise HTTPException(
             status_code=502, detail="Marketplace service rejected the job lookup"
         ) from exc
+    except UpworkMarketplaceError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
     if job.get("job_id") != job_id:
         raise HTTPException(status_code=502, detail="Marketplace returned a mismatched job")
     return job
 
 
 async def _marketplace_jobs() -> list[dict[str, Any]]:
-    port = create_marketplace_port()
     try:
-        return await port.search_jobs()
+        return await create_marketplace_port().search_jobs()
     except httpx.RequestError as exc:
         raise HTTPException(status_code=503, detail="Marketplace service is unavailable") from exc
     except httpx.HTTPStatusError as exc:
         raise HTTPException(
             status_code=502, detail="Marketplace service rejected the job search"
         ) from exc
+    except UpworkMarketplaceError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+
+def _require_simulator_for_drafting() -> None:
+    if os.getenv("GIGBID_MARKETPLACE_MODE", "gigsim").casefold() == "upwork":
+        raise HTTPException(
+            status_code=409,
+            detail="Live mode supports browsing. Drafting and approvals require the simulator.",
+        )
 
 
 async def _simulator_write(path: str, payload: dict[str, Any]) -> dict[str, Any] | None:
@@ -291,6 +302,9 @@ async def list_jobs(
         raise HTTPException(status_code=404, detail="Persona not found")
     results = []
     for job in await _marketplace_jobs():
+        if job.get("data_provenance") == "upwork_live":
+            results.append({**job, "recommendation": "watch", "fit_score": None})
+            continue
         analysis = analyze_job(job, persona_id)
         results.append(
             {
@@ -338,6 +352,7 @@ async def analyze(
     persona_id: str | None = None,
     tenant: str = Depends(current_tenant),
 ) -> dict[str, Any]:
+    _require_simulator_for_drafting()
     job = await _marketplace_job(job_id)
     if persona_id and persona_id not in {profile["freelancer_id"] for profile in freelancers()}:
         raise HTTPException(status_code=404, detail="Persona not found")
@@ -537,6 +552,7 @@ async def approve_proposal(
     idempotency_key: str = Header(alias="Idempotency-Key", min_length=8, max_length=128),
     tenant: str = Depends(current_tenant),
 ) -> dict[str, Any]:
+    _require_simulator_for_drafting()
     request_hash = hashlib.sha256(proposal_id.encode()).hexdigest()
     async with _approval_lock:
         with connection() as conn:
@@ -664,6 +680,7 @@ async def reject_proposal(
 async def draft_message(
     request: MessageDraftRequest, tenant: str = Depends(current_tenant)
 ) -> dict[str, Any]:
+    _require_simulator_for_drafting()
     job = await _marketplace_job(request.job_id)
     profile = next(
         (item for item in freelancers() if item["freelancer_id"] == request.persona_id),
@@ -742,6 +759,7 @@ async def approve_message(
     idempotency_key: str = Header(alias="Idempotency-Key", min_length=8, max_length=128),
     tenant: str = Depends(current_tenant),
 ) -> dict[str, Any]:
+    _require_simulator_for_drafting()
     request_hash = hashlib.sha256(f"message:{message_id}".encode()).hexdigest()
     async with _approval_lock:
         with connection() as conn:

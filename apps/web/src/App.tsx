@@ -8,9 +8,9 @@ import {
 
 type Job = {
   job_id: string; title: string; description: string; required_skills: string[];
-  budget: { min: number; max: number; currency: string; type?: string }; duration_days: number | null;
-  connects_cost: number; recommendation: string; fit_score: number; risk_score: number;
-  suggested_price_usd: number;
+  budget: { min: number | null; max: number | null; currency: string; type?: string }; duration_days?: number | null;
+  connects_cost: number | null; recommendation: string; fit_score: number | null; risk_score?: number;
+  suggested_price_usd?: number; upwork_url?: string; applied?: boolean;
   data_provenance?: string; published_date?: string; synthetic_scenario?: string;
 };
 
@@ -47,6 +47,15 @@ type Portfolio = {
   evidence: { evidence_id: string; freelancer_id: string; title: string; summary: string; outcome: string; source: string }[];
   provenance: string; uploads_enabled: boolean;
 };
+
+function jobBudget(job: Job): string {
+  const { min, max, type } = job.budget;
+  const unit = type === "hourly" ? "/hr" : "";
+  if (min !== null && max !== null) return `$${min}–$${max}${unit}`;
+  if (min !== null) return `From $${min}${unit}`;
+  if (max !== null) return `Up to $${max}${unit}`;
+  return "Unlisted";
+}
 
 const API = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
 const todayLabel = new Intl.DateTimeFormat("en-US", {
@@ -133,6 +142,15 @@ export default function App() {
     setSelected(job);
     setProposal(null);
     setNotice("");
+    if (job.data_provenance === "upwork_live") {
+      try {
+        const details = await request(`/api/jobs/${encodeURIComponent(job.job_id)}`);
+        setSelected((current) => current?.job_id === job.job_id ? { ...current, ...details } : current);
+      } catch (reason) {
+        setNotice(reason instanceof Error ? reason.message : "Could not load the Upwork job details.");
+      }
+      return;
+    }
     if (job.recommendation === "skip") return;
     setLoading(true);
     try {
@@ -284,8 +302,8 @@ export default function App() {
           <div className="section-head"><div><h2>Curated for you <span className="count-pill">{filteredJobs.length}</span></h2><p>Ranked by fit, budget, and client safety signals.</p></div><div className="feed-controls"><label className="search"><Search size={16} /><input placeholder="Search opportunities..." value={search} onChange={(event) => setSearch(event.target.value)} /></label><button className="filter-btn"><Filter size={15} /> Filters <ChevronDown size={13} /></button></div></div>
           {loading && <div className="loading"><span /> Refreshing your workspace…</div>}
           <div className="job-list">{filteredJobs.map((job, index) => <article key={job.job_id} className={`job-card ${selected?.job_id === job.job_id ? "chosen" : ""}`}>
-            <div className="job-main"><div className={`company-mark mark-${index}`}>{index === 0 ? "N" : "!"}</div><div className="job-copy"><div className="job-labels"><span className={job.recommendation === "bid" ? "status good" : "status danger"}><i />{job.recommendation === "bid" ? "GOOD FIT" : "RISK FLAG"}</span><span className="posted">{job.data_provenance === "kaggle_posting" ? `Historical Kaggle posting${job.published_date ? ` · ${job.published_date}` : ""}` : job.data_provenance === "synthetic_scenario" ? `Synthetic test · ${job.synthetic_scenario ?? "scenario"}` : "Starter-kit synthetic sample"}</span></div><h3>{job.title}</h3><p>{job.description}</p><div className="skill-list">{job.required_skills.map((skill) => <span key={skill}>{skill}</span>)}</div></div></div>
-            <div className="job-side"><div><small>{job.budget.type === "hourly" ? "HOURLY RATE" : "PROJECT BUDGET"}</small><b>${job.budget.min}–${job.budget.max}{job.budget.type === "hourly" ? "/hr" : ""}</b></div><div className="fit-line"><div><span>Portfolio fit</span><b>{Math.round(job.fit_score * 100)}%</b></div><div className="progress"><i style={{ width: `${job.fit_score * 100}%` }} /></div></div><button className={job.recommendation === "bid" ? "open-button" : "open-button muted-button"} onClick={() => void openJob(job)}>{job.recommendation === "bid" ? "Review opportunity" : "View risk details"} <ArrowUpRight size={14} /></button></div>
+            <div className="job-main"><div className={`company-mark mark-${index}`}>{index === 0 ? "N" : "!"}</div><div className="job-copy"><div className="job-labels"><span className={job.recommendation === "bid" ? "status good" : "status danger"}><i />{job.data_provenance === "upwork_live" ? "LIVE LISTING" : job.recommendation === "bid" ? "GOOD FIT" : "RISK FLAG"}</span><span className="posted">{job.data_provenance === "upwork_live" ? "Upwork" : job.data_provenance === "kaggle_posting" ? `Historical Kaggle posting${job.published_date ? ` · ${job.published_date}` : ""}` : job.data_provenance === "synthetic_scenario" ? `Synthetic test · ${job.synthetic_scenario ?? "scenario"}` : "Starter-kit synthetic sample"}</span></div><h3>{job.title}</h3><p>{job.description}</p><div className="skill-list">{job.required_skills.map((skill) => <span key={skill}>{skill}</span>)}</div></div></div>
+            <div className="job-side"><div><small>{job.budget.type === "hourly" ? "HOURLY RATE" : "PROJECT BUDGET"}</small><b>{jobBudget(job)}</b></div>{job.fit_score !== null && <div className="fit-line"><div><span>Portfolio fit</span><b>{Math.round(job.fit_score * 100)}%</b></div><div className="progress"><i style={{ width: `${job.fit_score * 100}%` }} /></div></div>}<button className={job.recommendation === "bid" ? "open-button" : "open-button muted-button"} onClick={() => void openJob(job)}>{job.data_provenance === "upwork_live" ? "View Upwork listing" : job.recommendation === "bid" ? "Review opportunity" : "View risk details"} <ArrowUpRight size={14} /></button></div>
           </article>)}</div>
         </section>}
         {(activeNav === "Overview" || activeNav === "Job inbox") && <section className="pipeline-section"><div className="section-head"><div><h2>In your pipeline</h2><p>Your opportunities, at a glance.</p></div><button className="text-button" onClick={() => setActiveNav("Pipeline")}>View pipeline <ArrowUpRight size={14} /></button></div><div className="pipeline-lanes">{["Drafted", "Submitted", "In conversation", "Won"].map((stage, index) => <div className="lane" key={stage}><div className="lane-head"><span><i className={`lane-dot lane-${index}`} />{stage}</span><small>{index === 0 ? proposals.filter((p) => p.status === "awaiting_review").length : 0}</small></div>{index === 0 && proposals.filter((p) => p.status === "awaiting_review").map((p) => <button className="pipeline-card" key={p.id} onClick={() => { setProposal(p); setDraft(p.proposal.cover_letter); setSelected(jobs.find((j) => j.job_id === p.job_id) ?? null); }}><span>{p.job_id}</span><b>{jobs.find((j) => j.job_id === p.job_id)?.title ?? "Proposal draft"}</b><small>Needs your review <ArrowDownRight size={12} /></small></button>)}</div>)}</div></section>}
@@ -382,7 +400,7 @@ export default function App() {
         <div className="drawer-section"><div className="drawer-section-head"><h3>Proposal studio</h3><span className="verified"><BadgeCheck size={14} /> Claim checks on</span></div><textarea value={draft} onChange={(event) => setDraft(event.target.value)} aria-label="Proposal draft" /><div className="claim-list">{proposal.analysis.claim_verification.map((claim, index) => <div key={`${claim.claim}-${index}`}><i className={claim.status === "supported" ? "claim-ok" : "claim-warn"} /> <span>{claim.claim}</span><small>{claim.status}</small></div>)}</div><div className="compliance"><ShieldAlert size={15} /><span>{proposal.analysis.compliance_verdict.allowed ? "Compliance check passed" : `Review required: ${proposal.analysis.compliance_verdict.violations.join("; ")}`}</span></div></div>
         <div className="dryrun"><div><b><Wallet size={15} /> Dry-run preview</b><span>Proposed amount ${proposal.analysis.price_quote.amount} · {proposal.analysis.dry_run.connects_cost} Connects</span></div><span className="no-send">NO EXTERNAL SEND</span></div>
         <div className="drawer-actions"><button className="secondary" onClick={() => void reject()}>Reject</button><button className="secondary" onClick={() => void saveEdit()}>Save edits</button><button className="primary" disabled={!proposal.analysis.compliance_verdict.allowed || proposal.analysis.decision.action !== "bid"} onClick={() => void approve()}><Check size={15} /> Approve draft</button></div>
-      </> : selected.recommendation === "skip" ? <div className="skip-panel"><ShieldAlert size={22} /><h3>This opportunity has a high-risk signal.</h3><p>{selected.description}</p><p>GigBid recommends skipping and will not draft or submit a proposal. You can inspect the job, but the platform safety rules remain in force.</p></div> : <div className="loading"><span /> Building evidence-backed analysis…</div>}
+      </> : selected.data_provenance === "upwork_live" ? <div className="skip-panel"><h3>Upwork listing</h3><p>{selected.description}</p><p>{jobBudget(selected)} · {selected.connects_cost === null ? "Connects cost unavailable" : `${selected.connects_cost} Connects`}{selected.applied ? " · Already applied" : ""}</p>{selected.upwork_url && <a href={selected.upwork_url} target="_blank" rel="noopener noreferrer">Open on Upwork</a>}</div> : selected.recommendation === "skip" ? <div className="skip-panel"><ShieldAlert size={22} /><h3>This opportunity has a high-risk signal.</h3><p>{selected.description}</p><p>GigBid recommends skipping and will not draft or submit a proposal. You can inspect the job, but the platform safety rules remain in force.</p></div> : <div className="loading"><span /> Building evidence-backed analysis…</div>}
     </section></div>}
   </div>;
 }
