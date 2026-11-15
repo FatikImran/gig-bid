@@ -508,7 +508,9 @@ export default function App() {
           </select>
           <button className="primary" disabled={proposalBusy || !evidenceId || !Number.isFinite(Number(bid)) || Number(bid) <= 0} onClick={() => void draftUpworkProposal()}>Prepare proposal draft</button>
         </div>}
-      </div> : selected.recommendation === "skip" ? <div className="skip-panel"><ShieldAlert size={22} /><h3>This opportunity has a high-risk signal.</h3><p>{selected.description}</p><p>GigBid recommends skipping and will not draft or submit a proposal. You can inspect the job, but the platform safety rules remain in force.</p></div> : <div className="loading"><span /> Building evidence-backed analysis…</div>}
+      </div> : selected.recommendation === "skip" ? <div className="skip-panel"><ShieldAlert size={22} /><h3>This opportunity has a high-risk signal.</h3><p>{selected.description}</p><p>GigBid recommends skipping and will not draft or submit a proposal. You can inspect the job, but the platform safety rules remain in force.</p></div> : error ? (
+        <button className="secondary" disabled={loading} onClick={() => void openJob(selected)}>Retry analysis</button>
+      ) : loading ? <div className="loading"><span /> Building evidence-backed analysis…</div> : null}
     </section></div>}
   </div>;
 }

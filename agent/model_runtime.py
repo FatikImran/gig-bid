@@ -9,7 +9,7 @@ from pathlib import Path
 
 import httpx
 from dotenv import load_dotenv
-from jsonschema import validate
+from jsonschema import ValidationError, validate
 
 from agent.settings import ROOT, agent_config
 
@@ -17,7 +17,11 @@ load_dotenv(ROOT / ".env", override=False)
 _lock = threading.Lock()
 
 
-class GroqInferenceError(RuntimeError):
+class ModelInferenceError(RuntimeError):
+    """An inference failure safe to describe without logging request data."""
+
+
+class GroqInferenceError(ModelInferenceError):
     def __init__(self, status_code: int, retry_after: str | None):
         super().__init__(f"Groq inference failed with HTTP {status_code}.")
         self.status_code = status_code
@@ -51,30 +55,36 @@ def generate(node: str, payload: dict, schema: dict) -> dict:
     if provider == "groq":
         key = os.getenv("GROQ_API_KEY", "").strip()
         if not key:
-            raise RuntimeError("Set GROQ_API_KEY in the private .env file.")
+            raise ModelInferenceError("GROQ_API_KEY is missing from the API environment.")
         model_name = os.getenv("GROQ_MODEL", "openai/gpt-oss-20b")
-        with httpx.Client(timeout=90) as client:
-            reply = client.post(
-                "https://api.groq.com/openai/v1/chat/completions",
-                headers={"Authorization": f"Bearer {key}"},
-                json={
-                    "model": model_name,
-                    "messages": messages,
-                    "max_completion_tokens": 1800,
-                    "temperature": settings["temperature"],
-                    "response_format": {
-                        "type": "json_schema",
-                        "json_schema": {
-                            "name": node,
-                            "strict": True,
-                            "schema": schema,
+        try:
+            with httpx.Client(timeout=90) as client:
+                reply = client.post(
+                    "https://api.groq.com/openai/v1/chat/completions",
+                    headers={"Authorization": f"Bearer {key}"},
+                    json={
+                        "model": model_name,
+                        "messages": messages,
+                        "max_completion_tokens": 1800,
+                        "temperature": settings["temperature"],
+                        "response_format": {
+                            "type": "json_schema",
+                            "json_schema": {
+                                "name": node,
+                                "strict": True,
+                                "schema": schema,
+                            },
                         },
                     },
-                },
-            )
+                )
+        except httpx.RequestError as exc:
+            raise ModelInferenceError(f"Groq transport failed ({type(exc).__name__}).") from exc
         if reply.status_code != 200:
             raise GroqInferenceError(reply.status_code, reply.headers.get("retry-after"))
-        response = reply.json()
+        try:
+            response = reply.json()
+        except ValueError as exc:
+            raise ModelInferenceError("Groq returned an invalid JSON response.") from exc
     elif provider == "local":
         model_name = Path(path).name
         with _lock:
@@ -88,8 +98,11 @@ def generate(node: str, payload: dict, schema: dict) -> dict:
     else:
         raise ValueError("GIGBID_MODEL_PROVIDER must be local or groq.")
     elapsed = time.perf_counter() - started
-    result = json.loads(response["choices"][0]["message"]["content"])
-    validate(result, schema)
+    try:
+        result = json.loads(response["choices"][0]["message"]["content"])
+        validate(result, schema)
+    except (ValueError, TypeError, KeyError, IndexError, ValidationError) as exc:
+        raise ModelInferenceError(f"{provider} returned an invalid {node} result.") from exc
     usage = {
         "node": node,
         "model": model_name,

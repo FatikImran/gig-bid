@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import json
+import logging
 import os
 import secrets
 import sqlite3
@@ -15,6 +16,7 @@ from typing import Annotated, Any, Literal
 import httpx
 from fastapi import Depends, FastAPI, Header, HTTPException, Query, Response, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.types import Command
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
@@ -28,6 +30,7 @@ from agent.live_proposal import (
     preview_summary,
 )
 from agent.marketplace_port import create_marketplace_port
+from agent.model_runtime import GroqInferenceError, ModelInferenceError
 from agent.nodes.compliance import check as compliance_check
 from agent.pipeline import analyze_job
 from agent.sample_data import freelancers, portfolio_items
@@ -290,6 +293,16 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT"],
     allow_headers=["Authorization", "Content-Type", "Idempotency-Key"],
 )
+
+
+@app.exception_handler(ModelInferenceError)
+async def inference_error(_request, exc: ModelInferenceError) -> JSONResponse:
+    logging.getLogger("uvicorn.error").warning("Proposal inference failed: %s", exc)
+    rate_limited = isinstance(exc, GroqInferenceError) and exc.status_code == 429
+    return JSONResponse(
+        status_code=503 if rate_limited else 502,
+        content={"detail": str(exc)},
+    )
 
 
 @app.get("/health")

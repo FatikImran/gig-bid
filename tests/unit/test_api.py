@@ -3,8 +3,28 @@ import json
 import pytest
 from fastapi.testclient import TestClient
 
+from agent.model_runtime import GroqInferenceError
+from agent.nodes import writer
 from agent.sample_data import jobs
 from apps.api import main
+
+
+def test_groq_rate_limit_is_visible_to_browser(tmp_path, monkeypatch):
+    monkeypatch.setattr(main, "DB_PATH", tmp_path / "rate-limit.sqlite3")
+    monkeypatch.setenv("GIGBID_MARKETPLACE_MODE", "gigsim")
+    monkeypatch.setenv("GIGBID_MODEL_PROFILE", "open")
+
+    def rate_limit(*_args):
+        raise GroqInferenceError(429, "30")
+
+    monkeypatch.setattr(writer, "generate", rate_limit)
+    headers = {"Authorization": "Bearer local-dev-token", "Origin": "http://localhost:5173"}
+    with TestClient(main.app, headers=headers) as client:
+        response = client.post("/api/jobs/sample-job-001/analyze")
+        assert response.status_code == 503
+        assert response.headers["access-control-allow-origin"] == headers["Origin"]
+        assert response.json() == {"detail": "Groq inference failed with HTTP 429."}
+        assert client.get("/api/proposals").json() == []
 
 
 def test_live_listings_do_not_use_synthetic_portfolio_or_approval(tmp_path, monkeypatch):
