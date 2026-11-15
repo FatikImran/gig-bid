@@ -61,8 +61,9 @@ interview, or hired proposal outcomes; requests are rate limited and a transient
 occasionally injected. The GigBid approval endpoint only permits local simulator hostnames and
 calls the service after approval resumes. Three local FastMCP servers expose typed portfolio, configured-marketplace, and workspace tools.
 Marketplace reads use the configured port; write-intent calls only preview and reject non-dry-run
-requests. Upwork OAuth authorization/callback, live writes, and a separate GitHub MCP server are not
-implemented.
+requests. The account owner verified OAuth, tool discovery, job search and job detail locally
+against the official Upwork MCP server using `python -m agent.upwork_marketplace`. The live OAuth
+check used the CLI. Live proposal previews and a separate GitHub MCP integration remain open.
 
 The React UI supplies Pipeline, Messages, Agent runs, Analytics, Portfolio, and Settings sections,
 along with job/risk/evidence review, proposal editing, approval/rejection, and Connects preview.
@@ -227,8 +228,8 @@ the private Classroom comment.
 
 **What ships:** a prepared local Kaggle-derived feed, a distinct local deterministic simulator with
 synthetic outcomes, approval-safe LangGraph graphs, SQLite checkpoints, three local MCP servers,
-six lightweight RAG variants, claim filtering, and partial workspace UI screens. **What does not
-ship:** live marketplace integration, instructor GigSim compatibility, neural embeddings/reranking,
+six lightweight RAG variants, claim filtering, local Upwork browsing, and partial workspace UI
+screens. **Open work:** live marketplace drafts, instructor GigSim compatibility, neural embeddings/reranking,
 multi-user production identity, architecture-comparison evidence, hosted tracing, or the remaining
 message-inbox, portfolio-ingestion, and budget-enforcement workflows. The local GitHub-based
 Portfolio MCP install guide is prepared, but there is no PyPI release.

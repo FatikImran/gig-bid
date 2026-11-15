@@ -6,12 +6,11 @@
 
 GigBid screens jobs, flags unsafe requests, matches them to portfolio evidence, and drafts proposals
 for human review. The optional local simulator can persist approved proposals and generate synthetic
-client outcomes. The instructor's GigSim, persona/evaluation sets, policy update, and live OAuth
-credentials were not included.
+client outcomes. Local Upwork browsing connects through the official MCP server using the account
+owner's OAuth consent. [Upwork setup](docs/UPWORK_SETUP.md)
 
-> **Safety note:** real marketplace writes are disabled. When configured, an explicit approval
-> submits only to the local GigSim-style simulator and spends fictional simulator Connects. It is
-> not connected to Upwork or the instructor's GigSim.
+> **Safety note:** Upwork mode supports job browsing. Proposal and message approval actions use
+> the local simulator when configured, with fictional Connects.
 
 ## Live deployment
 
@@ -153,7 +152,7 @@ See [Implementation Checklist](docs/IMPLEMENTATION_CHECKLIST.md). In particular,
 simulator uses deterministic synthetic client preferences/outcomes, not the instructor's hidden
 simulator; the Kaggle-derived seed is local and ignored by Git. The deployed app currently has no
 simulator service configured, so its approval preview does not send externally. Neural dense
-retrieval, OAuth authorization, GitHub MCP, production multi-user identity, hosted tracing, three
+retrieval, live proposal previews, GitHub MCP, production multi-user identity, hosted tracing, three
 public traces, the three-minute demo video, and external publication of the technical write-up
 remain incomplete. The Messages screen accepts manually entered messages rather than loading an
 inbox; Agent runs shows minimal audit events rather than streamed traces; Portfolio has no

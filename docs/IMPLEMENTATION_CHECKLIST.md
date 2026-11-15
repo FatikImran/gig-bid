@@ -4,6 +4,7 @@
 
 - [x] Typed job/risk/fit/decision/price/proposal/compliance handoffs with validation.
 - [x] Single marketplace port with sample fixtures and a guarded official Upwork MCP client adapter.
+- [x] Local Upwork OAuth and live job search/detail verified with an authorized freelancer account.
 - [x] Portfolio, marketplace, and workspace FastMCP local servers with typed tools/resources/prompt.
 - [x] In-memory MCP client tests, bounded schemas, per-agent tool allowlists, and a checked-in tool-schema snapshot.
 - [x] Marketplace MCP reads use the configured port; direct non-dry-run writes are blocked and API approval gates simulator writes.
@@ -27,7 +28,7 @@
 - [ ] Improve the contract dataset's role: currently only aggregate descriptive statistics are generated; no pricing model consumes it.
 - [ ] Instructor's three persona corpora, gold dev sets, hidden set, and official policy update are not in the workspace; do not claim those official evaluations.
 - [ ] Neural dense embeddings, true cross-encoder, vector store, PDF/GitHub ingestion, upload UI.
-- [ ] Upwork OAuth authorization/callback, live write tool validation, and user-owned account.
+- [ ] Live Upwork proposal previews grounded in real portfolio evidence and a draft-only message workflow.
 - [ ] Third-party GitHub MCP server configuration and least-privilege token.
 - [ ] Multi-user authentication and encrypted tenant OAuth storage.
 - [ ] Postgres/Redis production deployment, distributed worker queue, and hosted service.

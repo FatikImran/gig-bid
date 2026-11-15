@@ -28,7 +28,7 @@ flowchart LR
 The graphs use a SQLite LangGraph checkpointer. The proposal and conversation approval routes resume
 their interrupted thread after checking that the current state is at the approval node. With the
 local GigSim service configured, an approval submits only to that simulator and may spend fictional
-Connects. No request is sent to Upwork; its OAuth credentials are not configured.
+Connects. The local Upwork OAuth integration serves browse requests.
 
 ## Boundaries and state
 
@@ -43,9 +43,9 @@ Connects. No request is sent to Upwork; its OAuth credentials are not configured
   synthetic client profiles/outcomes, Connects, idempotency, rate limits, and SQLite audit state.
   The API approval routes and Marketplace MCP reads use the configured marketplace port; only the
   API resumes the approval interrupt and performs simulator writes.
-- **Marketplace port:** `agent/marketplace_port.py` has a local sample adapter and an official
-  Upwork MCP client scaffold. The live adapter is read-only until its OAuth scopes and tool schema
-  are verified.
+- **Marketplace port:** `agent/marketplace_port.py` selects the sample adapter, the local simulator,
+  or the official Upwork MCP adapter. Upwork OAuth, search and job detail were verified in the
+  local CLI. [Upwork setup](UPWORK_SETUP.md)
 
 ## RAG decision
 
