@@ -94,6 +94,7 @@ _DETAIL_WRAPPERS = (
     "job",
     "job_posting",
     "jobPosting",
+    "marketplaceJobPosting",
     "job_details",
     "jobDetails",
     "posting",
@@ -114,16 +115,17 @@ def _detail_fields(data: dict[str, Any], depth: int = 0) -> dict[str, Any] | Non
     return None
 
 
-def _detail_shape(data: dict[str, Any]) -> str:
-    def names(record: dict[str, Any]) -> str:
-        return ", ".join(
-            sorted(key for key in record if re.fullmatch(r"[A-Za-z][A-Za-z0-9_]{0,39}", key))[:30]
-        )
-
-    levels = [f"root: {names(data)}"]
+def _detail_shape(data: dict[str, Any], path: str = "root", depth: int = 0) -> str:
+    names = ", ".join(
+        sorted(key for key in data if re.fullmatch(r"[A-Za-z][A-Za-z0-9_]{0,39}", key))[:30]
+    )
+    levels = [f"{path}: {names}"]
+    if depth == 3:
+        return levels[0]
     for key in _DETAIL_WRAPPERS:
         if isinstance(data.get(key), dict):
-            levels.append(f"{key}: {names(data[key])}")
+            child_path = key if depth == 0 else f"{path}.{key}"
+            levels.append(_detail_shape(data[key], child_path, depth + 1))
     return "; ".join(levels)
 
 
