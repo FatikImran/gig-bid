@@ -79,7 +79,9 @@ to check the listing, invitations, and previous proposals without sending a cove
 requesting a preview. Error diagnostics include field names only.
 
 To find a candidate that Upwork marks eligible, run `python -m agent.live_proposal --find-eligible "n8n workflow automation"`.
-The command searches Upwork and checks at most three listings. It performs read operations only.
+The command checks up to three listings and falls back to recent listings once if Upwork's
+keyword search reports an upstream error. Pass `--find-eligible` alone to go straight to recent
+listings. These checks perform read operations only.
 
 ### Approve in the web app
 

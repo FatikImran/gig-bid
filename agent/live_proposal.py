@@ -95,7 +95,13 @@ def preview_summary(response: dict[str, Any]) -> dict[str, Any]:
 
 async def find_eligible_jobs(query: str) -> None:
     marketplace = configured_upwork_marketplace()
-    jobs = await marketplace.search_jobs(query)
+    try:
+        jobs = await marketplace.search_jobs(query)
+    except UpworkMarketplaceError as exc:
+        if not query or exc.code != "UPSTREAM":
+            raise
+        print("Upwork's keyword search failed. Checking recent listings instead.")
+        jobs = await marketplace.search_jobs()
     checked = 0
     unaffordable = 0
     for result in jobs[:3]:
@@ -166,7 +172,7 @@ def main() -> int:
     parser.add_argument("--bid", type=float, help="Bid in USD")
     parser.add_argument("--unit", choices=("hourly", "fixed"))
     parser.add_argument("--list-evidence", action="store_true")
-    parser.add_argument("--find-eligible", metavar="QUERY")
+    parser.add_argument("--find-eligible", metavar="QUERY", nargs="?", const="")
     parser.add_argument(
         "--preflight-only",
         action="store_true",
@@ -174,8 +180,8 @@ def main() -> int:
     )
     args = parser.parse_args()
     try:
-        if args.find_eligible:
-            asyncio.run(find_eligible_jobs(args.find_eligible))
+        if args.find_eligible is not None:
+            asyncio.run(find_eligible_jobs(args.find_eligible.strip()))
             return 0
         if args.list_evidence:
             for item in load_resume_evidence(PORTFOLIO_PATH).values():

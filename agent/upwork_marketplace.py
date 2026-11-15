@@ -22,7 +22,11 @@ from agent.upwork_oauth import LOCAL_TENANT, EncryptedOAuthStorage, create_upwor
 
 
 class UpworkMarketplaceError(RuntimeError):
-    """An Upwork read that GigBid could not safely complete."""
+    """An Upwork operation that GigBid could not safely complete."""
+
+    def __init__(self, message: str, *, code: str | None = None):
+        super().__init__(message)
+        self.code = code
 
 
 def _amount(value: Any) -> float | None:
@@ -205,7 +209,9 @@ class UpworkMCPAdapter:
             fields = error if isinstance(error, dict) else (data if isinstance(data, dict) else {})
             code = fields.get("error_code", fields.get("code"))
             if isinstance(code, str) and re.fullmatch(r"[A-Z][A-Z0-9_]{2,63}", code):
-                raise UpworkMarketplaceError(f"Upwork rejected the {name} request ({code}).")
+                raise UpworkMarketplaceError(
+                    f"Upwork rejected the {name} request ({code}).", code=code
+                )
             reason = (
                 " ".join(str(fields.get(key, "")) for key in ("message", "reason", "error"))
                 + content
@@ -253,7 +259,7 @@ class UpworkMCPAdapter:
             while isinstance(group, BaseExceptionGroup) and len(group.exceptions) == 1:
                 group = group.exceptions[0]
             if isinstance(group, UpworkMarketplaceError):
-                raise UpworkMarketplaceError(str(group)) from None
+                raise group from None
             raise UpworkMarketplaceError(
                 f"Upwork MCP request failed ({error_kind(exc)})."
             ) from None
@@ -265,9 +271,10 @@ class UpworkMCPAdapter:
             )
 
     async def search_jobs(self, query: str = "") -> list[dict[str, Any]]:
-        params: dict[str, Any] = {"limit": 5, "include_full_details": True}
-        if query.strip():
-            params["query"] = query.strip()
+        query = query.strip()
+        params: dict[str, Any] = {"limit": 5, "include_full_details": not query}
+        if query:
+            params["query"] = query
         data = await self._operation("find_jobs", "search", params)
         rows = data.get("jobs") if isinstance(data, dict) else data
         if not isinstance(rows, list) or any(not isinstance(row, dict) for row in rows):

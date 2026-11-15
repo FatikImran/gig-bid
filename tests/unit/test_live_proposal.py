@@ -8,6 +8,26 @@ from agent.upwork_marketplace import UpworkMarketplaceError, UpworkMCPAdapter
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("code", ["UPSTREAM", "SENSITIVE_RATE_LIMIT_EXCEEDED"])
+async def test_eligible_search_only_falls_back_on_upstream_error(monkeypatch, capsys, code):
+    class Marketplace:
+        search_jobs = AsyncMock(
+            side_effect=[UpworkMarketplaceError("Example error", code=code), []]
+        )
+
+    monkeypatch.setattr(live_proposal, "configured_upwork_marketplace", Marketplace)
+    if code == "UPSTREAM":
+        await live_proposal.find_eligible_jobs("n8n workflows")
+        assert Marketplace.search_jobs.await_count == 2
+        Marketplace.search_jobs.assert_awaited_with()
+        assert "Checking recent listings instead" in capsys.readouterr().out
+    else:
+        with pytest.raises(UpworkMarketplaceError, match="Example error"):
+            await live_proposal.find_eligible_jobs("n8n workflows")
+        Marketplace.search_jobs.assert_awaited_once_with("n8n workflows")
+
+
+@pytest.mark.asyncio
 @pytest.mark.parametrize("reply", ["PREVIEW", "no"])
 async def test_private_evidence_and_graph_approval_gate_provider_preview(monkeypatch, reply):
     evidence = live_proposal.ResumeEvidence(
