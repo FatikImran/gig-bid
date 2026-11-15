@@ -39,7 +39,9 @@
 - [ ] Hosted LangSmith/Langfuse exporter.
 - [x] Blind classmate panel completed with three reviewers and 18 ratings across six proposal pairs. See the [panel tally](../evals/results/blind_proposal_panel_summary.json).
 - [x] Calibrate GPT-OSS 120B for claim support using 30 independently labeled synthetic excerpts. Agreement was 30/30 and Cohen’s κ was 1.00. See [calibration results](../evals/results/judge_calibration.json).
-- [ ] Required model-based 40-task tool-design study, three-architecture comparison, ten failed dev-job taxonomy, and instructor hidden-set metrics.
+- [x] Run the three architectures against 50 synthetic dev jobs each. Report per-design coverage and matched cases with Groq rate limits. See [architecture results](../evals/results/architectures.json).
+- [x] Document ten observed dev-job failures, attempted mitigations and outcomes in the [R&D report](RND_REPORT.md#ten-observed-dev-job-failures).
+- [ ] Required model-based 40-task tool-design study and instructor hidden-set metrics.
 - [x] Seven Playwright E2E tests covering onboarding, proposal approval/rejection/edit, conversation and negotiation replies, and degraded mode.
 - [x] Twelve-case authored synthetic failure-mode regression runner and results; this is not a substitute for ten failed instructor dev jobs.
 - [x] Negotiation evaluation gate reports walk-away precision/recall, accepted-counter outcomes, and below-floor counter safety.

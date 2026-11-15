@@ -1,0 +1,159 @@
+{
+  "model": "openai/gpt-oss-120b",
+  "criterion": "All past-work claims are supported by supplied evidence.",
+  "cases": 30,
+  "agreement": 1.0,
+  "cohens_kappa": 1.0,
+  "labels": [
+    {
+      "id": 1,
+      "human": 1,
+      "judge": 1
+    },
+    {
+      "id": 2,
+      "human": 0,
+      "judge": 0
+    },
+    {
+      "id": 3,
+      "human": 1,
+      "judge": 1
+    },
+    {
+      "id": 4,
+      "human": 0,
+      "judge": 0
+    },
+    {
+      "id": 5,
+      "human": 1,
+      "judge": 1
+    },
+    {
+      "id": 6,
+      "human": 1,
+      "judge": 1
+    },
+    {
+      "id": 7,
+      "human": 1,
+      "judge": 1
+    },
+    {
+      "id": 8,
+      "human": 0,
+      "judge": 0
+    },
+    {
+      "id": 9,
+      "human": 0,
+      "judge": 0
+    },
+    {
+      "id": 10,
+      "human": 1,
+      "judge": 1
+    },
+    {
+      "id": 11,
+      "human": 1,
+      "judge": 1
+    },
+    {
+      "id": 12,
+      "human": 1,
+      "judge": 1
+    },
+    {
+      "id": 13,
+      "human": 1,
+      "judge": 1
+    },
+    {
+      "id": 14,
+      "human": 0,
+      "judge": 0
+    },
+    {
+      "id": 15,
+      "human": 0,
+      "judge": 0
+    },
+    {
+      "id": 16,
+      "human": 0,
+      "judge": 0
+    },
+    {
+      "id": 17,
+      "human": 1,
+      "judge": 1
+    },
+    {
+      "id": 18,
+      "human": 1,
+      "judge": 1
+    },
+    {
+      "id": 19,
+      "human": 1,
+      "judge": 1
+    },
+    {
+      "id": 20,
+      "human": 0,
+      "judge": 0
+    },
+    {
+      "id": 21,
+      "human": 0,
+      "judge": 0
+    },
+    {
+      "id": 22,
+      "human": 0,
+      "judge": 0
+    },
+    {
+      "id": 23,
+      "human": 1,
+      "judge": 1
+    },
+    {
+      "id": 24,
+      "human": 1,
+      "judge": 1
+    },
+    {
+      "id": 25,
+      "human": 1,
+      "judge": 1
+    },
+    {
+      "id": 26,
+      "human": 1,
+      "judge": 1
+    },
+    {
+      "id": 27,
+      "human": 1,
+      "judge": 1
+    },
+    {
+      "id": 28,
+      "human": 1,
+      "judge": 1
+    },
+    {
+      "id": 29,
+      "human": 1,
+      "judge": 1
+    },
+    {
+      "id": 30,
+      "human": 1,
+      "judge": 1
+    }
+  ]
+}

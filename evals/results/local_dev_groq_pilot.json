@@ -1,0 +1,1801 @@
+{
+  "provenance": "Authored synthetic benchmark using the bundled fictional personas.",
+  "hypothesis": "GPT-OSS 120B will reach approval on more eligible briefs than GPT-OSS 20B.",
+  "decision_mapping": "Watch counts as a non-bid for bid detection.",
+  "runs": {
+    "openai/gpt-oss-20b": {
+      "overall": {
+        "cases": 15,
+        "correct_decisions": 12,
+        "draft_cases": 3,
+        "drafts_at_approval": 2,
+        "provider_errors": 1,
+        "skip_cases_with_zero_model_calls": 12,
+        "median_draft_latency_seconds": 4.056,
+        "estimated_total_api_usd": 0.0015618,
+        "bid_detection": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "risk_detection": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "retrieval": {
+          "recall_at_5": 1.0,
+          "mrr": 0.7333333333333334,
+          "ndcg_at_10": 0.7956176024115139
+        },
+        "prices_in_band": 3,
+        "priced_cases_expected": 3
+      },
+      "by_persona": {
+        "sample-ai-engineer": {
+          "cases": 5,
+          "correct_decisions": 4,
+          "draft_cases": 1,
+          "drafts_at_approval": 1,
+          "provider_errors": 0,
+          "skip_cases_with_zero_model_calls": 4,
+          "median_draft_latency_seconds": 4.37,
+          "estimated_total_api_usd": 0.000390825,
+          "bid_detection": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "risk_detection": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "retrieval": {
+            "recall_at_5": 1.0,
+            "mrr": 0.2,
+            "ndcg_at_10": 0.38685280723454163
+          },
+          "prices_in_band": 1,
+          "priced_cases_expected": 1
+        },
+        "sample-data-analyst": {
+          "cases": 5,
+          "correct_decisions": 4,
+          "draft_cases": 1,
+          "drafts_at_approval": 0,
+          "provider_errors": 1,
+          "skip_cases_with_zero_model_calls": 4,
+          "median_draft_latency_seconds": null,
+          "estimated_total_api_usd": 0.000800175,
+          "bid_detection": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "risk_detection": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "retrieval": {
+            "recall_at_5": 1.0,
+            "mrr": 1.0,
+            "ndcg_at_10": 1.0
+          },
+          "prices_in_band": 1,
+          "priced_cases_expected": 1
+        },
+        "sample-fullstack-developer": {
+          "cases": 5,
+          "correct_decisions": 4,
+          "draft_cases": 1,
+          "drafts_at_approval": 1,
+          "provider_errors": 0,
+          "skip_cases_with_zero_model_calls": 4,
+          "median_draft_latency_seconds": 3.741,
+          "estimated_total_api_usd": 0.0003708,
+          "bid_detection": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "risk_detection": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "retrieval": {
+            "recall_at_5": 1.0,
+            "mrr": 1.0,
+            "ndcg_at_10": 1.0
+          },
+          "prices_in_band": 1,
+          "priced_cases_expected": 1
+        }
+      },
+      "runs": [
+        {
+          "persona_id": "sample-ai-engineer",
+          "condition": "standard",
+          "job": {
+            "job_id": "local-dev-01-standard",
+            "title": "Compare classifiers for customer churn",
+            "description": "Compare classifiers for customer churn.",
+            "required_skills": [
+              "Python",
+              "scikit-learn"
+            ],
+            "budget": {
+              "type": "fixed",
+              "min": 275,
+              "max": 450,
+              "currency": "USD"
+            },
+            "connects_cost": 8
+          },
+          "gold_decision": "bid",
+          "expected_risk": false,
+          "gold_evidence_ids": [
+            "evidence-001"
+          ],
+          "fair_fixed_usd": [
+            275,
+            450
+          ],
+          "job_id": "local-dev-01-standard",
+          "model": "openai/gpt-oss-20b",
+          "expected_decision": "bid",
+          "decision": "bid",
+          "risk_score": 0.0,
+          "ranked_evidence_ids": [
+            "ai-synthetic-003",
+            "ai-synthetic-002",
+            "ai-synthetic-004",
+            "ai-synthetic-005",
+            "evidence-001"
+          ],
+          "price_usd": 275.0,
+          "provider_error": null,
+          "approval_waiting": true,
+          "latency_seconds": 4.37,
+          "revisions": 0,
+          "draft": {
+            "job_id": "local-dev-01-standard",
+            "cover_letter": "I have built a reproducible classification experiment using Python and scikit-learn, comparing logistic regression and random forest and documenting precision and recall (evidence-001). I also created a Python and scikit-learn classification baseline, compared precision and recall, and recorded evaluation limitations (evidence-002).",
+            "screening_answers": [],
+            "evidence_ids": [
+              "ai-synthetic-002",
+              "evidence-001"
+            ],
+            "status": "pending_review"
+          },
+          "unsupported_final_claims_by_heuristic": 0,
+          "model_calls": 2,
+          "prompt_tokens": 1847,
+          "completion_tokens": 841,
+          "estimated_api_usd": 0.000390825
+        },
+        {
+          "persona_id": "sample-ai-engineer",
+          "condition": "low-budget",
+          "job": {
+            "job_id": "local-dev-01-low-budget",
+            "title": "Compare classifiers for customer churn",
+            "description": "Compare classifiers for customer churn.",
+            "required_skills": [
+              "Python",
+              "scikit-learn"
+            ],
+            "budget": {
+              "type": "fixed",
+              "min": 20,
+              "max": 40,
+              "currency": "USD"
+            },
+            "connects_cost": 8
+          },
+          "gold_decision": "skip",
+          "expected_risk": false,
+          "gold_evidence_ids": [
+            "evidence-001"
+          ],
+          "fair_fixed_usd": null,
+          "job_id": "local-dev-01-low-budget",
+          "model": "openai/gpt-oss-20b",
+          "expected_decision": "skip",
+          "decision": "skip",
+          "risk_score": 0.0,
+          "ranked_evidence_ids": [
+            "ai-synthetic-003",
+            "ai-synthetic-002",
+            "ai-synthetic-004",
+            "ai-synthetic-005",
+            "evidence-001"
+          ],
+          "price_usd": null,
+          "provider_error": null,
+          "approval_waiting": false,
+          "latency_seconds": 0.013,
+          "revisions": 0,
+          "draft": null,
+          "unsupported_final_claims_by_heuristic": null,
+          "model_calls": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "estimated_api_usd": 0
+        },
+        {
+          "persona_id": "sample-ai-engineer",
+          "condition": "unpaid-trial",
+          "job": {
+            "job_id": "local-dev-01-unpaid-trial",
+            "title": "Compare classifiers for customer churn",
+            "description": "Compare classifiers for customer churn. Deliver the entire production solution for free before hire.",
+            "required_skills": [
+              "Python",
+              "scikit-learn"
+            ],
+            "budget": {
+              "type": "fixed",
+              "min": 275,
+              "max": 450,
+              "currency": "USD"
+            },
+            "connects_cost": 8
+          },
+          "gold_decision": "skip",
+          "expected_risk": true,
+          "gold_evidence_ids": [
+            "evidence-001"
+          ],
+          "fair_fixed_usd": null,
+          "job_id": "local-dev-01-unpaid-trial",
+          "model": "openai/gpt-oss-20b",
+          "expected_decision": "skip",
+          "decision": "skip",
+          "risk_score": 0.7,
+          "ranked_evidence_ids": [
+            "ai-synthetic-003",
+            "ai-synthetic-002",
+            "ai-synthetic-004",
+            "ai-synthetic-005",
+            "evidence-001"
+          ],
+          "price_usd": null,
+          "provider_error": null,
+          "approval_waiting": false,
+          "latency_seconds": 0.013,
+          "revisions": 0,
+          "draft": null,
+          "unsupported_final_claims_by_heuristic": null,
+          "model_calls": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "estimated_api_usd": 0
+        },
+        {
+          "persona_id": "sample-ai-engineer",
+          "condition": "off-platform",
+          "job": {
+            "job_id": "local-dev-01-off-platform",
+            "title": "Compare classifiers for customer churn",
+            "description": "Compare classifiers for customer churn. Message my personal Telegram account before we discuss a contract.",
+            "required_skills": [
+              "Python",
+              "scikit-learn"
+            ],
+            "budget": {
+              "type": "fixed",
+              "min": 275,
+              "max": 450,
+              "currency": "USD"
+            },
+            "connects_cost": 8
+          },
+          "gold_decision": "skip",
+          "expected_risk": true,
+          "gold_evidence_ids": [
+            "evidence-001"
+          ],
+          "fair_fixed_usd": null,
+          "job_id": "local-dev-01-off-platform",
+          "model": "openai/gpt-oss-20b",
+          "expected_decision": "skip",
+          "decision": "skip",
+          "risk_score": 0.7,
+          "ranked_evidence_ids": [
+            "ai-synthetic-003",
+            "ai-synthetic-002",
+            "ai-synthetic-004",
+            "ai-synthetic-005",
+            "evidence-001"
+          ],
+          "price_usd": null,
+          "provider_error": null,
+          "approval_waiting": false,
+          "latency_seconds": 0.015,
+          "revisions": 0,
+          "draft": null,
+          "unsupported_final_claims_by_heuristic": null,
+          "model_calls": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "estimated_api_usd": 0
+        },
+        {
+          "persona_id": "sample-ai-engineer",
+          "condition": "missing-skill",
+          "job": {
+            "job_id": "local-dev-01-missing-skill",
+            "title": "Compare classifiers for customer churn",
+            "description": "Compare classifiers for customer churn. A licensed engineer must stamp the drawings in AutoCAD.",
+            "required_skills": [
+              "Python",
+              "scikit-learn",
+              "engineering license",
+              "AutoCAD",
+              "electrical drawings",
+              "CAD"
+            ],
+            "budget": {
+              "type": "fixed",
+              "min": 275,
+              "max": 450,
+              "currency": "USD"
+            },
+            "connects_cost": 8
+          },
+          "gold_decision": "skip",
+          "expected_risk": false,
+          "gold_evidence_ids": [
+            "evidence-001"
+          ],
+          "fair_fixed_usd": null,
+          "job_id": "local-dev-01-missing-skill",
+          "model": "openai/gpt-oss-20b",
+          "expected_decision": "skip",
+          "decision": "watch",
+          "risk_score": 0.0,
+          "ranked_evidence_ids": [
+            "ai-synthetic-003",
+            "ai-synthetic-002",
+            "ai-synthetic-004",
+            "ai-synthetic-005",
+            "evidence-001"
+          ],
+          "price_usd": null,
+          "provider_error": null,
+          "approval_waiting": false,
+          "latency_seconds": 0.015,
+          "revisions": 0,
+          "draft": null,
+          "unsupported_final_claims_by_heuristic": null,
+          "model_calls": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "estimated_api_usd": 0
+        },
+        {
+          "persona_id": "sample-fullstack-developer",
+          "condition": "standard",
+          "job": {
+            "job_id": "local-dev-04-standard",
+            "title": "Build a responsive customer portal",
+            "description": "Build a responsive customer portal.",
+            "required_skills": [
+              "React",
+              "TypeScript"
+            ],
+            "budget": {
+              "type": "fixed",
+              "min": 450,
+              "max": 800,
+              "currency": "USD"
+            },
+            "connects_cost": 8
+          },
+          "gold_decision": "bid",
+          "expected_risk": false,
+          "gold_evidence_ids": [
+            "web-synthetic-001"
+          ],
+          "fair_fixed_usd": [
+            450,
+            800
+          ],
+          "job_id": "local-dev-04-standard",
+          "model": "openai/gpt-oss-20b",
+          "expected_decision": "bid",
+          "decision": "bid",
+          "risk_score": 0.0,
+          "ranked_evidence_ids": [
+            "web-synthetic-001",
+            "web-synthetic-002",
+            "web-synthetic-003",
+            "web-synthetic-004",
+            "web-synthetic-005"
+          ],
+          "price_usd": 450.0,
+          "provider_error": null,
+          "approval_waiting": true,
+          "latency_seconds": 3.741,
+          "revisions": 0,
+          "draft": {
+            "job_id": "local-dev-04-standard",
+            "cover_letter": "I designed a responsive customer portal using React and TypeScript, creating reusable JavaScript components (web-synthetic-001).",
+            "screening_answers": [],
+            "evidence_ids": [
+              "web-synthetic-001"
+            ],
+            "status": "pending_review"
+          },
+          "unsupported_final_claims_by_heuristic": 0,
+          "model_calls": 2,
+          "prompt_tokens": 1740,
+          "completion_tokens": 801,
+          "estimated_api_usd": 0.0003708
+        },
+        {
+          "persona_id": "sample-fullstack-developer",
+          "condition": "low-budget",
+          "job": {
+            "job_id": "local-dev-04-low-budget",
+            "title": "Build a responsive customer portal",
+            "description": "Build a responsive customer portal.",
+            "required_skills": [
+              "React",
+              "TypeScript"
+            ],
+            "budget": {
+              "type": "fixed",
+              "min": 20,
+              "max": 40,
+              "currency": "USD"
+            },
+            "connects_cost": 8
+          },
+          "gold_decision": "skip",
+          "expected_risk": false,
+          "gold_evidence_ids": [
+            "web-synthetic-001"
+          ],
+          "fair_fixed_usd": null,
+          "job_id": "local-dev-04-low-budget",
+          "model": "openai/gpt-oss-20b",
+          "expected_decision": "skip",
+          "decision": "skip",
+          "risk_score": 0.0,
+          "ranked_evidence_ids": [
+            "web-synthetic-001",
+            "web-synthetic-002",
+            "web-synthetic-003",
+            "web-synthetic-004",
+            "web-synthetic-005"
+          ],
+          "price_usd": null,
+          "provider_error": null,
+          "approval_waiting": false,
+          "latency_seconds": 0.008,
+          "revisions": 0,
+          "draft": null,
+          "unsupported_final_claims_by_heuristic": null,
+          "model_calls": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "estimated_api_usd": 0
+        },
+        {
+          "persona_id": "sample-fullstack-developer",
+          "condition": "unpaid-trial",
+          "job": {
+            "job_id": "local-dev-04-unpaid-trial",
+            "title": "Build a responsive customer portal",
+            "description": "Build a responsive customer portal. Deliver the entire production solution for free before hire.",
+            "required_skills": [
+              "React",
+              "TypeScript"
+            ],
+            "budget": {
+              "type": "fixed",
+              "min": 450,
+              "max": 800,
+              "currency": "USD"
+            },
+            "connects_cost": 8
+          },
+          "gold_decision": "skip",
+          "expected_risk": true,
+          "gold_evidence_ids": [
+            "web-synthetic-001"
+          ],
+          "fair_fixed_usd": null,
+          "job_id": "local-dev-04-unpaid-trial",
+          "model": "openai/gpt-oss-20b",
+          "expected_decision": "skip",
+          "decision": "skip",
+          "risk_score": 0.7,
+          "ranked_evidence_ids": [
+            "web-synthetic-001",
+            "web-synthetic-002",
+            "web-synthetic-003",
+            "web-synthetic-004",
+            "web-synthetic-005"
+          ],
+          "price_usd": null,
+          "provider_error": null,
+          "approval_waiting": false,
+          "latency_seconds": 0.009,
+          "revisions": 0,
+          "draft": null,
+          "unsupported_final_claims_by_heuristic": null,
+          "model_calls": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "estimated_api_usd": 0
+        },
+        {
+          "persona_id": "sample-fullstack-developer",
+          "condition": "off-platform",
+          "job": {
+            "job_id": "local-dev-04-off-platform",
+            "title": "Build a responsive customer portal",
+            "description": "Build a responsive customer portal. Message my personal Telegram account before we discuss a contract.",
+            "required_skills": [
+              "React",
+              "TypeScript"
+            ],
+            "budget": {
+              "type": "fixed",
+              "min": 450,
+              "max": 800,
+              "currency": "USD"
+            },
+            "connects_cost": 8
+          },
+          "gold_decision": "skip",
+          "expected_risk": true,
+          "gold_evidence_ids": [
+            "web-synthetic-001"
+          ],
+          "fair_fixed_usd": null,
+          "job_id": "local-dev-04-off-platform",
+          "model": "openai/gpt-oss-20b",
+          "expected_decision": "skip",
+          "decision": "skip",
+          "risk_score": 0.7,
+          "ranked_evidence_ids": [
+            "web-synthetic-001",
+            "web-synthetic-002",
+            "web-synthetic-003",
+            "web-synthetic-004",
+            "web-synthetic-005"
+          ],
+          "price_usd": null,
+          "provider_error": null,
+          "approval_waiting": false,
+          "latency_seconds": 0.009,
+          "revisions": 0,
+          "draft": null,
+          "unsupported_final_claims_by_heuristic": null,
+          "model_calls": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "estimated_api_usd": 0
+        },
+        {
+          "persona_id": "sample-fullstack-developer",
+          "condition": "missing-skill",
+          "job": {
+            "job_id": "local-dev-04-missing-skill",
+            "title": "Build a responsive customer portal",
+            "description": "Build a responsive customer portal. A licensed engineer must stamp the drawings in AutoCAD.",
+            "required_skills": [
+              "React",
+              "TypeScript",
+              "engineering license",
+              "AutoCAD",
+              "electrical drawings",
+              "CAD"
+            ],
+            "budget": {
+              "type": "fixed",
+              "min": 450,
+              "max": 800,
+              "currency": "USD"
+            },
+            "connects_cost": 8
+          },
+          "gold_decision": "skip",
+          "expected_risk": false,
+          "gold_evidence_ids": [
+            "web-synthetic-001"
+          ],
+          "fair_fixed_usd": null,
+          "job_id": "local-dev-04-missing-skill",
+          "model": "openai/gpt-oss-20b",
+          "expected_decision": "skip",
+          "decision": "watch",
+          "risk_score": 0.0,
+          "ranked_evidence_ids": [
+            "web-synthetic-001",
+            "web-synthetic-002",
+            "web-synthetic-003",
+            "web-synthetic-004",
+            "web-synthetic-005"
+          ],
+          "price_usd": null,
+          "provider_error": null,
+          "approval_waiting": false,
+          "latency_seconds": 0.01,
+          "revisions": 0,
+          "draft": null,
+          "unsupported_final_claims_by_heuristic": null,
+          "model_calls": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "estimated_api_usd": 0
+        },
+        {
+          "persona_id": "sample-data-analyst",
+          "condition": "standard",
+          "job": {
+            "job_id": "local-dev-08-standard",
+            "title": "Summarize monthly sales in Excel",
+            "description": "Summarize monthly sales in Excel.",
+            "required_skills": [
+              "Excel",
+              "Data Analysis"
+            ],
+            "budget": {
+              "type": "fixed",
+              "min": 260,
+              "max": 425,
+              "currency": "USD"
+            },
+            "connects_cost": 8
+          },
+          "gold_decision": "bid",
+          "expected_risk": false,
+          "gold_evidence_ids": [
+            "data-synthetic-001"
+          ],
+          "fair_fixed_usd": [
+            260,
+            425
+          ],
+          "job_id": "local-dev-08-standard",
+          "model": "openai/gpt-oss-20b",
+          "expected_decision": "bid",
+          "decision": "bid",
+          "risk_score": 0.0,
+          "ranked_evidence_ids": [
+            "data-synthetic-001",
+            "data-synthetic-002",
+            "data-synthetic-003",
+            "data-synthetic-004",
+            "data-synthetic-005"
+          ],
+          "price_usd": 260.0,
+          "provider_error": {
+            "http_status": 429,
+            "retry_after": "9"
+          },
+          "approval_waiting": false,
+          "latency_seconds": 5.376,
+          "revisions": 1,
+          "draft": {
+            "job_id": "local-dev-08-standard",
+            "cover_letter": "I cleaned an example sales workbook in Excel and summarized monthly trends with clear tables and charts (data-synthetic-001). This demonstrates my ability to produce clear monthly sales summaries in Excel (data-synthetic-001).",
+            "screening_answers": [],
+            "evidence_ids": [
+              "data-synthetic-001"
+            ],
+            "status": "pending_review"
+          },
+          "unsupported_final_claims_by_heuristic": 0,
+          "model_calls": 3,
+          "prompt_tokens": 2693,
+          "completion_tokens": 1994,
+          "estimated_api_usd": 0.000800175
+        },
+        {
+          "persona_id": "sample-data-analyst",
+          "condition": "low-budget",
+          "job": {
+            "job_id": "local-dev-08-low-budget",
+            "title": "Summarize monthly sales in Excel",
+            "description": "Summarize monthly sales in Excel.",
+            "required_skills": [
+              "Excel",
+              "Data Analysis"
+            ],
+            "budget": {
+              "type": "fixed",
+              "min": 20,
+              "max": 40,
+              "currency": "USD"
+            },
+            "connects_cost": 8
+          },
+          "gold_decision": "skip",
+          "expected_risk": false,
+          "gold_evidence_ids": [
+            "data-synthetic-001"
+          ],
+          "fair_fixed_usd": null,
+          "job_id": "local-dev-08-low-budget",
+          "model": "openai/gpt-oss-20b",
+          "expected_decision": "skip",
+          "decision": "skip",
+          "risk_score": 0.0,
+          "ranked_evidence_ids": [
+            "data-synthetic-001",
+            "data-synthetic-002",
+            "data-synthetic-003",
+            "data-synthetic-004",
+            "data-synthetic-005"
+          ],
+          "price_usd": null,
+          "provider_error": null,
+          "approval_waiting": false,
+          "latency_seconds": 0.008,
+          "revisions": 0,
+          "draft": null,
+          "unsupported_final_claims_by_heuristic": null,
+          "model_calls": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "estimated_api_usd": 0
+        },
+        {
+          "persona_id": "sample-data-analyst",
+          "condition": "unpaid-trial",
+          "job": {
+            "job_id": "local-dev-08-unpaid-trial",
+            "title": "Summarize monthly sales in Excel",
+            "description": "Summarize monthly sales in Excel. Deliver the entire production solution for free before hire.",
+            "required_skills": [
+              "Excel",
+              "Data Analysis"
+            ],
+            "budget": {
+              "type": "fixed",
+              "min": 260,
+              "max": 425,
+              "currency": "USD"
+            },
+            "connects_cost": 8
+          },
+          "gold_decision": "skip",
+          "expected_risk": true,
+          "gold_evidence_ids": [
+            "data-synthetic-001"
+          ],
+          "fair_fixed_usd": null,
+          "job_id": "local-dev-08-unpaid-trial",
+          "model": "openai/gpt-oss-20b",
+          "expected_decision": "skip",
+          "decision": "skip",
+          "risk_score": 0.7,
+          "ranked_evidence_ids": [
+            "data-synthetic-001",
+            "data-synthetic-002",
+            "data-synthetic-003",
+            "data-synthetic-004",
+            "data-synthetic-005"
+          ],
+          "price_usd": null,
+          "provider_error": null,
+          "approval_waiting": false,
+          "latency_seconds": 0.007,
+          "revisions": 0,
+          "draft": null,
+          "unsupported_final_claims_by_heuristic": null,
+          "model_calls": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "estimated_api_usd": 0
+        },
+        {
+          "persona_id": "sample-data-analyst",
+          "condition": "off-platform",
+          "job": {
+            "job_id": "local-dev-08-off-platform",
+            "title": "Summarize monthly sales in Excel",
+            "description": "Summarize monthly sales in Excel. Message my personal Telegram account before we discuss a contract.",
+            "required_skills": [
+              "Excel",
+              "Data Analysis"
+            ],
+            "budget": {
+              "type": "fixed",
+              "min": 260,
+              "max": 425,
+              "currency": "USD"
+            },
+            "connects_cost": 8
+          },
+          "gold_decision": "skip",
+          "expected_risk": true,
+          "gold_evidence_ids": [
+            "data-synthetic-001"
+          ],
+          "fair_fixed_usd": null,
+          "job_id": "local-dev-08-off-platform",
+          "model": "openai/gpt-oss-20b",
+          "expected_decision": "skip",
+          "decision": "skip",
+          "risk_score": 0.7,
+          "ranked_evidence_ids": [
+            "data-synthetic-001",
+            "data-synthetic-002",
+            "data-synthetic-003",
+            "data-synthetic-004",
+            "data-synthetic-005"
+          ],
+          "price_usd": null,
+          "provider_error": null,
+          "approval_waiting": false,
+          "latency_seconds": 0.008,
+          "revisions": 0,
+          "draft": null,
+          "unsupported_final_claims_by_heuristic": null,
+          "model_calls": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "estimated_api_usd": 0
+        },
+        {
+          "persona_id": "sample-data-analyst",
+          "condition": "missing-skill",
+          "job": {
+            "job_id": "local-dev-08-missing-skill",
+            "title": "Summarize monthly sales in Excel",
+            "description": "Summarize monthly sales in Excel. A licensed engineer must stamp the drawings in AutoCAD.",
+            "required_skills": [
+              "Excel",
+              "Data Analysis",
+              "engineering license",
+              "AutoCAD",
+              "electrical drawings",
+              "CAD"
+            ],
+            "budget": {
+              "type": "fixed",
+              "min": 260,
+              "max": 425,
+              "currency": "USD"
+            },
+            "connects_cost": 8
+          },
+          "gold_decision": "skip",
+          "expected_risk": false,
+          "gold_evidence_ids": [
+            "data-synthetic-001"
+          ],
+          "fair_fixed_usd": null,
+          "job_id": "local-dev-08-missing-skill",
+          "model": "openai/gpt-oss-20b",
+          "expected_decision": "skip",
+          "decision": "watch",
+          "risk_score": 0.0,
+          "ranked_evidence_ids": [
+            "data-synthetic-001",
+            "data-synthetic-002",
+            "data-synthetic-003",
+            "data-synthetic-004",
+            "data-synthetic-005"
+          ],
+          "price_usd": null,
+          "provider_error": null,
+          "approval_waiting": false,
+          "latency_seconds": 0.008,
+          "revisions": 0,
+          "draft": null,
+          "unsupported_final_claims_by_heuristic": null,
+          "model_calls": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "estimated_api_usd": 0
+        }
+      ]
+    },
+    "openai/gpt-oss-120b": {
+      "overall": {
+        "cases": 15,
+        "correct_decisions": 12,
+        "draft_cases": 3,
+        "drafts_at_approval": 3,
+        "provider_errors": 0,
+        "skip_cases_with_zero_model_calls": 12,
+        "median_draft_latency_seconds": 4.836,
+        "estimated_total_api_usd": 0.0023148,
+        "bid_detection": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "risk_detection": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "retrieval": {
+          "recall_at_5": 1.0,
+          "mrr": 0.7333333333333334,
+          "ndcg_at_10": 0.7956176024115139
+        },
+        "prices_in_band": 3,
+        "priced_cases_expected": 3
+      },
+      "by_persona": {
+        "sample-ai-engineer": {
+          "cases": 5,
+          "correct_decisions": 4,
+          "draft_cases": 1,
+          "drafts_at_approval": 1,
+          "provider_errors": 0,
+          "skip_cases_with_zero_model_calls": 4,
+          "median_draft_latency_seconds": 3.597,
+          "estimated_total_api_usd": 0.0007212,
+          "bid_detection": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "risk_detection": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "retrieval": {
+            "recall_at_5": 1.0,
+            "mrr": 0.2,
+            "ndcg_at_10": 0.38685280723454163
+          },
+          "prices_in_band": 1,
+          "priced_cases_expected": 1
+        },
+        "sample-data-analyst": {
+          "cases": 5,
+          "correct_decisions": 4,
+          "draft_cases": 1,
+          "drafts_at_approval": 1,
+          "provider_errors": 0,
+          "skip_cases_with_zero_model_calls": 4,
+          "median_draft_latency_seconds": 4.836,
+          "estimated_total_api_usd": 0.0008688,
+          "bid_detection": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "risk_detection": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "retrieval": {
+            "recall_at_5": 1.0,
+            "mrr": 1.0,
+            "ndcg_at_10": 1.0
+          },
+          "prices_in_band": 1,
+          "priced_cases_expected": 1
+        },
+        "sample-fullstack-developer": {
+          "cases": 5,
+          "correct_decisions": 4,
+          "draft_cases": 1,
+          "drafts_at_approval": 1,
+          "provider_errors": 0,
+          "skip_cases_with_zero_model_calls": 4,
+          "median_draft_latency_seconds": 5.006,
+          "estimated_total_api_usd": 0.0007248,
+          "bid_detection": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "risk_detection": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "retrieval": {
+            "recall_at_5": 1.0,
+            "mrr": 1.0,
+            "ndcg_at_10": 1.0
+          },
+          "prices_in_band": 1,
+          "priced_cases_expected": 1
+        }
+      },
+      "runs": [
+        {
+          "persona_id": "sample-ai-engineer",
+          "condition": "standard",
+          "job": {
+            "job_id": "local-dev-01-standard",
+            "title": "Compare classifiers for customer churn",
+            "description": "Compare classifiers for customer churn.",
+            "required_skills": [
+              "Python",
+              "scikit-learn"
+            ],
+            "budget": {
+              "type": "fixed",
+              "min": 275,
+              "max": 450,
+              "currency": "USD"
+            },
+            "connects_cost": 8
+          },
+          "gold_decision": "bid",
+          "expected_risk": false,
+          "gold_evidence_ids": [
+            "evidence-001"
+          ],
+          "fair_fixed_usd": [
+            275,
+            450
+          ],
+          "job_id": "local-dev-01-standard",
+          "model": "openai/gpt-oss-120b",
+          "expected_decision": "bid",
+          "decision": "bid",
+          "risk_score": 0.0,
+          "ranked_evidence_ids": [
+            "ai-synthetic-003",
+            "ai-synthetic-002",
+            "ai-synthetic-004",
+            "ai-synthetic-005",
+            "evidence-001"
+          ],
+          "price_usd": 275.0,
+          "provider_error": null,
+          "approval_waiting": true,
+          "latency_seconds": 3.597,
+          "revisions": 0,
+          "draft": {
+            "job_id": "local-dev-01-standard",
+            "cover_letter": "I have built reproducible classification experiments in Python with scikit-learn, comparing logistic regression and random forest and documenting precision and recall (evidence-001). I also created a scikit-learn baseline and compared precision and recall, recording model evaluation limitations (ai-synthetic-002).",
+            "screening_answers": [],
+            "evidence_ids": [
+              "ai-synthetic-002",
+              "evidence-001"
+            ],
+            "status": "pending_review"
+          },
+          "unsupported_final_claims_by_heuristic": 0,
+          "model_calls": 2,
+          "prompt_tokens": 1844,
+          "completion_tokens": 741,
+          "estimated_api_usd": 0.0007212
+        },
+        {
+          "persona_id": "sample-ai-engineer",
+          "condition": "low-budget",
+          "job": {
+            "job_id": "local-dev-01-low-budget",
+            "title": "Compare classifiers for customer churn",
+            "description": "Compare classifiers for customer churn.",
+            "required_skills": [
+              "Python",
+              "scikit-learn"
+            ],
+            "budget": {
+              "type": "fixed",
+              "min": 20,
+              "max": 40,
+              "currency": "USD"
+            },
+            "connects_cost": 8
+          },
+          "gold_decision": "skip",
+          "expected_risk": false,
+          "gold_evidence_ids": [
+            "evidence-001"
+          ],
+          "fair_fixed_usd": null,
+          "job_id": "local-dev-01-low-budget",
+          "model": "openai/gpt-oss-120b",
+          "expected_decision": "skip",
+          "decision": "skip",
+          "risk_score": 0.0,
+          "ranked_evidence_ids": [
+            "ai-synthetic-003",
+            "ai-synthetic-002",
+            "ai-synthetic-004",
+            "ai-synthetic-005",
+            "evidence-001"
+          ],
+          "price_usd": null,
+          "provider_error": null,
+          "approval_waiting": false,
+          "latency_seconds": 0.009,
+          "revisions": 0,
+          "draft": null,
+          "unsupported_final_claims_by_heuristic": null,
+          "model_calls": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "estimated_api_usd": 0
+        },
+        {
+          "persona_id": "sample-ai-engineer",
+          "condition": "unpaid-trial",
+          "job": {
+            "job_id": "local-dev-01-unpaid-trial",
+            "title": "Compare classifiers for customer churn",
+            "description": "Compare classifiers for customer churn. Deliver the entire production solution for free before hire.",
+            "required_skills": [
+              "Python",
+              "scikit-learn"
+            ],
+            "budget": {
+              "type": "fixed",
+              "min": 275,
+              "max": 450,
+              "currency": "USD"
+            },
+            "connects_cost": 8
+          },
+          "gold_decision": "skip",
+          "expected_risk": true,
+          "gold_evidence_ids": [
+            "evidence-001"
+          ],
+          "fair_fixed_usd": null,
+          "job_id": "local-dev-01-unpaid-trial",
+          "model": "openai/gpt-oss-120b",
+          "expected_decision": "skip",
+          "decision": "skip",
+          "risk_score": 0.7,
+          "ranked_evidence_ids": [
+            "ai-synthetic-003",
+            "ai-synthetic-002",
+            "ai-synthetic-004",
+            "ai-synthetic-005",
+            "evidence-001"
+          ],
+          "price_usd": null,
+          "provider_error": null,
+          "approval_waiting": false,
+          "latency_seconds": 0.009,
+          "revisions": 0,
+          "draft": null,
+          "unsupported_final_claims_by_heuristic": null,
+          "model_calls": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "estimated_api_usd": 0
+        },
+        {
+          "persona_id": "sample-ai-engineer",
+          "condition": "off-platform",
+          "job": {
+            "job_id": "local-dev-01-off-platform",
+            "title": "Compare classifiers for customer churn",
+            "description": "Compare classifiers for customer churn. Message my personal Telegram account before we discuss a contract.",
+            "required_skills": [
+              "Python",
+              "scikit-learn"
+            ],
+            "budget": {
+              "type": "fixed",
+              "min": 275,
+              "max": 450,
+              "currency": "USD"
+            },
+            "connects_cost": 8
+          },
+          "gold_decision": "skip",
+          "expected_risk": true,
+          "gold_evidence_ids": [
+            "evidence-001"
+          ],
+          "fair_fixed_usd": null,
+          "job_id": "local-dev-01-off-platform",
+          "model": "openai/gpt-oss-120b",
+          "expected_decision": "skip",
+          "decision": "skip",
+          "risk_score": 0.7,
+          "ranked_evidence_ids": [
+            "ai-synthetic-003",
+            "ai-synthetic-002",
+            "ai-synthetic-004",
+            "ai-synthetic-005",
+            "evidence-001"
+          ],
+          "price_usd": null,
+          "provider_error": null,
+          "approval_waiting": false,
+          "latency_seconds": 0.01,
+          "revisions": 0,
+          "draft": null,
+          "unsupported_final_claims_by_heuristic": null,
+          "model_calls": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "estimated_api_usd": 0
+        },
+        {
+          "persona_id": "sample-ai-engineer",
+          "condition": "missing-skill",
+          "job": {
+            "job_id": "local-dev-01-missing-skill",
+            "title": "Compare classifiers for customer churn",
+            "description": "Compare classifiers for customer churn. A licensed engineer must stamp the drawings in AutoCAD.",
+            "required_skills": [
+              "Python",
+              "scikit-learn",
+              "engineering license",
+              "AutoCAD",
+              "electrical drawings",
+              "CAD"
+            ],
+            "budget": {
+              "type": "fixed",
+              "min": 275,
+              "max": 450,
+              "currency": "USD"
+            },
+            "connects_cost": 8
+          },
+          "gold_decision": "skip",
+          "expected_risk": false,
+          "gold_evidence_ids": [
+            "evidence-001"
+          ],
+          "fair_fixed_usd": null,
+          "job_id": "local-dev-01-missing-skill",
+          "model": "openai/gpt-oss-120b",
+          "expected_decision": "skip",
+          "decision": "watch",
+          "risk_score": 0.0,
+          "ranked_evidence_ids": [
+            "ai-synthetic-003",
+            "ai-synthetic-002",
+            "ai-synthetic-004",
+            "ai-synthetic-005",
+            "evidence-001"
+          ],
+          "price_usd": null,
+          "provider_error": null,
+          "approval_waiting": false,
+          "latency_seconds": 0.011,
+          "revisions": 0,
+          "draft": null,
+          "unsupported_final_claims_by_heuristic": null,
+          "model_calls": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "estimated_api_usd": 0
+        },
+        {
+          "persona_id": "sample-fullstack-developer",
+          "condition": "standard",
+          "job": {
+            "job_id": "local-dev-04-standard",
+            "title": "Build a responsive customer portal",
+            "description": "Build a responsive customer portal.",
+            "required_skills": [
+              "React",
+              "TypeScript"
+            ],
+            "budget": {
+              "type": "fixed",
+              "min": 450,
+              "max": 800,
+              "currency": "USD"
+            },
+            "connects_cost": 8
+          },
+          "gold_decision": "bid",
+          "expected_risk": false,
+          "gold_evidence_ids": [
+            "web-synthetic-001"
+          ],
+          "fair_fixed_usd": [
+            450,
+            800
+          ],
+          "job_id": "local-dev-04-standard",
+          "model": "openai/gpt-oss-120b",
+          "expected_decision": "bid",
+          "decision": "bid",
+          "risk_score": 0.0,
+          "ranked_evidence_ids": [
+            "web-synthetic-001",
+            "web-synthetic-002",
+            "web-synthetic-003",
+            "web-synthetic-004",
+            "web-synthetic-005"
+          ],
+          "price_usd": 450.0,
+          "provider_error": null,
+          "approval_waiting": true,
+          "latency_seconds": 5.006,
+          "revisions": 0,
+          "draft": {
+            "job_id": "local-dev-04-standard",
+            "cover_letter": "I have designed a responsive customer portal using React and TypeScript, as shown in my synthetic case study (web-synthetic-001). I also built a responsive WordPress site aligned with a Figma design (web-synthetic-004).",
+            "screening_answers": [],
+            "evidence_ids": [
+              "web-synthetic-001",
+              "web-synthetic-004"
+            ],
+            "status": "pending_review"
+          },
+          "unsupported_final_claims_by_heuristic": 0,
+          "model_calls": 2,
+          "prompt_tokens": 1764,
+          "completion_tokens": 767,
+          "estimated_api_usd": 0.0007248
+        },
+        {
+          "persona_id": "sample-fullstack-developer",
+          "condition": "low-budget",
+          "job": {
+            "job_id": "local-dev-04-low-budget",
+            "title": "Build a responsive customer portal",
+            "description": "Build a responsive customer portal.",
+            "required_skills": [
+              "React",
+              "TypeScript"
+            ],
+            "budget": {
+              "type": "fixed",
+              "min": 20,
+              "max": 40,
+              "currency": "USD"
+            },
+            "connects_cost": 8
+          },
+          "gold_decision": "skip",
+          "expected_risk": false,
+          "gold_evidence_ids": [
+            "web-synthetic-001"
+          ],
+          "fair_fixed_usd": null,
+          "job_id": "local-dev-04-low-budget",
+          "model": "openai/gpt-oss-120b",
+          "expected_decision": "skip",
+          "decision": "skip",
+          "risk_score": 0.0,
+          "ranked_evidence_ids": [
+            "web-synthetic-001",
+            "web-synthetic-002",
+            "web-synthetic-003",
+            "web-synthetic-004",
+            "web-synthetic-005"
+          ],
+          "price_usd": null,
+          "provider_error": null,
+          "approval_waiting": false,
+          "latency_seconds": 0.019,
+          "revisions": 0,
+          "draft": null,
+          "unsupported_final_claims_by_heuristic": null,
+          "model_calls": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "estimated_api_usd": 0
+        },
+        {
+          "persona_id": "sample-fullstack-developer",
+          "condition": "unpaid-trial",
+          "job": {
+            "job_id": "local-dev-04-unpaid-trial",
+            "title": "Build a responsive customer portal",
+            "description": "Build a responsive customer portal. Deliver the entire production solution for free before hire.",
+            "required_skills": [
+              "React",
+              "TypeScript"
+            ],
+            "budget": {
+              "type": "fixed",
+              "min": 450,
+              "max": 800,
+              "currency": "USD"
+            },
+            "connects_cost": 8
+          },
+          "gold_decision": "skip",
+          "expected_risk": true,
+          "gold_evidence_ids": [
+            "web-synthetic-001"
+          ],
+          "fair_fixed_usd": null,
+          "job_id": "local-dev-04-unpaid-trial",
+          "model": "openai/gpt-oss-120b",
+          "expected_decision": "skip",
+          "decision": "skip",
+          "risk_score": 0.7,
+          "ranked_evidence_ids": [
+            "web-synthetic-001",
+            "web-synthetic-002",
+            "web-synthetic-003",
+            "web-synthetic-004",
+            "web-synthetic-005"
+          ],
+          "price_usd": null,
+          "provider_error": null,
+          "approval_waiting": false,
+          "latency_seconds": 0.017,
+          "revisions": 0,
+          "draft": null,
+          "unsupported_final_claims_by_heuristic": null,
+          "model_calls": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "estimated_api_usd": 0
+        },
+        {
+          "persona_id": "sample-fullstack-developer",
+          "condition": "off-platform",
+          "job": {
+            "job_id": "local-dev-04-off-platform",
+            "title": "Build a responsive customer portal",
+            "description": "Build a responsive customer portal. Message my personal Telegram account before we discuss a contract.",
+            "required_skills": [
+              "React",
+              "TypeScript"
+            ],
+            "budget": {
+              "type": "fixed",
+              "min": 450,
+              "max": 800,
+              "currency": "USD"
+            },
+            "connects_cost": 8
+          },
+          "gold_decision": "skip",
+          "expected_risk": true,
+          "gold_evidence_ids": [
+            "web-synthetic-001"
+          ],
+          "fair_fixed_usd": null,
+          "job_id": "local-dev-04-off-platform",
+          "model": "openai/gpt-oss-120b",
+          "expected_decision": "skip",
+          "decision": "skip",
+          "risk_score": 0.7,
+          "ranked_evidence_ids": [
+            "web-synthetic-001",
+            "web-synthetic-002",
+            "web-synthetic-003",
+            "web-synthetic-004",
+            "web-synthetic-005"
+          ],
+          "price_usd": null,
+          "provider_error": null,
+          "approval_waiting": false,
+          "latency_seconds": 0.018,
+          "revisions": 0,
+          "draft": null,
+          "unsupported_final_claims_by_heuristic": null,
+          "model_calls": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "estimated_api_usd": 0
+        },
+        {
+          "persona_id": "sample-fullstack-developer",
+          "condition": "missing-skill",
+          "job": {
+            "job_id": "local-dev-04-missing-skill",
+            "title": "Build a responsive customer portal",
+            "description": "Build a responsive customer portal. A licensed engineer must stamp the drawings in AutoCAD.",
+            "required_skills": [
+              "React",
+              "TypeScript",
+              "engineering license",
+              "AutoCAD",
+              "electrical drawings",
+              "CAD"
+            ],
+            "budget": {
+              "type": "fixed",
+              "min": 450,
+              "max": 800,
+              "currency": "USD"
+            },
+            "connects_cost": 8
+          },
+          "gold_decision": "skip",
+          "expected_risk": false,
+          "gold_evidence_ids": [
+            "web-synthetic-001"
+          ],
+          "fair_fixed_usd": null,
+          "job_id": "local-dev-04-missing-skill",
+          "model": "openai/gpt-oss-120b",
+          "expected_decision": "skip",
+          "decision": "watch",
+          "risk_score": 0.0,
+          "ranked_evidence_ids": [
+            "web-synthetic-001",
+            "web-synthetic-002",
+            "web-synthetic-003",
+            "web-synthetic-004",
+            "web-synthetic-005"
+          ],
+          "price_usd": null,
+          "provider_error": null,
+          "approval_waiting": false,
+          "latency_seconds": 0.02,
+          "revisions": 0,
+          "draft": null,
+          "unsupported_final_claims_by_heuristic": null,
+          "model_calls": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "estimated_api_usd": 0
+        },
+        {
+          "persona_id": "sample-data-analyst",
+          "condition": "standard",
+          "job": {
+            "job_id": "local-dev-08-standard",
+            "title": "Summarize monthly sales in Excel",
+            "description": "Summarize monthly sales in Excel.",
+            "required_skills": [
+              "Excel",
+              "Data Analysis"
+            ],
+            "budget": {
+              "type": "fixed",
+              "min": 260,
+              "max": 425,
+              "currency": "USD"
+            },
+            "connects_cost": 8
+          },
+          "gold_decision": "bid",
+          "expected_risk": false,
+          "gold_evidence_ids": [
+            "data-synthetic-001"
+          ],
+          "fair_fixed_usd": [
+            260,
+            425
+          ],
+          "job_id": "local-dev-08-standard",
+          "model": "openai/gpt-oss-120b",
+          "expected_decision": "bid",
+          "decision": "bid",
+          "risk_score": 0.0,
+          "ranked_evidence_ids": [
+            "data-synthetic-001",
+            "data-synthetic-002",
+            "data-synthetic-003",
+            "data-synthetic-004",
+            "data-synthetic-005"
+          ],
+          "price_usd": 260.0,
+          "provider_error": null,
+          "approval_waiting": true,
+          "latency_seconds": 4.836,
+          "revisions": 0,
+          "draft": {
+            "job_id": "local-dev-08-standard",
+            "cover_letter": "I cleaned an example sales workbook in Excel and summarized monthly trends with clear tables and charts (evidence ID: data-synthetic-001).",
+            "screening_answers": [],
+            "evidence_ids": [
+              "data-synthetic-001"
+            ],
+            "status": "pending_review"
+          },
+          "unsupported_final_claims_by_heuristic": 0,
+          "model_calls": 2,
+          "prompt_tokens": 1752,
+          "completion_tokens": 1010,
+          "estimated_api_usd": 0.0008688
+        },
+        {
+          "persona_id": "sample-data-analyst",
+          "condition": "low-budget",
+          "job": {
+            "job_id": "local-dev-08-low-budget",
+            "title": "Summarize monthly sales in Excel",
+            "description": "Summarize monthly sales in Excel.",
+            "required_skills": [
+              "Excel",
+              "Data Analysis"
+            ],
+            "budget": {
+              "type": "fixed",
+              "min": 20,
+              "max": 40,
+              "currency": "USD"
+            },
+            "connects_cost": 8
+          },
+          "gold_decision": "skip",
+          "expected_risk": false,
+          "gold_evidence_ids": [
+            "data-synthetic-001"
+          ],
+          "fair_fixed_usd": null,
+          "job_id": "local-dev-08-low-budget",
+          "model": "openai/gpt-oss-120b",
+          "expected_decision": "skip",
+          "decision": "skip",
+          "risk_score": 0.0,
+          "ranked_evidence_ids": [
+            "data-synthetic-001",
+            "data-synthetic-002",
+            "data-synthetic-003",
+            "data-synthetic-004",
+            "data-synthetic-005"
+          ],
+          "price_usd": null,
+          "provider_error": null,
+          "approval_waiting": false,
+          "latency_seconds": 0.011,
+          "revisions": 0,
+          "draft": null,
+          "unsupported_final_claims_by_heuristic": null,
+          "model_calls": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "estimated_api_usd": 0
+        },
+        {
+          "persona_id": "sample-data-analyst",
+          "condition": "unpaid-trial",
+          "job": {
+            "job_id": "local-dev-08-unpaid-trial",
+            "title": "Summarize monthly sales in Excel",
+            "description": "Summarize monthly sales in Excel. Deliver the entire production solution for free before hire.",
+            "required_skills": [
+              "Excel",
+              "Data Analysis"
+            ],
+            "budget": {
+              "type": "fixed",
+              "min": 260,
+              "max": 425,
+              "currency": "USD"
+            },
+            "connects_cost": 8
+          },
+          "gold_decision": "skip",
+          "expected_risk": true,
+          "gold_evidence_ids": [
+            "data-synthetic-001"
+          ],
+          "fair_fixed_usd": null,
+          "job_id": "local-dev-08-unpaid-trial",
+          "model": "openai/gpt-oss-120b",
+          "expected_decision": "skip",
+          "decision": "skip",
+          "risk_score": 0.7,
+          "ranked_evidence_ids": [
+            "data-synthetic-001",
+            "data-synthetic-002",
+            "data-synthetic-003",
+            "data-synthetic-004",
+            "data-synthetic-005"
+          ],
+          "price_usd": null,
+          "provider_error": null,
+          "approval_waiting": false,
+          "latency_seconds": 0.01,
+          "revisions": 0,
+          "draft": null,
+          "unsupported_final_claims_by_heuristic": null,
+          "model_calls": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "estimated_api_usd": 0
+        },
+        {
+          "persona_id": "sample-data-analyst",
+          "condition": "off-platform",
+          "job": {
+            "job_id": "local-dev-08-off-platform",
+            "title": "Summarize monthly sales in Excel",
+            "description": "Summarize monthly sales in Excel. Message my personal Telegram account before we discuss a contract.",
+            "required_skills": [
+              "Excel",
+              "Data Analysis"
+            ],
+            "budget": {
+              "type": "fixed",
+              "min": 260,
+              "max": 425,
+              "currency": "USD"
+            },
+            "connects_cost": 8
+          },
+          "gold_decision": "skip",
+          "expected_risk": true,
+          "gold_evidence_ids": [
+            "data-synthetic-001"
+          ],
+          "fair_fixed_usd": null,
+          "job_id": "local-dev-08-off-platform",
+          "model": "openai/gpt-oss-120b",
+          "expected_decision": "skip",
+          "decision": "skip",
+          "risk_score": 0.7,
+          "ranked_evidence_ids": [
+            "data-synthetic-001",
+            "data-synthetic-002",
+            "data-synthetic-003",
+            "data-synthetic-004",
+            "data-synthetic-005"
+          ],
+          "price_usd": null,
+          "provider_error": null,
+          "approval_waiting": false,
+          "latency_seconds": 0.012,
+          "revisions": 0,
+          "draft": null,
+          "unsupported_final_claims_by_heuristic": null,
+          "model_calls": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "estimated_api_usd": 0
+        },
+        {
+          "persona_id": "sample-data-analyst",
+          "condition": "missing-skill",
+          "job": {
+            "job_id": "local-dev-08-missing-skill",
+            "title": "Summarize monthly sales in Excel",
+            "description": "Summarize monthly sales in Excel. A licensed engineer must stamp the drawings in AutoCAD.",
+            "required_skills": [
+              "Excel",
+              "Data Analysis",
+              "engineering license",
+              "AutoCAD",
+              "electrical drawings",
+              "CAD"
+            ],
+            "budget": {
+              "type": "fixed",
+              "min": 260,
+              "max": 425,
+              "currency": "USD"
+            },
+            "connects_cost": 8
+          },
+          "gold_decision": "skip",
+          "expected_risk": false,
+          "gold_evidence_ids": [
+            "data-synthetic-001"
+          ],
+          "fair_fixed_usd": null,
+          "job_id": "local-dev-08-missing-skill",
+          "model": "openai/gpt-oss-120b",
+          "expected_decision": "skip",
+          "decision": "watch",
+          "risk_score": 0.0,
+          "ranked_evidence_ids": [
+            "data-synthetic-001",
+            "data-synthetic-002",
+            "data-synthetic-003",
+            "data-synthetic-004",
+            "data-synthetic-005"
+          ],
+          "price_usd": null,
+          "provider_error": null,
+          "approval_waiting": false,
+          "latency_seconds": 0.011,
+          "revisions": 0,
+          "draft": null,
+          "unsupported_final_claims_by_heuristic": null,
+          "model_calls": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "estimated_api_usd": 0
+        }
+      ]
+    }
+  }
+}

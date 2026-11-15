@@ -169,16 +169,35 @@ runner separately leaves reply/hire values null; it does not call the simulator.
 
 ## 5. R&D question C — orchestration
 
-**Question:** is the multi-agent graph worth it versus one ReAct agent or a prebuilt supervisor?
-**Experiment status:** the required comparison of a single ReAct agent, prebuilt supervisor, and
-hand-built graph is not run. The local simulator and a deterministic 50-eligible-job draft-style
-comparison now exist, but that is not an architecture comparison and its outcomes are synthetic.
+The three designs attempted the same 50 synthetic jobs using GPT-OSS 120B. The single ReAct agent
+had inspection, pricing, draft review and result tools. The prebuilt `langgraph-supervisor` routed
+between a triage agent and a drafting agent. The hand-built graph used deterministic triage and
+model-based Writer and Critic nodes. All returned drafts were evaluated with a shared heuristic
+claim checker and policy gate. Only passing drafts entered the local offline GigSim scorer.
+
+| Architecture | Completed / attempted | Correct / completed | Unsupported sentences / drafts | Violations caught | GigSim replies / scored | Tokens | Median seconds |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Single ReAct | 27 / 50 | 27 / 27 | 25 / 7 | 5 | — / 0 | 46,656 | 11.22 |
+| Prebuilt supervisor | 28 / 50 | 27 / 28 | 28 / 6 | 5 | — / 0 | 82,479 | 23.10 |
+| Hand-built graph | 43 / 50 | 43 / 43 | 0 / 3 | 0 | 2 / 3 | 8,896 | 0.008 |
+
+Groq rate limits accounted for incomplete runs. Tokens reflect the latest saved attempt per job;
+median latency covers completed jobs and includes any retry wait. The 23 jobs all three designs
+completed were all decided correctly by all three. On those jobs, the two agent-driven designs
+returned 13 and 14 sentences that the heuristic verifier could not support, respectively, across
+three drafts each. The hand-built graph returned zero across its three drafts. The shared gate
+withheld all comparable ReAct and supervisor drafts, leaving their reply rates undefined. The
+hand-built graph had fewer model calls on skip cases. Its simulator outcome sample is small.
+I retain the hand-built graph for its explicit policy, claim verification and approval steps.
+See [per-job results](../evals/results/architectures.json) and the
+[evaluation procedure](MODELS.md#architecture-evaluation).
 
 The hand-written graph's functional behavior was tested: its analysis branches run in parallel, a
 safe sample reaches the proposal approval interrupt, a risk signal exits before approval, and a
 checkpoint resumes after the API test client is restarted. The Python suite includes these
-integration paths. The implementation is justified here for policy boundaries and explicit state,
-not by evidence that it produces better client outcomes than a single agent.
+integration paths. The [four trace examples](GRAPH_TRACES.md) capture a scam skip, an approved
+proposal, a forced Critic revision and a crash-and-resume. The [compiled graph diagrams](GRAPHS.md)
+include the bid and conversation workflows. The runner also saves the ReAct and supervisor diagrams.
 
 ## 6. Change request, memory, and signature extension
 
@@ -205,6 +224,28 @@ simulator rule, not real client negotiations or GigSim. The complete result and 
 [`docs/EXTENSION.md`](./EXTENSION.md).
 
 ## 7. Failures, safety, and operations
+
+### Ten observed dev-job failures
+
+These cases come from the authored dev benchmark. The architecture run records the generated
+drafts and the shared gate's decisions. Provider throttling rows describe observed attempts.
+
+| Dev case | Failure category and observation | Mitigation tried and observed result |
+|---|---|---|
+| 01 · churn | Generic opening and broken evidence IDs in the ReAct draft | The shared gate found no supported evidence links and withheld simulated submission. |
+| 02 · threshold review | Supervisor skipped a job labeled bid | The hand-built workflow's explicit fit and budget rules selected bid. |
+| 03 · tabular cleaning | ReAct and supervisor each returned three sentences the heuristic could not verify | The shared gate withheld both drafts from simulator scoring. |
+| 04 · React portal | ReAct introduced guarantee language | The shared compliance check caught the policy term and withheld the draft. |
+| 05 · Node.js API | ReAct cited identifiers absent from the portfolio and overstated an AWS deployment outline | The shared claim check withheld the draft. |
+| 06 · Shopify | Groq HTTP 429 interrupted all three model paths on a pass | The runner retained the failures and supports targeted retries from its saved results. |
+| 07 · cloud packaging | Groq HTTP 429 interrupted model completion on a pass | Long retry windows were recorded so the run could pause without discarding other jobs. |
+| 08 · Excel trends | ReAct claimed the prior analysis yielded actionable insights beyond the supplied summary | ReAct had no supported evidence links under the shared checker and its draft was withheld. |
+| 09 · Power BI | ReAct used citation identifiers absent from the portfolio | The shared gate withheld the draft after failing to verify its evidence links. |
+| 10 · SQL reconciliation | Groq HTTP 429 interrupted all three model paths on a pass | The runner saved the job's failed attempts for later retry. |
+
+The guard's blocks prevent unverified proposals from entering the offline simulator. They do
+not establish that every blocked sentence was semantically wrong. Future work should score
+past-work claims independently of proposed future steps.
 
 Observed engineering failures and corrections:
 

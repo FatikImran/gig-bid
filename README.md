@@ -56,6 +56,25 @@ See [Architecture](docs/ARCHITECTURE.md), [MCP tools](docs/TOOLS.md), and
 
 ## Evaluation results
 
+The 50-case [local dev set](evals/datasets/local_dev.json) uses ten authored briefs across three
+synthetic personas. Each persona has five portfolio records, which leaves limited room for
+Recall@5 to distinguish retrieval variants.
+
+| Retrieval variant | Recall@5 | MRR | nDCG@10 |
+|---|---:|---:|---:|
+| V0 token-vector cosine | 1.000 | 0.857 | 0.893 |
+| V1 requirement decomposition | 1.000 | 0.760 | 0.821 |
+| V2 hybrid RRF | 1.000 | 0.903 | 0.928 |
+| V3 lexical reranking | 1.000 | 0.867 | 0.901 |
+| V4 outcome-aware | 1.000 | 0.903 | 0.928 |
+| V8 corrective retrieval | 1.000 | 0.903 | 0.928 |
+
+See [retrieval results](evals/results/local_dev_retrieval.json),
+[judge calibration](evals/results/judge_calibration.json), and the
+[blind classmate panel](evals/results/blind_proposal_panel_summary.json).
+
+### Starter smoke benchmark
+
 Generated locally by `python -m evals.runners.run_demo_eval`; source metrics:
 [`evals/results/demo_eval.json`](evals/results/demo_eval.json). The dataset is two bundled synthetic
 jobs and one evidence item, not the instructor dev/hidden set. This tiny set is a smoke test only.
@@ -104,15 +123,19 @@ acceptance estimate; see [`evals/results/negotiation_eval.json`](evals/results/n
 
 ### Agent architecture comparison
 
-| Architecture | Result |
-|---|---|
-| Hand-written LangGraph | Runs parallel analysis and persists/resumes the approval interrupt; tested on sample cases |
-| Single ReAct agent | Not implemented or compared |
-| Prebuilt supervisor | Not implemented or compared |
+| Architecture | Completed / attempted | Correct / completed | Unsupported sentences / drafts | Median seconds |
+|---|---:|---:|---:|---:|
+| Single ReAct | 27 / 50 | 27 / 27 | 25 / 7 | 11.22 |
+| Prebuilt supervisor | 28 / 50 | 27 / 28 | 28 / 6 | 23.10 |
+| Hand-built graph | 43 / 50 | 43 / 43 | 0 / 3 | 0.008 |
+
+Groq rate limits reduced coverage. The 23 jobs completed by all three designs were all decided
+correctly. See [per-job results](evals/results/architectures.json) for the matched comparison,
+token counts, policy blocks, and offline simulator outcomes.
 
 The [three-minute demo](https://drive.google.com/file/d/1Uwdc9raaWPYdzyiXXXCgdgrCeBzIgED1/view?usp=sharing)
 shows the proposal and reply approvals, scam, and injection examples in the local simulator.
-See the report for the outstanding architecture comparison and hosted instrumentation.
+See the report for experiment limitations and outstanding hosted instrumentation.
 
 ## Run locally
 
@@ -136,7 +159,7 @@ locally downloaded Kaggle postings and run the local simulator, see
 
 ## Assignment deliverables
 
-- [R&D report](docs/RND_REPORT.md).
+- [R&D report PDF](docs/RND_REPORT.pdf) and [editable report](docs/RND_REPORT.md).
 - [Three-minute demo video](https://drive.google.com/file/d/1Uwdc9raaWPYdzyiXXXCgdgrCeBzIgED1/view?usp=sharing) and
   [technical write-up draft](docs/TECHNICAL_WRITEUP_DRAFT.md).
 - [Diagrams generated from code](docs/GRAPHS.md) and synthetic graph traces for [skipped scam](docs/GRAPH_TRACES.md#skipped-scam),
@@ -148,6 +171,11 @@ locally downloaded Kaggle postings and run the local simulator, see
 ## Repository
 
 Public source: [github.com/FatikImran/gig-bid](https://github.com/FatikImran/gig-bid).
+
+## Résumé bullet
+
+- Built and deployed GigBid, a LangGraph proposal copilot with evidence retrieval and human approval.  
+  Evaluated six retrieval variants on 50 synthetic cases and calibrated a claim judge on 30 labels (Cohen’s κ = 1.00).
 
 ## Known gaps
 

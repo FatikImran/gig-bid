@@ -1,0 +1,32 @@
+{
+  "reviewers": 3,
+  "pairs": 6,
+  "ratings": 18,
+  "totals": {
+    "openai/gpt-oss-20b": 8,
+    "tie": 8,
+    "openai/gpt-oss-120b": 2
+  },
+  "by_pair": {
+    "P01": {
+      "openai/gpt-oss-20b": 3
+    },
+    "P02": {
+      "openai/gpt-oss-20b": 2,
+      "tie": 1
+    },
+    "P03": {
+      "tie": 3
+    },
+    "P04": {
+      "openai/gpt-oss-20b": 3
+    },
+    "P05": {
+      "openai/gpt-oss-120b": 2,
+      "tie": 1
+    },
+    "P06": {
+      "tie": 3
+    }
+  }
+}

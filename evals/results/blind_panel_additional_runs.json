@@ -1,0 +1,135 @@
+[
+  {
+    "job_id": "local-dev-03-standard",
+    "model": "openai/gpt-oss-20b",
+    "expected_decision": "bid",
+    "decision": "bid",
+    "risk_score": 0.0,
+    "ranked_evidence_ids": [
+      "ai-synthetic-003",
+      "ai-synthetic-002",
+      "ai-synthetic-004",
+      "ai-synthetic-005",
+      "evidence-001"
+    ],
+    "price_usd": 210.0,
+    "provider_error": null,
+    "approval_waiting": true,
+    "latency_seconds": 3.701,
+    "revisions": 0,
+    "draft": {
+      "job_id": "local-dev-03-standard",
+      "cover_letter": "I used Python and pandas to check missing values and clean tabular features, documenting a reproducible data preparation workflow (ai-synthetic-003).",
+      "screening_answers": [],
+      "evidence_ids": [
+        "ai-synthetic-003"
+      ],
+      "status": "pending_review"
+    },
+    "unsupported_final_claims_by_heuristic": 0,
+    "model_calls": 2,
+    "prompt_tokens": 1817,
+    "completion_tokens": 961,
+    "estimated_api_usd": 0.000424575
+  },
+  {
+    "job_id": "local-dev-04-standard",
+    "model": "openai/gpt-oss-20b",
+    "expected_decision": "bid",
+    "decision": "bid",
+    "risk_score": 0.0,
+    "ranked_evidence_ids": [
+      "web-synthetic-001",
+      "web-synthetic-002",
+      "web-synthetic-003",
+      "web-synthetic-004",
+      "web-synthetic-005"
+    ],
+    "price_usd": 450.0,
+    "provider_error": null,
+    "approval_waiting": true,
+    "latency_seconds": 3.711,
+    "revisions": 0,
+    "draft": {
+      "job_id": "local-dev-04-standard",
+      "cover_letter": "I designed a responsive customer portal with React, TypeScript, and reusable JavaScript components, as demonstrated in web-synthetic-001.",
+      "screening_answers": [],
+      "evidence_ids": [
+        "web-synthetic-001"
+      ],
+      "status": "pending_review"
+    },
+    "unsupported_final_claims_by_heuristic": 0,
+    "model_calls": 2,
+    "prompt_tokens": 1742,
+    "completion_tokens": 812,
+    "estimated_api_usd": 0.00037425
+  },
+  {
+    "job_id": "local-dev-05-standard",
+    "model": "openai/gpt-oss-120b",
+    "expected_decision": "bid",
+    "decision": "bid",
+    "risk_score": 0.0,
+    "ranked_evidence_ids": [
+      "web-synthetic-002",
+      "web-synthetic-005",
+      "web-synthetic-001",
+      "web-synthetic-003",
+      "web-synthetic-004"
+    ],
+    "price_usd": 500.0,
+    "provider_error": null,
+    "approval_waiting": true,
+    "latency_seconds": 3.271,
+    "revisions": 0,
+    "draft": {
+      "job_id": "local-dev-05-standard",
+      "cover_letter": "I have implemented a Node.js API with SQL persistence and documented request validation and error handling (web-synthetic-002). I also packaged a Node.js service with Docker and outlined its deployment to AWS (web-synthetic-005).",
+      "screening_answers": [],
+      "evidence_ids": [
+        "web-synthetic-002",
+        "web-synthetic-005"
+      ],
+      "status": "pending_review"
+    },
+    "unsupported_final_claims_by_heuristic": 0,
+    "model_calls": 2,
+    "prompt_tokens": 1769,
+    "completion_tokens": 718,
+    "estimated_api_usd": 0.00069615
+  },
+  {
+    "job_id": "local-dev-08-standard",
+    "model": "openai/gpt-oss-20b",
+    "expected_decision": "bid",
+    "decision": "bid",
+    "risk_score": 0.0,
+    "ranked_evidence_ids": [
+      "data-synthetic-001",
+      "data-synthetic-002",
+      "data-synthetic-003",
+      "data-synthetic-004",
+      "data-synthetic-005"
+    ],
+    "price_usd": 260.0,
+    "provider_error": null,
+    "approval_waiting": true,
+    "latency_seconds": 3.193,
+    "revisions": 0,
+    "draft": {
+      "job_id": "local-dev-08-standard",
+      "cover_letter": "I cleaned an example sales workbook in Excel and summarized monthly trends with clear tables and charts (data-synthetic-001).",
+      "screening_answers": [],
+      "evidence_ids": [
+        "data-synthetic-001"
+      ],
+      "status": "pending_review"
+    },
+    "unsupported_final_claims_by_heuristic": 0,
+    "model_calls": 2,
+    "prompt_tokens": 1748,
+    "completion_tokens": 769,
+    "estimated_api_usd": 0.0003618
+  }
+]
