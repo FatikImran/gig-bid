@@ -1,5 +1,7 @@
 # Three-minute GigBid demo script
 
+[Published demo](https://drive.google.com/file/d/1Uwdc9raaWPYdzyiXXXCgdgrCeBzIgED1/view?usp=sharing)
+
 This script is for a screen recording of the local prototype. The personas, job examples, simulator,
 Connects, and outcomes are synthetic. Do not imply that proposals are sent to Upwork or that the
 local simulator is the instructor's GigSim.
@@ -23,7 +25,7 @@ local simulator is the instructor's GigSim.
 | 1:25–1:55 | Open the synthetic instruction-injection listing and show its blocked/skip outcome. | “The listing text is untrusted input. Its request to reveal hidden instructions is treated as a risk signal, not followed.” |
 | 1:55–2:30 | In Messages, enter a sample client offer below the persona floor; show the counter recommendation and approve the reviewed reply. | “Messages are manually entered in this prototype, not loaded from a client inbox. The negotiation coach applies this synthetic persona's floor and still requires review before the local simulator action.” |
 | 2:30–2:50 | Show the X5 result file and the synthetic evaluation summary. | “Across 40 authored offers, walk-away precision and recall were 1.00 on five floor conflicts, and there were no below-floor counters. These deterministic synthetic results are not client behavior.” |
-| 2:50–3:00 | Close on the README and remaining limitations. | “The instructor datasets, hosted model, public deployment, and external traces were unavailable. The report separates measured local behavior from those uncompleted requirements.” |
+| 2:50–3:00 | Close on local simulator outcomes. | “These figures describe the simulated workflow. GigBid verified live job browsing through Upwork separately.” |
 
 Keep the browser window at a readable scale, avoid exposing local file paths or tokens, and include the
 README and report links in the video description after public publication.

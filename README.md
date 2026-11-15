@@ -110,9 +110,9 @@ acceptance estimate; see [`evals/results/negotiation_eval.json`](evals/results/n
 | Single ReAct agent | Not implemented or compared |
 | Prebuilt supervisor | Not implemented or compared |
 
-This is not a measured quality comparison. The deployed URL is live, but three public traces, a
-three-minute demo video, and the external technical article are still pending. See the report and
-deployment guide for the limitations.
+The [three-minute demo](https://drive.google.com/file/d/1Uwdc9raaWPYdzyiXXXCgdgrCeBzIgED1/view?usp=sharing)
+shows the proposal and reply approvals, scam, and injection examples in the local simulator.
+See the report for the outstanding architecture comparison and hosted instrumentation.
 
 ## Run locally
 
@@ -137,8 +137,11 @@ locally downloaded Kaggle postings and run the local simulator, see
 ## Assignment deliverables
 
 - [R&D report](docs/RND_REPORT.md).
-- [Technical write-up draft](docs/TECHNICAL_WRITEUP_DRAFT.md) and
-  [three-minute recording script](docs/DEMO_SCRIPT.md); both still need owner review/publication.
+- [Three-minute demo video](https://drive.google.com/file/d/1Uwdc9raaWPYdzyiXXXCgdgrCeBzIgED1/view?usp=sharing) and
+  [technical write-up draft](docs/TECHNICAL_WRITEUP_DRAFT.md).
+- [Diagrams generated from code](docs/GRAPHS.md) and synthetic graph traces for [skipped scam](docs/GRAPH_TRACES.md#skipped-scam),
+  [approved proposal](docs/GRAPH_TRACES.md#approved-proposal), [Critic loop](docs/GRAPH_TRACES.md#critic-loop), and
+  [crash and resume](docs/GRAPH_TRACES.md#crash-and-resume).
 - [Portfolio MCP run/install guide](mcp_servers/portfolio/README.md) documents installation from
   this public GitHub repository with `uvx`; there is no PyPI release.
 
@@ -152,8 +155,8 @@ See [Implementation Checklist](docs/IMPLEMENTATION_CHECKLIST.md). In particular,
 simulator uses deterministic synthetic client preferences/outcomes, not the instructor's hidden
 simulator; the Kaggle-derived seed is local and ignored by Git. The deployed app currently has no
 simulator service configured, so its approval preview does not send externally. Neural dense
-retrieval, live proposal previews, GitHub MCP, production multi-user identity, hosted tracing, three
-public traces, the three-minute demo video, and external publication of the technical write-up
+retrieval, live proposal preview verification, GitHub MCP, production multi-user identity, hosted tracing,
+and external publication of the technical write-up
 remain incomplete. The Messages screen accepts manually entered messages rather than loading an
 inbox; Agent runs shows minimal audit events rather than streamed traces; Portfolio has no
 upload/GitHub ingestion; and Settings does not enforce a weekly Connects budget.

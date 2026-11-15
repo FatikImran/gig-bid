@@ -14,17 +14,22 @@ async def test_eligible_search_only_falls_back_on_upstream_error(monkeypatch, ca
         search_jobs = AsyncMock(
             side_effect=[UpworkMarketplaceError("Example error", code=code), []]
         )
+        personalized_jobs = AsyncMock(return_value=[])
 
     monkeypatch.setattr(live_proposal, "configured_upwork_marketplace", Marketplace)
     if code == "UPSTREAM":
         await live_proposal.find_eligible_jobs("n8n workflows")
         assert Marketplace.search_jobs.await_count == 2
         Marketplace.search_jobs.assert_awaited_with()
-        assert "Checking recent listings instead" in capsys.readouterr().out
+        Marketplace.personalized_jobs.assert_awaited_once()
+        output = capsys.readouterr().out
+        assert "Trying Upwork's Best Match feed" in output
+        assert "Trying Upwork's recent listings" in output
     else:
         with pytest.raises(UpworkMarketplaceError, match="Example error"):
             await live_proposal.find_eligible_jobs("n8n workflows")
         Marketplace.search_jobs.assert_awaited_once_with("n8n workflows")
+        Marketplace.personalized_jobs.assert_not_awaited()
 
 
 @pytest.mark.asyncio

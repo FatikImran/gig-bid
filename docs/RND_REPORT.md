@@ -64,11 +64,19 @@ Marketplace reads use the configured port; write-intent calls only preview and r
 requests. The account owner verified OAuth, tool discovery, job search and job detail locally
 against the official Upwork MCP server using `python -m agent.upwork_marketplace`. The live OAuth
 check used the CLI. The local Playwright smoke test also passed against the live adapter and
-verified that the browser loaded the inbox and opened a listing. The local web workflow can request
+verified that the browser loaded the inbox and opened a listing. The [three-minute demo](https://drive.google.com/file/d/1Uwdc9raaWPYdzyiXXXCgdgrCeBzIgED1/view?usp=sharing)
+shows the simulator workflow. The local web workflow can request
 an Upwork proposal preview after approval and hand off an approved message draft to the account
 owner. The live invitation and prior-proposal checks passed. Upwork rejected the authenticated
-preview attempt after reporting that the account could not apply to that listing. A successful
-live preview and a separate GitHub MCP integration remain open.
+preview attempt after reporting that the account could not apply to that listing. A separate
+read-only eligibility check found that the reported Connects balance was below the listed cost of
+each candidate it checked. A successful live preview and a separate GitHub MCP integration remain
+open.
+
+The [code-generated diagrams](GRAPHS.md) and [synthetic graph traces](GRAPH_TRACES.md) can be
+regenerated with `python -m evals.runners.capture_graph_evidence`. The recovery trace reopens a
+persisted approval checkpoint after an abrupt subprocess exit. These traces record graph updates
+and approval states. Hosted end-to-end spans and token/cost telemetry remain open.
 
 The React UI supplies Pipeline, Messages, Agent runs, Analytics, Portfolio, and Settings sections,
 along with job/risk/evidence review, proposal editing, approval/rejection, and Connects preview.

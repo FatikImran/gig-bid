@@ -16,7 +16,11 @@ from langgraph.types import Command
 from pydantic import BaseModel, Field, TypeAdapter, ValidationError
 
 from agent.graphs.bid_graph import build_bid_graph
-from agent.upwork_marketplace import UpworkMarketplaceError, configured_upwork_marketplace
+from agent.upwork_marketplace import (
+    UpworkMarketplaceError,
+    UpworkMCPAdapter,
+    configured_upwork_marketplace,
+)
 
 PORTFOLIO_PATH = (
     Path(__file__).resolve().parents[1] / "data" / "processed" / "upwork-portfolio.json"
@@ -95,13 +99,30 @@ def preview_summary(response: dict[str, Any]) -> dict[str, Any]:
 
 async def find_eligible_jobs(query: str) -> None:
     marketplace = configured_upwork_marketplace()
+    if query:
+        try:
+            jobs = await marketplace.search_jobs(query)
+        except UpworkMarketplaceError as exc:
+            if exc.code != "UPSTREAM":
+                raise
+            print("Keyword search failed. Trying Upwork's Best Match feed.", flush=True)
+        else:
+            await _check_eligible_jobs(marketplace, jobs)
+            return
+
     try:
-        jobs = await marketplace.search_jobs(query)
+        jobs = await marketplace.personalized_jobs()
     except UpworkMarketplaceError as exc:
-        if not query or exc.code != "UPSTREAM":
+        if exc.code != "UPSTREAM":
             raise
-        print("Upwork's keyword search failed. Checking recent listings instead.")
+        jobs = []
+    if not jobs:
+        print("Best Match did not return listings. Trying Upwork's recent listings.", flush=True)
         jobs = await marketplace.search_jobs()
+    await _check_eligible_jobs(marketplace, jobs)
+
+
+async def _check_eligible_jobs(marketplace: UpworkMCPAdapter, jobs: list[dict[str, Any]]) -> None:
     checked = 0
     unaffordable = 0
     for result in jobs[:3]:

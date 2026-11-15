@@ -185,6 +185,13 @@ def _application_page(data: Any, action: str) -> tuple[list[dict[str, Any]], str
     return rows, cursor
 
 
+def _search_results(data: Any) -> list[dict[str, Any]]:
+    rows = data.get("jobs", data.get("results")) if isinstance(data, dict) else data
+    if not isinstance(rows, list) or any(not isinstance(row, dict) for row in rows):
+        raise UpworkMarketplaceError("Upwork returned an unexpected job-search response.")
+    return [_job(row) for row in rows]
+
+
 class UpworkMCPAdapter:
     def __init__(self, client: MultiServerMCPClient, org_uid: str | None = None):
         self.client = client
@@ -276,10 +283,13 @@ class UpworkMCPAdapter:
         if query:
             params["query"] = query
         data = await self._operation("find_jobs", "search", params)
-        rows = data.get("jobs") if isinstance(data, dict) else data
-        if not isinstance(rows, list) or any(not isinstance(row, dict) for row in rows):
-            raise UpworkMarketplaceError("Upwork returned an unexpected job-search response.")
-        return [_job(row) for row in rows]
+        return _search_results(data)
+
+    async def personalized_jobs(self) -> list[dict[str, Any]]:
+        data = await self._operation(
+            "find_jobs", "smart_search", {"mode": "best_match", "limit": 5}
+        )
+        return _search_results(data)
 
     async def get_job(self, job_id: str) -> dict[str, Any]:
         data = await self._operation("find_jobs", "get", {"id": job_id})

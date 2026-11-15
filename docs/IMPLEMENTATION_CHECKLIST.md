@@ -32,7 +32,7 @@
 - [x] Terminal proposal previews use local owner portfolio evidence and a LangGraph approval gate. Approval and duplicate-check behavior are covered by local tests.
 - [x] The read-only Upwork preflight completed the invitation and prior-proposal checks on a live listing.
 - [x] Web proposal preview approval and local draft-only message handoff are implemented and tested locally.
-- [ ] Verify a successful preview with the live account. The first authenticated preview request was rejected after Upwork flagged the listing as ineligible for the account.
+- [ ] Verify a successful preview with the live account. Upwork rejected the first preview request. A separate read-only check found that the reported Connects balance was below the listed cost of every candidate it checked.
 - [ ] Third-party GitHub MCP server configuration and least-privilege token.
 - [ ] Multi-user authentication and encrypted tenant OAuth storage.
 - [ ] Postgres/Redis production deployment, distributed worker queue, and hosted service.
@@ -44,7 +44,9 @@
 - [x] UI sections for pipeline, messages, audit/run history, local analytics, synthetic portfolio selection, and workspace settings.
 - [x] CI evaluation gate runs local smoke, simulator safety, synthetic failure-mode, and negotiation suites.
 - [x] Deployed public web app and API; health, CORS, and the safe-job/risk UI flows were smoke-tested.
-- [ ] Submit reviewer credentials privately; record and publish the three-minute demo; verify the public `uvx` Portfolio MCP install; publish the technical write-up.
+- [x] Record the simulator walkthrough and add the [three-minute demo link](https://drive.google.com/file/d/1Uwdc9raaWPYdzyiXXXCgdgrCeBzIgED1/view?usp=sharing).
+- [x] Render both graphs from code and capture [four synthetic graph traces](GRAPH_TRACES.md).
+- [ ] Verify signed-out access to the demo link, submit reviewer credentials privately, confirm the public Portfolio MCP install link, and publish the technical write-up.
 
 Local test results and environment limitations are documented in
 [RND_REPORT.md](./RND_REPORT.md), `evals/results/demo_eval.json`,
